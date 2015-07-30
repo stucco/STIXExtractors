@@ -1,4 +1,4 @@
-package HTMLExtractor;
+package STIXExtractor;
 
 import java.io.File;
 import java.io.IOException;
