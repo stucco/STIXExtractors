@@ -9,7 +9,7 @@
 		- source 
 */
 
-package HTMLExtractor;
+package STIXExtractor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,32 +32,6 @@ import org.jsoup.select.Elements;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.mitre.stix.exploittarget_1.VulnerabilityType;
-import org.mitre.stix.exploittarget_1.CVSSVectorType;
-import org.mitre.stix.common_1.ReferencesType;
-import org.mitre.stix.common_1.StructuredTextType;
-import org.mitre.stix.extensions.vulnerability.CVRF11InstanceType;
-import org.mitre.stix.exploittarget_1.AffectedSoftwareType;
-import org.mitre.stix.common_1.DateTimeWithPrecisionType;
-import org.mitre.cybox.objects.Product;
-import org.mitre.cybox.common_2.StringObjectPropertyType;
-import org.mitre.cybox.common_2.ObjectPropertiesType;
-import org.mitre.stix.common_1.RelatedObservableType;
-import org.mitre.cybox.cybox_2.Observable;
-import org.mitre.cybox.cybox_2.ObjectType;
-import org.mitre.stix.common_1.ReferencesType;
-import org.mitre.stix.common_1.InformationSourceType;
-import org.mitre.stix.common_1.ExploitTargetsType;
-import org.mitre.stix.common_1.ExploitTargetBaseType;
-import org.mitre.stix.exploittarget_1.ExploitTarget;
-import org.mitre.stix.exploittarget_1.PotentialCOAsType;
-import org.mitre.stix.common_1.RelatedCourseOfActionType;
-import org.mitre.stix.common_1.CourseOfActionBaseType;
-import org.mitre.stix.courseofaction_1.CourseOfAction;
-import org.mitre.cybox.common_2.TimeType;
-import org.mitre.stix.stix_1.STIXHeaderType;
-import org.mitre.stix.stix_1.STIXPackage;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.datatype.DatatypeFactory;
