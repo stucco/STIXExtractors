@@ -1,4 +1,6 @@
-package HTMLExtractor;
+package STIXExtractor;
+
+import javax.xml.namespace.QName;
 
 import java.util.Iterator;
 import java.io.File;
@@ -23,14 +25,24 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.*;
 
-import org.mitre.stix.stix_1.STIXPackage;
-
 import org.json.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
+
+import org.mitre.stix.stix_1.STIXPackage;
+import org.mitre.stix.common_1.ControlledVocabularyStringType;
+import org.mitre.cybox.common_2.AnyURIObjectPropertyType;
+import org.mitre.cybox.common_2.MeasureSourceType;	
+import org.mitre.cybox.common_2. StringObjectPropertyType;
+import org.mitre.cybox.common_2.HashType;
+import org.mitre.cybox.common_2.SimpleHashValueType;
+import org.mitre.cybox.cybox_2.RelatedObjectType;
+import org.mitre.cybox.objects.URIObjectType;
+import org.mitre.cybox.objects.Address;
+import org.mitre.cybox.objects.CategoryTypeEnum;
 
 public abstract class HTMLExtractor {
 
@@ -463,5 +475,44 @@ public abstract class HTMLExtractor {
 		
 		else	return object1.toString().equals(object2.toString());
 	}
+
+     	public URIObjectType getURIObjectType (String uri)	{
 	
+     		return new URIObjectType()
+        		.withValue(new AnyURIObjectPropertyType()
+                		.withValue(uri));
+	}
+
+	public MeasureSourceType getMeasureSourceType (String source)	{
+	
+		return new MeasureSourceType()
+                	.withInformationSourceType(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
+	                     	.withValue(source));
+	}
+
+	public Address getAddress (String address, CategoryTypeEnum category)	{
+	
+		return new Address()
+			.withAddressValue(new StringObjectPropertyType()
+				.withValue(address))
+			.withCategory(category);
+	}
+
+	public HashType getHashType (String hash, String type)	{
+
+	return new HashType()	
+		.withType(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
+			.withValue(type))
+		.withSimpleHashValue(new SimpleHashValueType()
+			.withValue(hash));
+	}
+
+	public RelatedObjectType setRelatedObjectType (QName idref, String relationship)	{
+
+   		return new RelatedObjectType()
+                   		.withIdref(idref)
+                     		.withRelationship(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
+                           	.withValue(relationship));
+	}
 }
+
