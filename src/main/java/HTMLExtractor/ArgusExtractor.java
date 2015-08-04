@@ -197,9 +197,6 @@ public class ArgusExtractor extends HTMLExtractor	{
 			stixPackage
 				.withObservables(observables);
 
-			System.out.println(stixPackage.toXMLString(true));
-			validate(stixPackage);
-
 		} catch (DatatypeConfigurationException e)	{
 			e.printStackTrace();
 		} catch (IOException e)	{
