@@ -2,6 +2,7 @@ package STIXExtractor;
 
 import javax.xml.namespace.QName;
 
+import java.util.UUID;
 import java.util.Iterator;
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +44,15 @@ import org.mitre.cybox.cybox_2.RelatedObjectType;
 import org.mitre.cybox.objects.URIObjectType;
 import org.mitre.cybox.objects.Address;
 import org.mitre.cybox.objects.CategoryTypeEnum;
+import org.mitre.cybox.objects.NetworkFlowObject;
+import org.mitre.cybox.objects.NetworkFlowLabelType;
+import org.mitre.cybox.objects.IANAAssignedIPNumbersType;
+import org.mitre.cybox.objects.IANAAssignedIPNumbersTypeEnum;
+import org.mitre.cybox.cybox_2.Observable;
+import org.mitre.cybox.cybox_2.ObjectType;
+import org.mitre.cybox.common_2.PositiveIntegerObjectPropertyType;
+import org.mitre.cybox.objects.Port;
+import org.mitre.cybox.objects.SocketAddress;
 
 public abstract class HTMLExtractor {
 
@@ -490,21 +500,13 @@ public abstract class HTMLExtractor {
 	                     	.withValue(source));
 	}
 
-	public Address getAddress (String address, CategoryTypeEnum category)	{
-	
-		return new Address()
-			.withAddressValue(new StringObjectPropertyType()
-				.withValue(address))
-			.withCategory(category);
-	}
-
 	public HashType getHashType (String hash, String type)	{
 
-	return new HashType()	
-		.withType(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
-			.withValue(type))
-		.withSimpleHashValue(new SimpleHashValueType()
-			.withValue(hash));
+		return new HashType()	
+			.withType(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
+				.withValue(type))
+			.withSimpleHashValue(new SimpleHashValueType()
+				.withValue(hash));
 	}
 
 	public RelatedObjectType setRelatedObjectType (QName idref, String relationship)	{
@@ -513,6 +515,87 @@ public abstract class HTMLExtractor {
                    		.withIdref(idref)
                      		.withRelationship(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
                            	.withValue(relationship));
+	}
+
+	public Observable getAddressObservable (String source, String ip, QName ipId, String port, QName portId)	{
+
+		QName addressId = new QName("gov.ornl.stucco", "address-" + UUID.randomUUID().toString(), "stucco");	
+		String address  = ip  + ":" + port;
+															
+		return new Observable()
+				.withId(addressId)
+				.withTitle("Address")
+				.withObservableSources(getMeasureSourceType(source))
+				.withObject(new ObjectType()
+					.withId(new QName("gov.ornl.stucco", "address-" + ip + "-" + port, "stucco"))
+					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+						.withValue(ip + ", port " + port)) 
+					.withProperties(new SocketAddress()
+						.withIPAddress(new Address()
+							.withObjectReference(ipId))
+						.withPort(new Port()
+							.withObjectReference(portId))));
+	}
+
+/*	public Observable getAddressObservable (String source, String ip, String port,  CategoryTypeEnum category)	{
+
+		QName addressId = new QName("gov.ornl.stucco", "address-" + UUID.randomUUID().toString(), "stucco");	
+		String address  = ip  + ":" + port;
+															
+		return new Observable()
+				.withId(addressId)
+				.withTitle("Address")
+				.withObservableSources(getMeasureSourceType(source))
+				.withObject(new ObjectType()
+					.withId(new QName("gov.ornl.stucco", "address-" + ip + "-" + port, "stucco"))
+					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+						.withValue(ip + ", port " + port)) 
+					.withProperties(new SocketAddress()
+						.withPort(new Port()
+							.withPortValue(new PositiveIntegerObjectPropertyType()
+                                            			.withValue(port)))
+						.withIPAddress(getAddress(ip, category))));
+	}
+*/
+
+	public Observable getIpObservable (String source, String ip, CategoryTypeEnum category)	{
+
+		QName ipId = new QName("gov.ornl.stucco", "ip-" + UUID.randomUUID().toString(), "stucco");	
+
+		return new Observable()
+				.withId(ipId)
+				.withTitle("IP")
+				.withObservableSources(getMeasureSourceType(source))
+				.withObject(new ObjectType()
+					.withId(new QName("gov.ornl.stucco", "ip-" + ip, "stucco"))
+					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+						.withValue(ip)) 
+					.withProperties(getAddress(ip, category)));
+	}
+	
+	public Address getAddress (String address, CategoryTypeEnum category)	{
+	
+		return new Address()
+			.withAddressValue(new StringObjectPropertyType()
+				.withValue(address))
+			.withCategory(category);
+	}
+
+	public Observable getPortObservable (String source, String port)	{
+
+		QName portId = new QName("gov.ornl.stucco", "port-" + UUID.randomUUID().toString(), "stucco");
+				
+		return new Observable()			//list
+				.withId(portId)
+				.withTitle("Port")
+				.withObservableSources(getMeasureSourceType(source))
+				.withObject(new ObjectType()
+					.withId(new QName("gov.ornl.stucco", "port-" + port, "stucco"))
+					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+						.withValue(port)) 
+					.withProperties(new Port()
+						.withPortValue(new PositiveIntegerObjectPropertyType()
+							.withValue(port))));
 	}
 }
 
