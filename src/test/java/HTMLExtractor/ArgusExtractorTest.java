@@ -43,7 +43,6 @@ public class ArgusExtractorTest	{
 		
 		ArgusExtractor argusExtractor = new ArgusExtractor(headers, argusInfo);
 		STIXPackage stixPackage = argusExtractor.getStixPackage();
-		System.out.println(stixPackage.toXMLString(true));
 		
 		System.out.println("Validating Argus stixPackage");
 
