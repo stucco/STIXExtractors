@@ -39,11 +39,13 @@ public class ArgusExtractorTest	{
 	public void test_one_element_no_header()	{
 
 		String[] headers = "StartTime,Flgs,Proto,SrcAddr,Sport,Dir,DstAddr,Dport,TotPkts,TotBytes,State".split(",");
-		String argusInfo = "1373553586.136399, e s,6,10.10.10.1,56867,->,10.10.10.100,22,8,585,REQ" + 
+		String argusInfo = "1373553586.136399, e s,6,10.10.10.1,56867,->,10.10.10.100,22,8,585,REQ";
 		
 		ArgusExtractor argusExtractor = new ArgusExtractor(headers, argusInfo);
 		STIXPackage stixPackage = argusExtractor.getStixPackage();
 		System.out.println(stixPackage.toXMLString(true));
+		
+		System.out.println("Validating Argus stixPackage");
 
 		assertTrue(argusExtractor.validate(stixPackage));
 		
@@ -54,6 +56,9 @@ public class ArgusExtractorTest	{
 		assertEquals(elements.size(), 1);
 
 		for (Element element : elements)	{
+
+			System.out.println("Testing Flow content");
+
 			assertEquals(element.select("cybox|Object").attr("id"), "stucco:flow-10.10.10.1-56867-10.10.10.100-22");
 			assertEquals(element.select("cybox|Description").text(), "10.10.10.1, port 56867 to 10.10.10.100, port 22");
 			assertEquals(element.select("cybox|Title").text(), "Flow");
@@ -66,6 +71,8 @@ public class ArgusExtractorTest	{
 			assertEquals(element.select("[name=TotPkts]").text(), "8");
 			assertEquals(element.select("cybox|State").text(), "REQ");
 		
+			System.out.println("Testing Flow Source Address -> Address -> IP, Port relation");
+
 			//checking source address and port (edge flow - > address -> ip, port)
 			String srcAddressId = element.select("NetFlowObj|Src_Socket_Address").attr("object_reference");
 			String srcIpId = doc.select("cybox|Observable:has(cybox|Title:matches(^Address\\Z))[id=" + srcAddressId + 
@@ -77,6 +84,8 @@ public class ArgusExtractorTest	{
 					"] > cybox|object > cybox|Properties > socketaddressobj|port").attr("object_reference");
 			String srcPort = doc.select("[id= " + srcPortId + "] > cybox|Object > cybox|Properties > PortObj|Port_Value").text();
 			assertEquals(srcPort, "56867");
+			
+			System.out.println("Testing Flow Destination Address -> Address -> IP, Port relation");
 			
 			//checking destination address and port (edge flow -> address -> ip, port)
 			String dstAddressId = element.select("NetFlowObj|Dest_Socket_Address").attr("object_reference");
@@ -90,7 +99,8 @@ public class ArgusExtractorTest	{
 			assertEquals(dstPort, "22");
 		}			
 //testing address	
-
+		System.out.println("Testing Address content");
+		
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^Address\\Z))");
 
 		assertEquals(elements.size(), 2);
@@ -121,9 +131,9 @@ public class ArgusExtractorTest	{
 				assertEquals(port, "22");
 			}			
 		}
-								
 //testing IP	
-									
+		System.out.println("Testing IP content");
+		
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^IP\\Z))");
 		
 		assertEquals(elements.size(), 2);
@@ -140,8 +150,9 @@ public class ArgusExtractorTest	{
 				assertEquals(element.select("cybox|Description").text(), "10.10.10.100");
 			}
 		}
-
 //testing port										
+		System.out.println("Testing Port content");
+		
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^Port\\Z))");
 		
 		assertEquals(elements.size(), 2);
@@ -158,4 +169,5 @@ public class ArgusExtractorTest	{
 				assertEquals(element.select("cybox|Description").text(), "22");
 			}
 		}
+	}
 }
