@@ -1,4 +1,4 @@
-package HTMLExtractor;
+package STIXExtractor;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
