@@ -275,7 +275,7 @@ public class CleanMxVirusExtractor extends HTMLExtractor	{
 
 				if (entry.select("inetnum").hasText())	{
 				
-					addressRangeId = new QName("gov.ornl.stucco", "addressRangeId-" + UUID.randomUUID().toString(), "stucco");
+					addressRangeId = new QName("gov.ornl.stucco", "addressRange-" + UUID.randomUUID().toString(), "stucco");
 					String[] ips = entry.select("inetnum").text().split(" - ");
 					String id = ips[0] + "_through_" + ips[1];		
 
