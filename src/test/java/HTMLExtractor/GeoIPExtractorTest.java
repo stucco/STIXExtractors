@@ -15,10 +15,27 @@ import static org.junit.Assert.*;
 import STIXExtractor.GeoIPExtractor;
 
 /**
- * Unit test for CVE Extractor.
+ * Unit test for GeoIP Extractor.
  */
 public class GeoIPExtractorTest	{
 	
+	/**
+	 * Test empty document
+	 */
+	@Test
+	public void test_empty_document()	{
+
+		System.out.println("STIXExtractor.GeoIPExtractorTest.test_empty_document()");
+
+		String geoIpInfo = "";
+
+		GeoIPExtractor geoIPExtractor = new GeoIPExtractor(geoIpInfo);
+		STIXPackage stixPackage = geoIPExtractor.getStixPackage();
+
+		System.out.println("Testing that package is null");
+		assertTrue(stixPackage == null);
+	}
+
 	/**
 	 * Test five elements
 	 */
@@ -124,15 +141,14 @@ public class GeoIPExtractorTest	{
 	}
 	
 	/**
-	 * Test three elements
+	 * Test three elements with no header
 	 */
 	@Test
-	public void test_three_elements()	{
+	public void test_three_elements_no_header()	{
 
-		System.out.println("STIXExtractor.GeoIPExtractorTest.test_three_elements()");
+		System.out.println("STIXExtractor.GeoIPExtractorTest.test_three_elements_no_header()");
 
 		String geoIpInfo =
-			"\"StartIP\",\"EndIP\",\"Start IP (int)\",\"End IP (int)\",\"Country code\",\"Country name\"\n" +
 			"\"223.255.252.0\",\"223.255.253.255\",\"3758095360\",\"3758095871\",\"CN\",\"China\"\n" +
 			"\"223.255.254.0\",\"223.255.254.255\",\"3758095872\",\"3758096127\",\"SG\",\"Singapore\"\n" +
 			"\"223.255.255.0\",\"223.255.255.255\",\"3758096128\",\"3758096383\",\"AU\",\"Australia\"";
