@@ -67,6 +67,22 @@ public class GeoIPExtractor extends HTMLExtractor	{
 	private STIXPackage extract (String geoIpInfo)	{
 
 		try	{
+
+			CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(HEADERS);
+			Reader reader = new StringReader(geoIpInfo);
+			CSVParser csvParser = new CSVParser(reader, csvFormat);
+			List<CSVRecord> records = csvParser.getRecords();
+			
+			if (records.size() == 0) return null;
+			
+			int start;
+			CSVRecord record = records.get(0);
+			if (record.get(0).equals(STARTIP))	{
+				if (record.size() == 1) return null;
+				else start = 1;
+			}
+			else start = 0;
+
 			GregorianCalendar calendar = new GregorianCalendar();
 			XMLGregorianCalendar now = DatatypeFactory.newInstance().newXMLGregorianCalendar(				
 				new GregorianCalendar(TimeZone.getTimeZone("UTC")));
@@ -78,16 +94,6 @@ public class GeoIPExtractor extends HTMLExtractor	{
 			Observables observables = new Observables()
 				.withCyboxMajorVersion("2.0")
 				.withCyboxMinorVersion("1.0");
-
-			CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(HEADERS);
-			Reader reader = new StringReader(geoIpInfo);
-			CSVParser csvParser = new CSVParser(reader, csvFormat);
-			List<CSVRecord> records = csvParser.getRecords();
-
-			CSVRecord record = records.get(0);
-			int start;
-			if (record.get(0).equals(STARTIP))	start = 1;
-			else start = 0;
 
 		 	for (int i = start; i < records.size(); i++)	{
 			
