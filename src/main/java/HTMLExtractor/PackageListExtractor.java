@@ -30,14 +30,15 @@ import org.mitre.stix.stix_1.STIXHeaderType;
 import org.mitre.cybox.cybox_2.Observables;
 import org.mitre.cybox.cybox_2.Observable;
 import org.mitre.cybox.cybox_2.ObjectType;
+import org.mitre.cybox.cybox_2.RelatedObjectType;
+import org.mitre.cybox.cybox_2.RelatedObjectsType;
 import org.mitre.cybox.common_2.Property;
 import org.mitre.cybox.common_2.ControlledVocabularyStringType;
 import org.mitre.cybox.common_2.StringObjectPropertyType;
 import org.mitre.cybox.common_2.StructuredTextType;
 import org.mitre.cybox.objects.Hostname;
 import org.mitre.cybox.objects.Product;
-import org.mitre.cybox.cybox_2.RelatedObjectType;
-import org.mitre.cybox.cybox_2.RelatedObjectsType;
+
 import org.xml.sax.SAXException;			
 
 public class PackageListExtractor extends HTMLExtractor	{
@@ -93,6 +94,7 @@ public class PackageListExtractor extends HTMLExtractor	{
 			
 				record = records.get(i);
 
+				//software
 				QName softwareId = new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco");
 				observables
 					.withObservables(new Observable()	
@@ -108,6 +110,7 @@ public class PackageListExtractor extends HTMLExtractor	{
 									.withValue(record.get(PACKAGE)))
 								.withVersion(new StringObjectPropertyType()
 									.withValue(record.get(VERSION))))));
+				//hostname
 				observables
 					.withObservables(new Observable()	
 						.withId(new QName("gov.ornl.stucco", "hostname-" + UUID.randomUUID().toString(), "stucco"))
@@ -125,7 +128,6 @@ public class PackageListExtractor extends HTMLExtractor	{
 									.withIdref(softwareId)
 									.withRelationship(new ControlledVocabularyStringType()
 										.withValue("host runs software"))))));
-			
 			}
 				
 			stixPackage
