@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 import STIXExtractor.GeoIPExtractor;
 
 /**
- * Unit test for CVE Extractor.
+ * Unit test for GeoIP Extractor.
  */
 public class GeoIPExtractorTest	{
 	
