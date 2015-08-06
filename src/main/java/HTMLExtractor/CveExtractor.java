@@ -5,7 +5,6 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.UUID;
 
-//import org.jsoup.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
