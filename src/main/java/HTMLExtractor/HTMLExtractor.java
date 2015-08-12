@@ -4,18 +4,8 @@ import javax.xml.namespace.QName;
 
 import java.util.UUID;
 import java.util.Iterator;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.Charset;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,9 +14,38 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.IOException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import java.nio.charset.Charset;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import org.json.*;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
@@ -34,13 +53,19 @@ import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import org.mitre.stix.stix_1.STIXPackage;
+import org.mitre.stix.stix_1.STIXHeaderType;
 import org.mitre.stix.common_1.ControlledVocabularyStringType;
 import org.mitre.cybox.common_2.AnyURIObjectPropertyType;
 import org.mitre.cybox.common_2.MeasureSourceType;	
-import org.mitre.cybox.common_2. StringObjectPropertyType;
+import org.mitre.cybox.common_2.StringObjectPropertyType;
 import org.mitre.cybox.common_2.HashType;
 import org.mitre.cybox.common_2.SimpleHashValueType;
+import org.mitre.cybox.common_2.PositiveIntegerObjectPropertyType;
+import org.mitre.cybox.common_2.StructuredTextType;
+import org.mitre.cybox.cybox_2.Observables;
 import org.mitre.cybox.cybox_2.RelatedObjectType;
+import org.mitre.cybox.cybox_2.Observable;
+import org.mitre.cybox.cybox_2.ObjectType;
 import org.mitre.cybox.objects.URIObjectType;
 import org.mitre.cybox.objects.Address;
 import org.mitre.cybox.objects.CategoryTypeEnum;
@@ -48,9 +73,7 @@ import org.mitre.cybox.objects.NetworkFlowObject;
 import org.mitre.cybox.objects.NetworkFlowLabelType;
 import org.mitre.cybox.objects.IANAAssignedIPNumbersType;
 import org.mitre.cybox.objects.IANAAssignedIPNumbersTypeEnum;
-import org.mitre.cybox.cybox_2.Observable;
-import org.mitre.cybox.cybox_2.ObjectType;
-import org.mitre.cybox.common_2.PositiveIntegerObjectPropertyType;
+import org.mitre.cybox.objects.Hostname;
 import org.mitre.cybox.objects.Port;
 import org.mitre.cybox.objects.SocketAddress;
 
@@ -65,8 +88,8 @@ public abstract class HTMLExtractor {
 	
 	protected static String findWithRegex(String content, String regex, int groupNum){
 		Pattern pattern = Pattern.compile(regex);
-	    Matcher matcher = pattern.matcher(content);
-	    matcher.find();
+	    	Matcher matcher = pattern.matcher(content);
+	    	matcher.find();
 		return matcher.group(1);
 	}
 
@@ -486,6 +509,28 @@ public abstract class HTMLExtractor {
 		else	return object1.toString().equals(object2.toString());
 	}
 
+	public List getCSVRecordsList (String[] HEADERS, String info)	throws IOException	{
+
+		CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(HEADERS);
+		Reader reader = new StringReader(info);
+		CSVParser csvParser = new CSVParser(reader, csvFormat);
+
+		return  csvParser.getRecords();
+	}
+
+	public STIXPackage setStixPackage (String source) throws DatatypeConfigurationException	{
+	
+		GregorianCalendar calendar = new GregorianCalendar();
+		XMLGregorianCalendar now = DatatypeFactory.newInstance().newXMLGregorianCalendar(				
+			new GregorianCalendar(TimeZone.getTimeZone("UTC")));
+
+		return new STIXPackage()				
+ 			.withSTIXHeader(new STIXHeaderType()
+				.withTitle(source)) 
+			.withTimestamp(now)
+ 			.withId(new QName("gov.ornl.stucco", source + "-" + UUID.randomUUID().toString(), "stucco"));
+	}
+
      	public URIObjectType getURIObjectType (String uri)	{
 	
      		return new URIObjectType()
@@ -517,17 +562,36 @@ public abstract class HTMLExtractor {
                            	.withValue(relationship));
 	}
 
-	public Observable getAddressObservable (String source, String ip, QName ipId, String port, QName portId)	{
+	public Observables setObservables ()	{
+		
+		return new Observables()
+			.withCyboxMajorVersion("2.0")
+			.withCyboxMinorVersion("1.0");
+	}
 
-		QName addressId = new QName("gov.ornl.stucco", "address-" + UUID.randomUUID().toString(), "stucco");	
-		String address  = ip  + ":" + port;
-															
+	public Observable setHostObservable (String hostname, String source)	{
+
 		return new Observable()
-				.withId(addressId)
+			.withId(new QName("gov.ornl.stucco", "hostname-" + UUID.randomUUID().toString(), "stucco"))
+	            	.withTitle("Host")
+                	.withObservableSources(getMeasureSourceType("Hone"))
+                      	.withObject(new ObjectType()
+                    		.withId(new QName("gov.ornl.stucco", "hostname-" + hostname, "stucco"))
+                                .withDescription(new StructuredTextType()
+                      			.withValue(hostname))
+                           	.withProperties(new Hostname()
+                                	.withHostnameValue(new StringObjectPropertyType()
+                                       		.withValue(hostname))));
+	}
+
+	public Observable getAddressObservable (String ip, QName ipId, String port, QName portId, String source)	{
+
+		return new Observable()
+				.withId(new QName("gov.ornl.stucco", "address-" + UUID.randomUUID().toString(), "stucco"))	
 				.withTitle("Address")
 				.withObservableSources(getMeasureSourceType(source))
 				.withObject(new ObjectType()
-					.withId(new QName("gov.ornl.stucco", "address-" + ip + "-" + port, "stucco"))
+					.withId(new QName("gov.ornl.stucco", "address-" + ip + "_" + port, "stucco"))
 					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 						.withValue(ip + ", port " + port)) 
 					.withProperties(new SocketAddress()
@@ -537,6 +601,7 @@ public abstract class HTMLExtractor {
 							.withObjectReference(portId))));
 	}
 
+	//TODO remove later
 /*	public Observable getAddressObservable (String source, String ip, String port,  CategoryTypeEnum category)	{
 
 		QName addressId = new QName("gov.ornl.stucco", "address-" + UUID.randomUUID().toString(), "stucco");	
@@ -557,7 +622,20 @@ public abstract class HTMLExtractor {
 						.withIPAddress(getAddress(ip, category))));
 	}
 */
+	public Observable setIpObservable (String ip, String source)	{
 
+		return new Observable()
+				.withId(new QName("gov.ornl.stucco", "ip-" + UUID.randomUUID().toString(), "stucco"))	
+				.withTitle("IP")
+				.withObservableSources(getMeasureSourceType(source))
+				.withObject(new ObjectType()
+					.withId(new QName("gov.ornl.stucco", "ip-" + ip, "stucco"))
+					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+						.withValue(ip)) 
+					.withProperties(getAddress(ip, CategoryTypeEnum.IPV_4_ADDR)));
+	}
+
+	//TODO remove later
 	public Observable getIpObservable (String source, String ip, CategoryTypeEnum category)	{
 
 		QName ipId = new QName("gov.ornl.stucco", "ip-" + UUID.randomUUID().toString(), "stucco");	
@@ -581,7 +659,25 @@ public abstract class HTMLExtractor {
 			.withCategory(category);
 	}
 
-	public Observable getPortObservable (String source, String port)	{
+	public Observable setPortObservable (String port, String source)	{
+
+		QName portId = new QName("gov.ornl.stucco", "port-" + UUID.randomUUID().toString(), "stucco");
+				
+		return new Observable()			//list
+				.withId(portId)
+				.withTitle("Port")
+				.withObservableSources(getMeasureSourceType(source))
+				.withObject(new ObjectType()
+					.withId(new QName("gov.ornl.stucco", "port-" + port, "stucco"))
+					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+						.withValue(port)) 
+					.withProperties(new Port()
+						.withPortValue(new PositiveIntegerObjectPropertyType()
+							.withValue(port))));
+	}
+
+	//TODO remove later
+	public Observable getPortObservable (String port, String source)	{
 
 		QName portId = new QName("gov.ornl.stucco", "port-" + UUID.randomUUID().toString(), "stucco");
 				
