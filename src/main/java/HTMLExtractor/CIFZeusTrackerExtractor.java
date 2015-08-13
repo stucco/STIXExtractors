@@ -14,6 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.mitre.stix.stix_1.STIXPackage;
 import org.mitre.cybox.cybox_2.Observables;
 
+/**
+ * CIF Zeus Tracker data to STIX format extractor
+ *
+ * @author Maria Vincent
+ */
 public class CIFZeusTrackerExtractor extends HTMLExtractor {
 						
 	private static final Logger logger = LoggerFactory.getLogger(CIFZeusTrackerExtractor.class);
