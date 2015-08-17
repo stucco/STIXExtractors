@@ -35,13 +35,16 @@ import STIXExtractor.CleanMxVirusExtractor;
 /**
  * Unit test for Clean MX Virus Extracotr  List extractor.
  */
-public class CleanMxVirusExtractorTest{
+public class CleanMxVirusExtractorTest extends HTMLExtractor {
 	
 	/**
 	 * Test one element
 	 */
 	@Test
 	public void test_one_element()	{
+
+		System.out.println();
+		System.out.println("STIXExtractor.CleanMxVirusExtractorTest.test_one_element()");
 
 		String cleanMxInfo =
 			" <?xml version=\"1.0\" encoding=\"iso-8859-15\"?> " +
@@ -88,137 +91,159 @@ public class CleanMxVirusExtractorTest{
 		assertTrue(virusExtractor.validate(stixPackage));
 
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
-//malware 
+		
+		/* Testing Malware */
 		System.out.println("Testing Malware content");
 		Elements elements = doc.select("stixCommon|TTP");
 		
 		assertTrue(elements.size() == 1);
 
 		for (Element element : elements)	{
+			
+			System.out.println("Testing Name");
 			assertEquals(element.select("ttp|Name").text(), "CleanMx_22447134");
+			System.out.println("Testing Description");
 			assertEquals(element.select("ttp|description").text(), "CleanMx entry 22447134");
+			System.out.println("Testing Source");
 			assertEquals(element.select("stixcommon|name").text(), "CleanMx(virus)");
+			System.out.println("Testing Title");
 			assertEquals(element.select("ttp|title").text(), "Malware");
+			System.out.println("Testing Hash Value");
 			assertEquals(element.select("cyboxcommon|simple_hash_value").text(), "b5bcb300eb41207d0d945b79c364a0b5");
 		}
-//Address
+		
+		/* Testing Address */
+		System.out.println();
 		System.out.println("Testing Address content");
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^Address\\Z))");
 		
 		assertTrue(elements.size() == 1);
 
 		for (Element element : elements)	{
-			assertEquals(element.select("addressobj|address_value").text(), "115.47.55.160:80");
-			assertEquals(element.select("cybox|description").text(), "115.47.55.160, port 80");
-			assertEquals(element.select("cyboxcommon|information_source_type").text(), "CleanMx(virus)");
+
+			/* Testing Aaddress -> IP */
+			System.out.println("Testing Address -> IP relation");
+			String sourceIpId = element.select("SocketAddressObj|IP_Address").attr("object_reference");
+			String ip = doc.select("[id= " + sourceIpId + "] > cybox|Object > cybox|Properties > AddressObj|Address_Value").text();
+			assertEquals(ip, "115.47.55.160");
+			
+			/* Testing Address -> Port */
+			System.out.println("Testing Address -> Port relation");
+			String sourcePortId = element.select("SocketAddressObj|Port").attr("object_reference");
+			String port = doc.select("[id= " + sourcePortId + "] > cybox|Object > cybox|Properties > PortObj|Port_Value").text();
+			assertEquals(port, "80");
+
+			assertEquals(element.select("cybox|Object > cybox|description").text(), "115.47.55.160, port 80");
+			assertEquals(element.select("cybox|Observable_Source > cyboxcommon|information_source_type").text(), "CleanMx(virus)");
 			assertEquals(element.select("cybox|title").text(), "Address");
 		}
-//Port		
+		
+		/* Testing Port	*/
+		System.out.println();
 		System.out.println("Testing Port content");
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^Port\\Z))");
 		
 		assertTrue(elements.size() == 1);
 
 		for (Element element : elements)	{
+			System.out.println("Testing Port Value");
 			assertEquals(element.select("portobj|port_value").text(), "80");
+			System.out.println("Testing Description");
 			assertEquals(element.select("cybox|description").text(), "80");
+			System.out.println("Testing Source");
 			assertEquals(element.select("cyboxcommon|information_source_type").text(), "CleanMx(virus)");
+			System.out.println("Testing Title");
 			assertEquals(element.select("cybox|title").text(), "Port");
 		}
-//DNSName		
+		/* Testing DNSName */		
+		System.out.println();
 		System.out.println("Testing DNSName content");
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^DNSName\\Z))");
 		
 		assertTrue(elements.size() == 1);
 
 		for (Element element : elements)	{
+			System.out.println("Testing Name");
 			assertEquals(element.select("whoisobj|domain_name > uriobj|value").text(), "idba.cc");
+			System.out.println("Testing Description");
 			assertEquals(element.select("cybox|description").text(), "idba.cc");
+			System.out.println("Testing Source");
 			assertEquals(element.select("cyboxcommon|information_source_type").text(), "CleanMx(virus)");
+			System.out.println("Testing DNSName");
 			assertEquals(element.select("cybox|title").text(), "DNSName");
 
+			System.out.println("Testing NS");
 			Elements ns = element.select("whoisobj|nameserver > uriobj|value");
 			
 			assertTrue(ns.size() == 2);
 			assertTrue(ns.select("uriobj|value:matches(^f1g1ns1.dnspod.net\\Z)").size() == 1);
 			assertTrue(ns.select("uriobj|value:matches(^f1g1ns2.dnspod.net\\Z)").size() == 1);
 		}
-//IP
+
+		/* Testing IP */
+		System.out.println();
 		System.out.println("Testing IP content");
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^IP\\Z))");
 		
 		assertTrue(elements.size() == 1);
 
 		for (Element element : elements)	{
+			System.out.println("Testing IP Value");
 			assertEquals(element.select("addressobj|address_value").text(), "115.47.55.160");
-			assertEquals(element.select("cybox|description").text(), "115.47.55.160");
-			assertEquals(element.select("cyboxcommon|information_source_type").text(), "CleanMx(virus)");
+			System.out.println("Testing Description");
+			assertEquals(element.select("cybox|Object >  cybox|description").text(), "115.47.55.160");
+			System.out.println("Testing Source");
+			assertEquals(element.select("cybox|Observable_Source > cyboxcommon|information_source_type").text(), "CleanMx(virus)");
+			System.out.println("Testing Title");
 			assertEquals(element.select("cybox|title").text(), "IP");
 		}
-//AddressRange		
+   		
+		/* Testing AddressRange	*/	
+		System.out.println();
 		System.out.println("Testing AddressRange content");
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^AddressRange\\Z))");
 		
 		assertTrue(elements.size() == 1);
 
 		for (Element element : elements)	{
+			System.out.println("Testing IP Value");
 			assertEquals(element.select("addressobj|address_value").text(), "115.47.0.0 - 115.47.255.255");
+			System.out.println("Testing Description");
 			assertEquals(element.select("cybox|description").text(), "Netname XRNET: Beijing XiRang Media Cultural Co., Ltd.Build A6-1702,Fenghuahaojing,No.6 Guanganmennei RoadXuanwu, Beijing, China, 100053");
-			assertEquals(element.select("cyboxcommon|information_source_type").text(), "CleanMx(virus)");
+			System.out.println("Testing Source");
+			assertEquals(element.select("cybox|Observable_Source > cyboxcommon|information_source_type").text(), "CleanMx(virus)");
+			System.out.println("Testing Title");
 			assertEquals(element.select("cybox|title").text(), "AddressRange");
+			System.out.println("Testing Country");
 			assertEquals(element.select("cybox|location > cyboxcommon|name").text(), "CN");
+			System.out.println("Testing Netname");
 			String[] netname = element.select("cybox|description").text().split(":");
 			assertEquals(netname[0], "Netname XRNET");
 		}
-//edges
 		
-//malware -> address
-		System.out.println("Testing Malware to Address relation");
+		/* Malware -> Address */
+		System.out.println("Testing Malware -> Address relation");
 
 		String malwareAddressIdref = doc.select("stix|Indicators > stix|Indicator > indicator|Observable").attr("idref");
 		String addressId = doc.select("cybox|Observable:has(cybox|Title:matches(^Address\\Z))").attr("id");
 
 		assertEquals(malwareAddressIdref, addressId);
 		
-//address -> port
-		System.out.println("Testing Address to Port relation");
-
-		Elements relatedObjects = doc.select("cybox|Observable:has(cybox|Title:matches(^Address\\Z)) > cybox|Object > cybox|Related_Objects"); 
-		String addressToPortIdref = relatedObjects.select("cybox|Related_Object:has(cybox|Relationship:matches(^address has port\\Z))").attr("idref");
-		String portId = doc.select("cybox|Observable:has(cybox|Title:matches(^Port\\Z))").attr("id");
-
-		assertEquals(addressToPortIdref, portId);
-
-		String relationship = relatedObjects.select("cybox|Related_Object:has(cybox|Relationship:matches(^address has port\\Z))").text();
-
-		assertEquals(relationship, "address has port");
-
-//address -> DNSName
-		System.out.println("Testing Address to DNSName relation");
+		/* Address -> DNSName */
+		System.out.println("Testing Address -> DNSName relation");
 		
-		String addressToDnsIdref = relatedObjects.select("cybox|Related_Object:has(cybox|Relationship:matches(^address has DNS Name\\Z))").attr("idref");
+		Elements relatedObjects = doc.select("cybox|Observable:has(cybox|Title:matches(^Address\\Z)) > cybox|Object > cybox|Related_Objects"); 
+		String addressToDnsIdref = relatedObjects.select("cybox|Related_Object").attr("idref");
 		String dnsId = doc.select("cybox|Observable:has(cybox|Title:matches(^DNSName\\Z))").attr("id");
 
 		assertEquals(addressToDnsIdref, dnsId);
 
-		relationship = relatedObjects.select("cybox|Related_Object:has(cybox|Relationship:matches(^address has DNS Name\\Z))").text();
+		String description = relatedObjects.select("cybox|Related_Object > cybox|Description").text();
 
-		assertEquals(relationship, "address has DNS Name");
+		assertEquals(description, "115.47.55.160, port 80 has DNS name idba.cc");
 
-//address -> IP
-		System.out.println("Testing Address to IP relation");
-
-		String addressToIpIdref = relatedObjects.select("cybox|Related_Object:has(cybox|Relationship:matches(^address has IP\\Z))").attr("idref");
-		String ipId = doc.select("cybox|Observable:has(cybox|Title:matches(^IP\\Z))").attr("id");
-
-		assertEquals(addressToIpIdref, ipId);
-
-		relationship = relatedObjects.select("cybox|Related_Object:has(cybox|Relationship:matches(^address has IP\\Z))").text();
-
-		assertEquals(relationship, "address has IP");
-
-//IP -> addressRange
-		System.out.println("Testing IP to AddressRange relation");
+		/* IP -> AddressRange */
+		System.out.println("Testing IP -> AddressRange relation");
 		
 		relatedObjects = doc.select("cybox|Observable:has(cybox|Title:matches(^IP\\Z)) > cybox|Object > cybox|Related_Objects"); 
 		String ipToAddressRangeIdref = relatedObjects.select("cybox|Related_Object:has(cybox|Relationship:matches(^IP is in address range\\Z))").attr("idref");
@@ -226,9 +251,9 @@ public class CleanMxVirusExtractorTest{
 
 		assertEquals(ipToAddressRangeIdref, addressRangeId);
 
-		relationship = relatedObjects.select("cybox|Related_Object:has(cybox|Relationship:matches(^IP is in address range\\Z))").text();
+		description = relatedObjects.select("cybox|Related_Object > cybox|Description").text();
 
-		assertEquals(relationship, "IP is in address range");
+		assertEquals(description, "115.47.55.160 is in address range 115.47.0.0 through 115.47.255.255");
 			
 	}
 	
@@ -236,7 +261,10 @@ public class CleanMxVirusExtractorTest{
 	 * Test two elements
 	 */
 	@Test
-	public void test_two_elements()	{
+	public void test_two_elements() {
+		
+	System.out.println();
+	System.out.println("STIXExtractor.CleanMxVirusExtractorTest.test_two_elements()");
 		
 		String cleanMxInfo =
 			"<?xml version=\"1.0\" encoding=\"iso-8859-15\"?> " +
@@ -311,9 +339,212 @@ public class CleanMxVirusExtractorTest{
 
 		assertTrue(virusExtractor.validate(stixPackage));
 
-		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
+		Document cleanMxDoc = Jsoup.parse(cleanMxInfo);
+		Document stixDoc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
+		
+		/* Testing Malware */
+		System.out.println("Testing Malware content:");
+		Elements cleanMxElements = Jsoup.parse(cleanMxInfo).select("entry");
+		Elements stixElements = stixDoc.select("stix|Indicator");
+		
+		for (Element element : stixElements)	{
+			if (element.select("ttp|Description").text().equals("CleanMx entry 22446016")) {
+				Element givenElement = cleanMxElements.select("entry:has(id:matches(^22446016$)").first();
+				System.out.println("Testing Name");
+				Elements names = element.select("ttp|Name");
+				for (Element name: names) {
+					if (name.text().equals("CleanMx_" + givenElement.select("id").text())) {
+						continue;
+					} else {
+						if (name.text().equals(givenElement.select("virusname").text())) {
+							continue;
+						} else {
+							System.out.println("ERROR: Cannot find Name" + name.text());
+							assertTrue(false);
+						}
+					}
+					assertEquals(element.select("ttp|Name").text(), "CleanMx_" + givenElement.select("id").text());
+				}
+				System.out.println("Testing Description");
+				assertEquals(element.select("ttp|description").text(), "CleanMx entry " + givenElement.select("id").text());
+				System.out.println("Testing Source");
+				assertEquals(element.select("stixcommon|name").text(), "CleanMx(virus)");
+				System.out.println("Testing Title");
+				assertEquals(element.select("ttp|title").text(), "Malware");
+				System.out.println("Testing Hash value");
+				assertEquals(element.select("cyboxcommon|simple_hash_value").text(), givenElement.select("md5").text());
+				System.out.println("Testing Malware -> Address relation");
+				String idref = element.select("indicator|Observable").attr("idref");
+				String ipRef = stixDoc.select("[id=" + idref + "]").select("SocketAddressObj|IP_Address").attr("object_reference");
+				String ip = stixDoc.select("[id=" + ipRef + "]").select("AddressObj|Address_Value").text();
+				assertEquals(ip, givenElement.select("ip").text());
+				System.out.println("Testing Address -> Port relation");
+				String portRef = stixDoc.select("[id=" + idref + "]").select("SocketAddressObj|Port").attr("object_reference");
+				String port = stixDoc.select("[id=" + portRef + "]").select("PortObj|Port_Value").text();
+				assertEquals(port, "80");
+			} else {
+				if (element.select("ttp|Description").text().equals("CleanMx entry 22446014")) {
+					Element givenElement = cleanMxElements.select("entry:has(id:matches(^22446014$)").first();
+					System.out.println("Testing Name");
+					Elements names = element.select("ttp|Name");
+					for (Element name: names) {
+						if (name.text().equals("CleanMx_" + givenElement.select("id").text())) {
+							continue;
+						} else {
+							if (name.text().equals(givenElement.select("virusname").text())) {
+								continue;
+							} else {
+								System.out.println("ERROR: Cannot find Name" + name.text());
+								assertTrue(false);
+							}
+						}
+						assertEquals(element.select("ttp|Name").text(), "CleanMx_" + givenElement.select("id").text());
+					}
+					System.out.println("Testing Description");
+					assertEquals(element.select("ttp|description").text(), "CleanMx entry " + givenElement.select("id").text());
+					System.out.println("Testing Source");
+					assertEquals(element.select("stixcommon|name").text(), "CleanMx(virus)");
+					System.out.println("Testing Title");
+					assertEquals(element.select("ttp|title").text(), "Malware");
+					System.out.println("Testing Hash value");
+					assertEquals(element.select("cyboxcommon|simple_hash_value").text(), givenElement.select("md5").text());
+					System.out.println("Testing Malware -> Address relation");
+					
+					System.out.println("Testing Address -> IP relation");
+					String idref = element.select("indicator|Observable").attr("idref");
+					String ipRef = stixDoc.select("[id=" + idref + "]").select("SocketAddressObj|IP_Address").attr("object_reference");
+					String ip = stixDoc.select("[id=" + ipRef + "]").select("AddressObj|Address_Value").text();
+					assertEquals(ip, givenElement.select("ip").text());
+					
+					System.out.println("Testing Address -> Port relation");
+					String portRef = stixDoc.select("[id=" + idref + "]").select("SocketAddressObj|Port").attr("object_reference");
+					String port = stixDoc.select("[id=" + portRef + "]").select("PortObj|Port_Value").text();
+					assertEquals(port, "80");
+				} else {
+					System.out.println(element.select("ttp|Name"));
+					System.out.println("ERROR: Could not find Malware Indicator");
+					assertTrue(false);
+				}
+			}			
+		}		
+		
+		/* Testing Addresses */
+		System.out.println();
+		System.out.println("Testing Address content:");
+	
+		for (Element address : cleanMxElements) {
+			Element stixAddress = stixDoc.select("cybox|Observable:has(cybox|Object[id=stucco:address-" + ipToLong(address.select("ip").text()) + "_80]").first();
+			System.out.println("Testing ID");
+			assertEquals(stixAddress.select("cybox|Object").attr("id"), "stucco:address-" + ipToLong(address.select("ip").text()) + "_80");
+			System.out.println("Testing Title");
+			assertEquals(stixAddress.select("cybox|Title").text(), "Address");
+			System.out.println("Testing Source");
+			assertEquals(stixAddress.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CleanMx(virus)");
+			System.out.println("Testing Description");
+			assertEquals(stixAddress.select("cybox|Object > cybox|Description").text(), address.select("ip").text() + ", port 80");
 
-		Elements elements = doc.select("stixCommon|TTP");
-		assertEquals(elements.size(), 2);
+			System.out.println("Testing Address -> IP reference");
+			String ipId = stixAddress.select("SocketAddressObj|IP_Address").attr("object_reference");
+			String ip = stixDoc.select("[id= " + ipId + "] > cybox|Object > cybox|Properties > AddressObj|Address_Value").text();
+			assertEquals(ip, address.select("ip").text());
+
+			System.out.println("Testing Address -> Port reference");
+			String portId = stixAddress.select("SocketAddressObj|Port").attr("object_reference");
+			String port = stixDoc.select("[id= " + portId + "] > cybox|Object > cybox|Properties > PortObj|Port_Value").text();
+			assertEquals(port, "80");
+
+			System.out.println("Testing Address -> DNSName");
+			String dnsRef = stixAddress.select("cybox|Related_Object").attr("idref");
+			String dnsValue = stixDoc.select("[id=" + dnsRef + "]").select("WhoisObj|Domain_Name > URIObj|Value").text();
+			assertEquals(dnsValue, address.select("domain").text());
+		}
+
+		/* Testing Ports */
+		System.out.println();
+		System.out.println("Testing Port content:");
+	
+		for (Element port : cleanMxElements) {
+			Element stixPort = stixDoc.select("cybox|Observable:has(cybox|Object[id=stucco:port-80])").first();
+			System.out.println("Testing Title");
+			assertEquals(stixPort.select("cybox|Title").text(), "Port");
+			System.out.println("Testing Source");
+			assertEquals(stixPort.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CleanMx(virus)");
+			System.out.println("Testing ID");
+			assertEquals(stixPort.select("cybox|Object").attr("id"), "stucco:port-80");
+			System.out.println("Testing Port value");
+			assertEquals(stixPort.select("PortObj|Port_Value").text(), "80");
+			System.out.println("Testing Description");
+			assertEquals(stixPort.select("cybox|Object > cybox|Description").text(), "80");
+		}
+		
+		/* Testing DNSName */
+		System.out.println();
+		System.out.println("Testing DNSName content:");
+	
+		for (Element dns : cleanMxElements) {
+			Element stixDns = stixDoc.select("cybox|Observable:has(cybox|Object[id=stucco:dnsName-" + dns.select("domain").text() + "])").first();
+			System.out.println("Testing Title");
+			assertEquals(stixDns.select("cybox|Title").text(), "DNSName");
+			System.out.println("Testing Source");
+			assertEquals(stixDns.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CleanMx(virus)");
+			System.out.println("Testing ID");
+			assertEquals(stixDns.select("cybox|Object").attr("id"), "stucco:dnsName-" + dns.select("domain").text());
+			System.out.println("Testing Domain name");
+			assertEquals(stixDns.select("WhoisObj|Domain_Name > URIObj|Value").text(), dns.select("domain").text());
+			System.out.println("Testing Description");
+			assertEquals(stixDns.select("cybox|Object > cybox|Description").text(), dns.select("domain").text());
+			System.out.println("Testing Namespace");
+		}
+		
+		/* Testing IP */
+		System.out.println();
+		System.out.println("Testing IP content:");
+	
+		for (Element ip : cleanMxElements) {
+			Element stixIp = stixDoc.select("cybox|Observable:has(cybox|Object[id=stucco:ip-" + ipToLong(ip.select("ip").text()) + "])").first();
+			System.out.println("Testing Title");
+			assertEquals(stixIp.select("cybox|Title").text(), "IP");
+			System.out.println("Testing Source");
+			assertEquals(stixIp.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CleanMx(virus)");
+			System.out.println("Testing ID");
+			assertEquals(stixIp.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong(ip.select("ip").text()));
+			System.out.println("Testing IP value");
+			assertEquals(stixIp.select("AddressObj|Address_Value").text(), ip.select("ip").text());
+			System.out.println("Testing Description");
+			assertEquals(stixIp.select("cybox|Object > cybox|Description").text(), ip.select("ip").text());
+			
+			System.out.println("Testing IP -> AddressRange relation");
+			String rangeRef = stixIp.select("cybox|Related_Object").attr("idref");
+			Element address = stixDoc.select("[id=" + rangeRef + "]").first();
+			String rangeValue = address.select("AddressObj|Address_Value").text();
+			String[] ips = ip.select("inetnum").text().split("-");
+			ips[0] = ips[0].trim();
+			ips[1] = ips[1].trim();
+			assertEquals(rangeValue, ips[0] + " - " + ips[1]);
+		}
+		
+		/* Testing AddressRange */
+		System.out.println();
+		System.out.println("Testing AddressRange content:");
+	
+		for (Element address : cleanMxElements) {
+			String[] ip = address.select("inetnum").text().split("-");
+			ip[0] = ip[0].trim();
+			ip[1] = ip[1].trim();
+			Element stixRange = stixDoc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-" + ipToLong(ip[0]) + "-" + ipToLong(ip[1]) + "])").first();
+			System.out.println("Testing Title");
+			assertEquals(stixRange.select("cybox|Title").text(), "AddressRange");
+			System.out.println("Testing Source");
+			assertEquals(stixRange.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CleanMx(virus)");
+			System.out.println("Testing ID");
+			assertEquals(stixRange.select("cybox|Object").attr("id"), "stucco:addressRange-" + ipToLong(ip[0]) + "-" + ipToLong(ip[1]));
+			System.out.println("Testing IP values");
+			assertEquals(stixRange.select("AddressObj|Address_Value").text(), ip[0] + " - " + ip[1]);
+			System.out.println("Testing Description");
+			assertEquals(stixRange.select("cybox|Object > cybox|Description").text(), "Netname " + address.select("netname").text() + ": " +address.select("descr").text());
+			System.out.println("Testing Counrty");
+			assertEquals(stixRange.select("cybox|Location > cyboxCommon|Name").text(), address.select("country").text());
+		}
 	}
 }
+
