@@ -63,7 +63,7 @@ public class CIF1d4Extractor extends HTMLExtractor {
 		 	for (int i = start; i < records.size(); i++)	{
 				record = records.get(i);
 				observables
-					.withObservables(setIpObservable(record.get(IP), "Scanner", "1d4.us"));
+					.withObservables(setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Scanner", "1d4.us"));
 			}
 				
 			return stixPackage

@@ -43,7 +43,7 @@ public class ArgusExtractorTest	{
 		
 		ArgusExtractor argusExtractor = new ArgusExtractor(headers, argusInfo);
 		STIXPackage stixPackage = argusExtractor.getStixPackage();
-		
+			
 		System.out.println("Validating Argus stixPackage");
 
 		assertTrue(argusExtractor.validate(stixPackage));
@@ -56,21 +56,33 @@ public class ArgusExtractorTest	{
 
 		for (Element element : elements)	{
 
-			System.out.println("Testing Flow content");
+			System.out.println();
+			System.out.println("Testing Flow content:");
 
-			assertEquals(element.select("cybox|Object").attr("id"), "stucco:flow-10.10.10.1-56867-10.10.10.100-22");
+			System.out.println("Testing ID");
+			assertEquals(element.select("cybox|Object").attr("id"), "stucco:flow-168430081_56867-168430180_22");
+			System.out.println("Testing Description");
 			assertEquals(element.select("cybox|Description").text(), "10.10.10.1, port 56867 to 10.10.10.100, port 22");
+			System.out.println("Testing Title");
 			assertEquals(element.select("cybox|Title").text(), "Flow");
+			System.out.println("Testing Source");
 			assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "Argus");
+			System.out.println("Testing Protocol");
 			assertEquals(element.select("NetFlowObj|IP_Protocol").text(), "6");
+			System.out.println("Testing TotalBytes");
 			assertEquals(element.select("[name=TotBytes]").text(), "585");
+			System.out.println("Testing StartTime");
 			assertEquals(element.select("[name=StartTime]").text(), "1373553586.136399");
+			System.out.println("Testing Teting Flags");
 			assertEquals(element.select("[name=Flgs]").text(), "e s");
+			System.out.println("Testing Direction");
 			assertEquals(element.select("[name=Dir]").text(), "->");
+			System.out.println("Testing TotPkts");
 			assertEquals(element.select("[name=TotPkts]").text(), "8");
+			System.out.println("Testing State");
 			assertEquals(element.select("cybox|State").text(), "REQ");
 		
-			System.out.println("Testing Flow Source Address -> Address -> IP, Port relation");
+			System.out.println("Testing Flow Source Address -> Address -> IP, Port reference");
 
 			//checking source address and port (edge flow - > address -> ip, port)
 			String srcAddressId = element.select("NetFlowObj|Src_Socket_Address").attr("object_reference");
@@ -84,7 +96,7 @@ public class ArgusExtractorTest	{
 			String srcPort = doc.select("[id= " + srcPortId + "] > cybox|Object > cybox|Properties > PortObj|Port_Value").text();
 			assertEquals(srcPort, "56867");
 			
-			System.out.println("Testing Flow Destination Address -> Address -> IP, Port relation");
+			System.out.println("Testing Flow Destination Address -> Address -> IP, Port reference");
 			
 			//checking destination address and port (edge flow -> address -> ip, port)
 			String dstAddressId = element.select("NetFlowObj|Dest_Socket_Address").attr("object_reference");
@@ -98,59 +110,96 @@ public class ArgusExtractorTest	{
 			assertEquals(dstPort, "22");
 		}			
 //testing address	
-		System.out.println("Testing Address content");
+		System.out.println();
+		System.out.println("Testing Address content:");
 		
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^Address\\Z))");
 
 		assertEquals(elements.size(), 2);
 	
 		for (Element element : elements)	{
-			if(element.select("cybox|Object").attr("id").equals("stucco:address-10.10.10.1-56867"))	{
+			if (element.select("cybox|Object").attr("id").equals("stucco:address-168430081_56867"))	{
+				System.out.println("Testing Title");
+				assertEquals(element.select("cybox|Title").text(), "Address");
+				System.out.println("Testing Source");
 				assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "Argus");
+				System.out.println("Testing Description");
 				assertEquals(element.select("cybox|Description").text(), "10.10.10.1, port 56867");
 				
+				System.out.println("Testing Address -> IP reference");
 				String ipId = element.select("SocketAddressObj|IP_Address").attr("object_reference");
 				String ip = doc.select("[id= " + ipId + "] > cybox|Object > cybox|Properties > AddressObj|Address_Value").text();
 				assertEquals(ip, "10.10.10.1");
 				
+				System.out.println("Testing Address -> Port reference");
 				String portId = element.select("SocketAddressObj|Port").attr("object_reference");
 				String port = doc.select("[id= " + portId + "] > cybox|Object > cybox|Properties > PortObj|Port_Value").text();
 				assertEquals(port, "56867");
-			}			
-			if(element.select("cybox|Object").attr("id").equals("stucco:address-10.10.10.100-22"))	{
-				assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "Argus");
-				assertEquals(element.select("cybox|Description").text(), "10.10.10.100, port 22");
+			} else {			
+				if (element.select("cybox|Object").attr("id").equals("stucco:address-168430180_22"))	{
+					System.out.println("Testing Title");
+					assertEquals(element.select("cybox|Title").text(), "Address");
+					System.out.println("Testing Source");
+					assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "Argus");
+					System.out.println("Testing Description");
+					assertEquals(element.select("cybox|Description").text(), "10.10.10.100, port 22");
 				
-				String ipId = element.select("SocketAddressObj|IP_Address").attr("object_reference");
-				String ip = doc.select("[id= " + ipId + "] > cybox|Object > cybox|Properties > AddressObj|Address_Value").text();
-				assertEquals(ip, "10.10.10.100");
+					System.out.println("Testing Address -> IP reference");
+					String ipId = element.select("SocketAddressObj|IP_Address").attr("object_reference");
+					String ip = doc.select("[id= " + ipId + "] > cybox|Object > cybox|Properties > AddressObj|Address_Value").text();
+					assertEquals(ip, "10.10.10.100");
 				
-				String portId = element.select("SocketAddressObj|Port").attr("object_reference");
-				String port = doc.select("[id= " + portId + "] > cybox|Object > cybox|Properties > PortObj|Port_Value").text();
-				assertEquals(port, "22");
+					System.out.println("Testing Address -> Port reference");
+					String portId = element.select("SocketAddressObj|Port").attr("object_reference");
+					String port = doc.select("[id= " + portId + "] > cybox|Object > cybox|Properties > PortObj|Port_Value").text();
+					assertEquals(port, "22");
+				} else { 
+					System.out.println("ERROR: Could not find Address content");
+					assertTrue(false);
+				}	
 			}			
 		}
 //testing IP	
-		System.out.println("Testing IP content");
+		System.out.println();
+		System.out.println("Testing IP content:");
 		
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^IP\\Z))");
 		
 		assertEquals(elements.size(), 2);
 	
 		for (Element element : elements)	{
-			if(element.select("cybox|Object").attr("id").equals("stucco:ip-10.10.10.1"))	{
+			if (element.select("cybox|Object").attr("id").equals("stucco:ip-168430081"))	{
+				System.out.println("Testing Title");
+				assertEquals(element.select("cybox|Title").text(), "IP");
+				System.out.println("Testing Source");
 				assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "Argus");
+				System.out.println("Testing IP Long (ID)");
+				assertEquals(element.select("cybox|Object").attr("id"), "stucco:ip-168430081");
+				System.out.println("Testing IP String");
 				assertEquals(element.select("AddressObj|Address_Value").text(), "10.10.10.1");
+				System.out.println("Testing Description");
 				assertEquals(element.select("cybox|Description").text(), "10.10.10.1");
-			}
-			if(element.select("cybox|Object").attr("id").equals("stucco:ip-10.10.10.100"))	{
-				assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "Argus");
-				assertEquals(element.select("AddressObj|Address_Value").text(), "10.10.10.100");
-				assertEquals(element.select("cybox|Description").text(), "10.10.10.100");
-			}
+			} else {
+				if (element.select("cybox|Object").attr("id").equals("stucco:ip-168430180"))	{
+					System.out.println("Testing Title");
+					assertEquals(element.select("cybox|Title").text(), "IP");
+					System.out.println("Testing Source");
+					assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "Argus");
+					System.out.println("Testing IP Long (ID)");
+					assertEquals(element.select("cybox|Object").attr("id"), "stucco:ip-168430180");
+					System.out.println("Testing IP String");
+					assertEquals(element.select("AddressObj|Address_Value").text(), "10.10.10.100");
+					System.out.println("Testing Description");
+					assertEquals(element.select("cybox|Description").text(), "10.10.10.100");
+				} else { 
+					System.out.println("ERROR: Could not find IP content");
+					assertTrue(false);
+				}	
+			}	
 		}
 //testing port										
-		System.out.println("Testing Port content");
+		System.out.println();
+		System.out.println("Testing Port content:");
 		
 		elements = doc.select("cybox|Observable:has(cybox|Title:matches(^Port\\Z))");
 		
@@ -158,13 +207,23 @@ public class ArgusExtractorTest	{
 	
 		for (Element element : elements)	{					
 			if(element.select("cybox|Object").attr("id").equals("stucco:port-56867"))	{
+				System.out.println("Testing Title");
+				assertEquals(element.select("cybox|Title").text(), "Port");
+				System.out.println("Testing Source");
 				assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "Argus");
+				System.out.println("Testing Port value");
 				assertEquals(element.select("PortObj|Port_Value").text(), "56867");
+				System.out.println("Testing Description");
 				assertEquals(element.select("cybox|Description").text(), "56867");
 			}
 			if(element.select("cybox|Object").attr("id").equals("stucco:port-22"))	{
+				System.out.println("Testing Title");
+				assertEquals(element.select("cybox|Title").text(), "Port");
+				System.out.println("Testing Source");
 				assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "Argus");
+				System.out.println("Testing Port value");
 				assertEquals(element.select("PortObj|Port_Value").text(), "22");
+				System.out.println("Testing Description");
 				assertEquals(element.select("cybox|Description").text(), "22");
 			}
 		}

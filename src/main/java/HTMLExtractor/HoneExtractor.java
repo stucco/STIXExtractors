@@ -92,7 +92,7 @@ public class HoneExtractor extends HTMLExtractor	{
 			}
 			else start = 0;
 
-			Observables observables = setObservables();
+			Observables observables = initObservables();
 
 		 	for (int i = start; i < records.size(); i++)	{
 			
@@ -332,7 +332,7 @@ public class HoneExtractor extends HTMLExtractor	{
 			}
 
 			if (!observables.getObservables().isEmpty())
-				stixPackage = setStixPackage("Hone")
+				stixPackage = initStixPackage("Hone")
 					.withObservables(observables);
 			else return null;
 

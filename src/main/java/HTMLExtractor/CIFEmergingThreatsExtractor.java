@@ -64,7 +64,7 @@ public class CIFEmergingThreatsExtractor extends HTMLExtractor	{
 		 	for (int i = start; i < records.size(); i++)	{
 				record = records.get(i);
 				observables
-					.withObservables(setIpObservable(record.get(IP), "Malware", "rules.emergingthreats.net"));	
+					.withObservables(setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Malware", "rules.emergingthreats.net"));	
 			}
 				
 			return stixPackage 

@@ -39,25 +39,13 @@ public class ArgusExtractor extends HTMLExtractor {
 	private static final String DESTINATION_ADDRESS ="DstAddr";
 	private static final String DESTINATION_PORT ="Dport";
 	private static final String STATE ="State";
-	private static final String DEFAULT ="Default";
 	private static String[] HEADERS = null;
-	private static HashSet<String> headersSet = initHeadersSet();
-	private static HashSet initHeadersSet() {
-		headersSet = new HashSet<String>();
-		headersSet.add(PROTOCOL);
-		headersSet.add(SOURCE_ADDRESS);
-		headersSet.add(SOURCE_PORT);
-		headersSet.add(DESTINATION_ADDRESS);
-		headersSet.add(DESTINATION_PORT);
-		headersSet.add(STATE);
-		headersSet.add(DEFAULT);
-
-		return headersSet;
-	}
 	private STIXPackage stixPackage;
-
+	private HashSet<String> headersSet;
+	
 	public ArgusExtractor(String[] HEADERS, String argusInfo) {
 		this.HEADERS = HEADERS;
+		initHeadersSet();
 		stixPackage = extract(argusInfo);
 	}
 					
@@ -65,29 +53,48 @@ public class ArgusExtractor extends HTMLExtractor {
 		return stixPackage;
 	}
 
+	/* making a set of headers that would go into custom fields */
+	private void initHeadersSet() {
+		headersSet = new HashSet<String>();		
+		
+		for (int i = 0; i < HEADERS.length; i++) {
+			headersSet.add(HEADERS[i]);
+		}
+		
+		headersSet.remove(PROTOCOL);
+		headersSet.remove(SOURCE_ADDRESS);
+		headersSet.remove(SOURCE_PORT);
+		headersSet.remove(DESTINATION_ADDRESS);
+		headersSet.remove(DESTINATION_PORT);
+		headersSet.remove(STATE);
+	}
+
 	private STIXPackage extract (String argusInfo) {
 		try {
 			stixPackage = initStixPackage("Argus");				
 			Observables observables = initObservables();
-			Observable srcIpObservable = null;
-			Observable dstIpObservable = null;
-			Observable srcPortObservable = null;
-			Observable dstPortObservable = null;
-			Observable srcAddressObservable = null;
-			Observable dstAddressObservable = null;
-			Observable flowObservable = null;
 			List<CSVRecord> records = getCSVRecordsList(HEADERS, argusInfo);
 							
 		 	for (int i = 0; i < records.size(); i++) {
 				CSVRecord record = records.get(i);
+				Observable srcIpObservable = null;
+				Observable dstIpObservable = null;
+				Observable srcPortObservable = null;
+				Observable dstPortObservable = null;
+				Observable srcAddressObservable = null;
+				Observable dstAddressObservable = null;
+				Observable flowObservable = null;
 				String srcIp = null;
 				String srcPort = null;
 				String dstIp = null;
 				String dstPort = null;
+				long srcIpInt = 0;
+				long dstIpInt = 0;
 										
 				if (!record.get(SOURCE_ADDRESS).isEmpty()) {
 					srcIp = record.get(SOURCE_ADDRESS);
-					srcIpObservable = setIpObservable(srcIp, "Argus");
+					srcIpInt = ipToLong(srcIp);
+					srcIpObservable = setIpObservable(srcIp, srcIpInt, "Argus");
 					observables
 						.withObservables(srcIpObservable);
 				}
@@ -99,7 +106,8 @@ public class ArgusExtractor extends HTMLExtractor {
 				}
 				if (!record.get(DESTINATION_ADDRESS).isEmpty()) {
 					dstIp = record.get(DESTINATION_ADDRESS);
-					dstIpObservable = setIpObservable(dstIp, "Argus");
+					dstIpInt = ipToLong(dstIp);
+					dstIpObservable = setIpObservable(dstIp, dstIpInt, "Argus");
 					observables
 						.withObservables(dstIpObservable);
 				}
@@ -110,12 +118,12 @@ public class ArgusExtractor extends HTMLExtractor {
 						.withObservables(dstPortObservable);
 				}
 				if (srcIp != null && srcPort != null) {
-					srcAddressObservable = setAddressObservable(srcIp, srcIpObservable.getId(), srcPort, srcPortObservable.getId(), "Argus");
+					srcAddressObservable = setAddressObservable(srcIp, srcIpInt, srcIpObservable.getId(), srcPort, srcPortObservable.getId(), "Argus");
 					observables
 						.withObservables(srcAddressObservable);
 				}
 				if (dstIp != null && dstPort != null) {
-					dstAddressObservable = setAddressObservable(dstIp, dstIpObservable.getId(), dstPort, dstPortObservable.getId(), "Argus");
+					dstAddressObservable = setAddressObservable(dstIp, dstIpInt, dstIpObservable.getId(), dstPort, dstPortObservable.getId(), "Argus");
 					observables
 						.withObservables(dstAddressObservable);
 				}
@@ -137,24 +145,25 @@ public class ArgusExtractor extends HTMLExtractor {
 								.withValue(record.get(STATE)));
 					}		
 
-					//if property is not among regular headers, adding it as a custom property
-					for (int j = 0; j < HEADERS.length; j++) {
-						if (headersSet.contains(HEADERS[j])) {
-							continue;
+					//adding custom fields
+					for (String property : headersSet) {
+						if (!record.get(property).isEmpty()) {
+							properties
+								.withProperties(new Property()	
+									.withName(property)
+										.withValue(record.get(property)));
 						}
-						properties
-							.withProperties(new Property()		//list
-								.withName(HEADERS[j])
-									.withValue(record.get(HEADERS[j])));
 					}
 					if (!properties.getProperties().isEmpty()) {
 						networkFlow
 							.withCustomProperties(properties);
 					}
+
 					observables
 						.withObservables(flowObservable
 							.withObject(flowObject
-								.withId(new QName("gov.ornl.stucco", "flow-" + srcIp + "_" + srcPort + "-" + dstIp + "_" + dstPort, "stucco"))
+								.withId(new QName("gov.ornl.stucco", "flow-" + srcIpInt + "_" + srcPort + "-" 
+													     + dstIpInt + "_" + dstPort, "stucco"))
 								.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 									.withValue(srcIp + ", port " + srcPort + " to " + dstIp + ", port " + dstPort))
 								.withProperties(networkFlow

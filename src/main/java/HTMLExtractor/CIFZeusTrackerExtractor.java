@@ -63,7 +63,7 @@ public class CIFZeusTrackerExtractor extends HTMLExtractor {
 				//avoid empty lines and comments
 				if (!record.get(IP).isEmpty() && !record.get(IP).startsWith("#")) {
 					observables
-						.withObservables(setIpObservable(record.get(IP), "Botnet", "zeustracker.abuse.ch"));
+						.withObservables(setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Botnet", "zeustracker.abuse.ch"));
 				}
 			}
 

@@ -223,7 +223,7 @@ public class LoginEventExtractor extends HTMLExtractor	{
 							.withId(new QName("gov.ornl.stucco", "ip-" + record.get(FROM_IP), "stucco"))
 							.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 								.withValue(record.get(FROM_IP))) 
-							.withProperties(getAddress(record.get(FROM_IP), CategoryTypeEnum.IPV_4_ADDR)));
+							.withProperties(setAddress(record.get(FROM_IP), CategoryTypeEnum.IPV_4_ADDR)));
 					observables
 						.withObservables(ipObservable);		
 				}
