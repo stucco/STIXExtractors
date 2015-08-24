@@ -66,6 +66,7 @@ import org.mitre.cybox.cybox_2.Observables;
 import org.mitre.cybox.cybox_2.RelatedObjectType;
 import org.mitre.cybox.cybox_2.Observable;
 import org.mitre.cybox.cybox_2.ObjectType;
+import org.mitre.cybox.cybox_2.KeywordsType;
 import org.mitre.cybox.objects.URIObjectType;
 import org.mitre.cybox.objects.Address;
 import org.mitre.cybox.objects.CategoryTypeEnum;
@@ -76,6 +77,15 @@ import org.mitre.cybox.objects.IANAAssignedIPNumbersTypeEnum;
 import org.mitre.cybox.objects.Hostname;
 import org.mitre.cybox.objects.Port;
 import org.mitre.cybox.objects.SocketAddress;
+import org.mitre.cybox.objects.WhoisEntry;
+import org.mitre.stix.ttp_1.MalwareInstanceType;
+import org.mitre.stix.ttp_1.TTP;
+import org.mitre.stix.common_1.IdentityType;
+import org.mitre.stix.common_1.InformationSourceType;
+import org.mitre.cybox.common_2.ConditionTypeEnum;
+import org.mitre.cybox.common_2.ConditionApplicationEnum;
+
+import org.xml.sax.SAXException;
 
 public abstract class HTMLExtractor {
 
@@ -509,6 +519,7 @@ public abstract class HTMLExtractor {
 		else	return object1.toString().equals(object2.toString());
 	}
 
+
 	public List getCSVRecordsList (String[] HEADERS, String info)	throws IOException	{
 
 		CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(HEADERS);
@@ -518,7 +529,7 @@ public abstract class HTMLExtractor {
 		return  csvParser.getRecords();
 	}
 
-	public STIXPackage setStixPackage (String source) throws DatatypeConfigurationException	{
+	public STIXPackage initStixPackage (String source) throws DatatypeConfigurationException	{
 	
 		GregorianCalendar calendar = new GregorianCalendar();
 		XMLGregorianCalendar now = DatatypeFactory.newInstance().newXMLGregorianCalendar(				
@@ -531,11 +542,49 @@ public abstract class HTMLExtractor {
  			.withId(new QName("gov.ornl.stucco", source + "-" + UUID.randomUUID().toString(), "stucco"));
 	}
 
+	public Observables initObservables ()	{
+		
+		return new Observables()
+			.withCyboxMajorVersion("2.0")
+			.withCyboxMinorVersion("1.0");
+	}
+
+	public TTP initTTP(String source) {
+		return new TTP()
+			.withId(new QName("gov.ornl.stucco", "malware-" + UUID.randomUUID().toString(), "stucco"))
+			.withTitle("Malware")
+			.withInformationSource(new InformationSourceType()
+				.withIdentity(new IdentityType()
+					.withName(source)));
+	}
+
+	public Observable initFlowObservable (String source) {
+		
+		return new Observable()
+			.withId(new QName("gov.ornl.stucco", "flow-" + UUID.randomUUID().toString(), "stucco"))
+			.withTitle("Flow")
+			.withObservableSources(getMeasureSourceType("Argus"));
+	}
+
+     	public URIObjectType setURIObjectType (String uri)	{
+	
+     		return new URIObjectType()
+        		.withValue(new AnyURIObjectPropertyType()
+                		.withValue(uri));
+	}
+
      	public URIObjectType getURIObjectType (String uri)	{
 	
      		return new URIObjectType()
         		.withValue(new AnyURIObjectPropertyType()
                 		.withValue(uri));
+	}
+	
+	public MeasureSourceType setMeasureSourceType (String source)	{
+	
+		return new MeasureSourceType()
+                	.withInformationSourceType(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
+	                     	.withValue(source));
 	}
 
 	public MeasureSourceType getMeasureSourceType (String source)	{
@@ -562,13 +611,6 @@ public abstract class HTMLExtractor {
                            	.withValue(relationship));
 	}
 
-	public Observables setObservables ()	{
-		
-		return new Observables()
-			.withCyboxMajorVersion("2.0")
-			.withCyboxMinorVersion("1.0");
-	}
-
 	public Observable setHostObservable (String hostname, String source)	{
 
 		return new Observable()
@@ -584,6 +626,46 @@ public abstract class HTMLExtractor {
                                        		.withValue(hostname))));
 	}
 
+	public Observable setAddressObservable (String ip, long ipInt, QName ipId, String port, QName portId, String source)	{
+
+		return new Observable()
+				.withId(new QName("gov.ornl.stucco", "address-" + UUID.randomUUID().toString(), "stucco"))	
+				.withTitle("Address")
+				.withObservableSources(getMeasureSourceType(source))
+				.withObject(new ObjectType()
+					.withId(new QName("gov.ornl.stucco", "address-" + ipToLong(ip) + "_" + port, "stucco"))
+					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+						.withValue(ip + ", port " + port)) 
+					.withProperties(new SocketAddress()
+						.withIPAddress(new Address()
+							.withObjectReference(ipId))
+						.withPort(new Port()
+							.withObjectReference(portId))));
+	}
+
+	public Observable setAddressRangeObservable(String startIp, String endIp, String source) {
+		return setAddressRangeObservable(startIp, endIp, startIp + " through " + endIp, source);
+	}
+	
+	public Observable setAddressRangeObservable(String startIp, String endIp, String description, String source) {
+		return new Observable()
+			.withId(new QName("gov.ornl.stucco", "addressRange-" + UUID.randomUUID().toString(), "stucco"))
+			.withTitle("AddressRange")
+			.withObservableSources(getMeasureSourceType(source))
+			.withObject(new ObjectType()
+				.withId(new QName("gov.ornl.stucco", "addressRange-" + ipToLong(startIp) + "-" + ipToLong(endIp), "stucco"))
+				.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+					.withValue(description))
+				.withProperties(new Address()
+					.withAddressValue(new StringObjectPropertyType()
+						.withValue(startIp + " - " + endIp)
+					.withCondition(ConditionTypeEnum.INCLUSIVE_BETWEEN)
+					.withApplyCondition(ConditionApplicationEnum.ANY)
+					.withDelimiter(" - "))
+					.withCategory(CategoryTypeEnum.IPV_4_ADDR)));
+	}
+
+	//TODO Remove later
 	public Observable getAddressObservable (String ip, QName ipId, String port, QName portId, String source)	{
 
 		return new Observable()
@@ -591,7 +673,7 @@ public abstract class HTMLExtractor {
 				.withTitle("Address")
 				.withObservableSources(getMeasureSourceType(source))
 				.withObject(new ObjectType()
-					.withId(new QName("gov.ornl.stucco", "address-" + ip + "_" + port, "stucco"))
+					.withId(new QName("gov.ornl.stucco", "address-" + ipToLong(ip) + "_" + port, "stucco"))
 					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 						.withValue(ip + ", port " + port)) 
 					.withProperties(new SocketAddress()
@@ -622,17 +704,59 @@ public abstract class HTMLExtractor {
 						.withIPAddress(getAddress(ip, category))));
 	}
 */
+	
+	public Observable setIpObservable (String ip, long ipInt, String keyword, String source)	{
+
+		return setIpObservable(ip, ipInt, source)
+			.withKeywords(new KeywordsType()
+		                .withKeywords(keyword));
+	}
+	
 	public Observable setIpObservable (String ip, String source)	{
+
+		return setIpObservable(ip, ipToLong(ip), source);
+	}	
+
+	public Observable setIpObservable (String ip, long ipLong, String source)	{
 
 		return new Observable()
 				.withId(new QName("gov.ornl.stucco", "ip-" + UUID.randomUUID().toString(), "stucco"))	
 				.withTitle("IP")
 				.withObservableSources(getMeasureSourceType(source))
 				.withObject(new ObjectType()
-					.withId(new QName("gov.ornl.stucco", "ip-" + ip, "stucco"))
+					.withId(new QName("gov.ornl.stucco", "ip-" + ipLong, "stucco"))
 					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 						.withValue(ip)) 
-					.withProperties(getAddress(ip, CategoryTypeEnum.IPV_4_ADDR)));
+					.withProperties(setAddress(ip, CategoryTypeEnum.IPV_4_ADDR)));
+	}
+
+	public long ipToLong(String ipString)	{
+
+		long ipLong = 0;
+		long ip;
+		String[] ipArray = ipString.split("\\.");
+
+		for (int i = 3; i >= 0; i--) {
+			ip = Long.parseLong(ipArray[3 - i]);
+			ipLong |= ip << (i * 8);
+		}
+		
+		return ipLong;
+	}
+	
+	public Address setAddress (String address)	{
+	
+		return new Address()
+			.withAddressValue(new StringObjectPropertyType()
+				.withValue(address));
+	}
+
+	public Address setAddress (String address, CategoryTypeEnum category)	{
+	
+		return new Address()
+			.withAddressValue(new StringObjectPropertyType()
+				.withValue(address))
+			.withCategory(category);
 	}
 
 	//TODO remove later
@@ -648,15 +772,7 @@ public abstract class HTMLExtractor {
 					.withId(new QName("gov.ornl.stucco", "ip-" + ip, "stucco"))
 					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 						.withValue(ip)) 
-					.withProperties(getAddress(ip, category)));
-	}
-	
-	public Address getAddress (String address, CategoryTypeEnum category)	{
-	
-		return new Address()
-			.withAddressValue(new StringObjectPropertyType()
-				.withValue(address))
-			.withCategory(category);
+					.withProperties(setAddress(ip, category)));
 	}
 
 	public Observable setPortObservable (String port, String source)	{
@@ -677,7 +793,7 @@ public abstract class HTMLExtractor {
 	}
 
 	//TODO remove later
-	public Observable getPortObservable (String port, String source)	{
+	public Observable getPortObservable(String port, String source)	{
 
 		QName portId = new QName("gov.ornl.stucco", "port-" + UUID.randomUUID().toString(), "stucco");
 				
@@ -692,6 +808,53 @@ public abstract class HTMLExtractor {
 					.withProperties(new Port()
 						.withPortValue(new PositiveIntegerObjectPropertyType()
 							.withValue(port))));
+	}
+
+	public Observable setDNSObservable(String dns, String source) {
+	
+		return new Observable()
+			.withId(new QName("gov.ornl.stucco", "dnsName-" + UUID.randomUUID().toString(), "stucco"))	
+			.withTitle("DNSName")
+			.withObservableSources(getMeasureSourceType("CleanMx(virus)"))
+			.withObject(new ObjectType()
+				.withId(new QName("gov.ornl.stucco", "dnsName-" + dns, "stucco"))
+				.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+					.withValue(dns))
+				.withProperties(new WhoisEntry()		
+					.withDomainName(getURIObjectType(dns))));
+	}
+	
+	public MalwareInstanceType setMalwareInstance (String id, String source) {
+		return new MalwareInstanceType()
+			.withId(new QName("gov.ornl.stucco", "malware-" + source + "_" + id, "stucco"))
+			.withTypes(new ControlledVocabularyStringType() //list
+				.withValue("Malware"))
+			.withNames(new ControlledVocabularyStringType() //list
+				.withValue(source + "_" + id))
+			.withDescriptions(new org.mitre.stix.common_1.StructuredTextType()
+				.withValue(source + " entry " + id));
+	}
+
+	public RelatedObjectType setRelatedObject(QName idref, String relationship, String description, String source) {
+		return new RelatedObjectType() 
+			.withIdref(idref)
+			.withRelationship(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
+				.withValue(relationship))
+			.withDescription(new StructuredTextType()
+				.withValue(description))
+			.withDiscoveryMethod(getMeasureSourceType(source));
+	}
+
+
+	boolean validate(STIXPackage stixPackage) {
+		
+		try	{
+			return stixPackage.validate();
+		}			
+		catch (SAXException e)	{
+			e.printStackTrace();
+		}
+		return false;
 	}
 }
 
