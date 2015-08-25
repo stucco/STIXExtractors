@@ -17,13 +17,28 @@ import STIXExtractor.CveExtractor;
 /**
  * Unit test for CVE Extractor.
  */
-public class CveExtractorTest	{
+public class CveExtractorTest {
 	
+	/**
+	 * Test empty doc
+	 */
+	@Test
+	public void test_empty_doc() {
+
+		System.out.println("STIXExtractor.CveExtractorTest.test_empty_doc()");
+		String cveInfo = "";
+		
+		CveExtractor cveExtractor = new CveExtractor(cveInfo);
+		STIXPackage stixPackage = cveExtractor.getStixPackage();
+		
+		assertTrue(stixPackage == null);
+	}
+
 	/**
 	 * Test one element
 	 */
 	@Test
-	public void test_one_element()	{
+	public void test_one_element() {
 
 		System.out.println("STIXExtractor.CveExtractorTest.test_one_element()");
 		String cveInfo =
@@ -183,13 +198,16 @@ public class CveExtractorTest	{
 		assertTrue(elements.size() == 2);
 
 		int count = 0;
-		for (Element element : elements)	{
+		for (Element element : elements) {
 		
 			if (count == 0)	{
+				System.out.println();
 				System.out.println("Testing first element:");
 				count++;
+			} else {
+				System.out.println();
+				System.out.println("Testing second element:");
 			}
-			else 	System.out.println("Testing second element:");
 			if (element.attr("id").equals("stucco:cve-CVE-1999-0002"))	{
 				System.out.println("Testing CVE_ID");
 				assertEquals(element.select("et|CVE_ID").text(), "CVE-1999-0002");
@@ -206,7 +224,7 @@ public class CveExtractorTest	{
 				System.out.println("Testing References");
 				boolean equals = true;
 				Elements references = element.select("stixCommon|Reference");
-				for (Element reference : references)	{
+				for (Element reference : references) {
 					reference.text();
 					if (reference.text().equals("ftp://patches.sgi.com/support/free/security/advisories/19981006-01-I") ||
 						reference.text().equals("CERT:CA-98.12.mountd") ||
@@ -223,7 +241,7 @@ public class CveExtractorTest	{
 				System.out.println("Testing IsPubliclyAcknowledged (status)");
 				assertEquals(element.select("et|Vulnerability").attr("is_publicly_acknowledged"), "true"); 
 			}
-			if (element.attr("id").equals("stucco:cve-CVE-2011-0528"))	{
+			if (element.attr("id").equals("stucco:cve-CVE-2011-0528")) {
 				System.out.println("Testing CVE_ID");
 				assertEquals(element.select("et|CVE_ID").text(), "CVE-2011-0528");
 				
