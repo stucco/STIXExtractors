@@ -60,8 +60,9 @@ public class GeoIPExtractorTest	{
 
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
 
+		System.out.println();
 		System.out.println("Testing 1st element:");
-		Element element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16777216_16777471])").first();
+		Element element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16777216-16777471])").first();
 		System.out.println("Testing Address");	
 		assertEquals(element.select("addressobj|address_value").text(), "1.0.0.0 - 1.0.0.255");
 		System.out.println("Testing Description");	
@@ -76,8 +77,9 @@ public class GeoIPExtractorTest	{
 		assertEquals(element.select("cybox|Location").attr("id"), "stucco:countryCode-AU");
 		
 
+		System.out.println();
 		System.out.println("Testing 2nd element:");
-		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16777472_16778239])").first();
+		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16777472-16778239])").first();
 		System.out.println("Testing Address");	
 		assertEquals(element.select("addressobj|address_value").text(), "1.0.1.0 - 1.0.3.255");
 		System.out.println("Testing Description");	
@@ -92,8 +94,9 @@ public class GeoIPExtractorTest	{
 		assertEquals(element.select("cybox|Location").attr("id"), "stucco:countryCode-CN");
 		
 		
+		System.out.println();
 		System.out.println("Testing 3rd element:");
-		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16778240_16779263])").first();
+		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16778240-16779263])").first();
 		System.out.println("Testing Address");	
 		assertEquals(element.select("addressobj|address_value").text(), "1.0.4.0 - 1.0.7.255");
 		System.out.println("Testing Description");	
@@ -108,8 +111,9 @@ public class GeoIPExtractorTest	{
 		assertEquals(element.select("cybox|Location").attr("id"), "stucco:countryCode-AU");
 		
 
+		System.out.println();
 		System.out.println("Testing 4th element:");
-		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16779264_16781311])").first();
+		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16779264-16781311])").first();
 		System.out.println("Testing Address");	
 		assertEquals(element.select("addressobj|address_value").text(), "1.0.8.0 - 1.0.15.255");
 		System.out.println("Testing  Description");	
@@ -124,8 +128,9 @@ public class GeoIPExtractorTest	{
 		assertEquals(element.select("cybox|Location").attr("id"), "stucco:countryCode-CN");
 		
 	
+		System.out.println();
 		System.out.println("Testing 5th element:");
-		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16781312_16785407])").first();
+		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-16781312-16785407])").first();
 		System.out.println("Testing Address");	
 		assertEquals(element.select("addressobj|address_value").text(), "1.0.16.0 - 1.0.31.255");
 		System.out.println("Testing Description");	
@@ -161,8 +166,9 @@ public class GeoIPExtractorTest	{
 
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
 
+		System.out.println();
 		System.out.println("Testing 1st element:");
-		Element element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-3758095360_3758095871])").first();
+		Element element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-3758095360-3758095871])").first();
 		System.out.println("Testing Address");	
 		assertEquals(element.select("addressobj|address_value").text(), "223.255.252.0 - 223.255.253.255");
 		System.out.println("Testing Description");	
@@ -177,8 +183,9 @@ public class GeoIPExtractorTest	{
 		assertEquals(element.select("cybox|Location").attr("id"), "stucco:countryCode-CN");
 		
 
+		System.out.println();
 		System.out.println("Testing 2st element:");
-		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-3758095872_3758096127])").first();
+		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-3758095872-3758096127])").first();
 		System.out.println("Testing Address");	
 		assertEquals(element.select("addressobj|address_value").text(), "223.255.254.0 - 223.255.254.255");
 		System.out.println("Testing Description");	
@@ -193,8 +200,9 @@ public class GeoIPExtractorTest	{
 		assertEquals(element.select("cybox|Location").attr("id"), "stucco:countryCode-SG");
 		
 
+		System.out.println();
 		System.out.println("Testing 3st element:");
-		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-3758096128_3758096383])").first();
+		element = doc.select("cybox|Observable:has(cybox|Object[id=stucco:addressRange-3758096128-3758096383])").first();
 		System.out.println("Testing Address");	
 		assertEquals(element.select("addressobj|address_value").text(), "223.255.255.0 - 223.255.255.255");
 		System.out.println("Testing Description");	
