@@ -78,6 +78,8 @@ import org.mitre.cybox.objects.Hostname;
 import org.mitre.cybox.objects.Port;
 import org.mitre.cybox.objects.SocketAddress;
 import org.mitre.cybox.objects.WhoisEntry;
+import org.mitre.cybox.objects.UserAccountObjectType;
+import org.mitre.cybox.objects.Product;
 import org.mitre.stix.ttp_1.MalwareInstanceType;
 import org.mitre.stix.ttp_1.TTP;
 import org.mitre.stix.common_1.IdentityType;
@@ -616,7 +618,7 @@ public abstract class HTMLExtractor {
 		return new Observable()
 			.withId(new QName("gov.ornl.stucco", "hostname-" + UUID.randomUUID().toString(), "stucco"))
 	            	.withTitle("Host")
-                	.withObservableSources(getMeasureSourceType("Hone"))
+                	.withObservableSources(getMeasureSourceType(source))
                       	.withObject(new ObjectType()
                     		.withId(new QName("gov.ornl.stucco", "hostname-" + hostname, "stucco"))
                                 .withDescription(new StructuredTextType()
@@ -822,6 +824,36 @@ public abstract class HTMLExtractor {
 					.withValue(dns))
 				.withProperties(new WhoisEntry()		
 					.withDomainName(getURIObjectType(dns))));
+	}
+
+	public Observable setAccountObservable(String user, String source) {
+		return new Observable()
+			.withId(new QName("gov.ornl.stucco", "account-" + UUID.randomUUID().toString(), "stucco"))	
+			.withTitle("Account")
+			.withObservableSources(getMeasureSourceType(source))
+			.withObject(new ObjectType()
+				.withId(new QName("gov.ornl.stucco", "account-" + user, "stucco"))
+				.withDescription(new StructuredTextType()
+					.withValue(user))
+				.withProperties(new UserAccountObjectType()
+					.withUsername(new StringObjectPropertyType()
+						.withValue(user))
+					.withDescription(new StringObjectPropertyType()
+						.withValue(user))));
+	}
+	
+	public Observable setSoftwareObservable(String software, String source) {
+		return new Observable()
+			.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
+			.withTitle("Software")
+			.withObservableSources(getMeasureSourceType(source))
+			.withObject(new ObjectType()
+				.withId(new QName("gov.ornl.stucco", "software-" + software, "stucco"))
+				.withDescription(new StructuredTextType()
+					.withValue(software))
+				.withProperties(new Product()
+					.withProduct(new StringObjectPropertyType()
+						.withValue(software))));
 	}
 	
 	public MalwareInstanceType setMalwareInstance (String id, String source) {
