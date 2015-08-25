@@ -1,32 +1,19 @@
 package STIXExtractor;
 
 import java.util.List;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
 import java.util.UUID;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.IOException;
 
-import java.text.*;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.namespace.QName;					
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.mitre.stix.stix_1.STIXPackage;
-import org.mitre.stix.stix_1.STIXHeaderType;
 import org.mitre.cybox.cybox_2.Observables;
 import org.mitre.cybox.cybox_2.Observable;
 import org.mitre.cybox.cybox_2.ObjectType;
@@ -43,7 +30,7 @@ import org.mitre.cybox.objects.Address;
 
 import org.xml.sax.SAXException;			
 
-public class GeoIPExtractor extends HTMLExtractor	{
+public class GeoIPExtractor extends HTMLExtractor {
 						
 	private static final Logger logger = LoggerFactory.getLogger(GeoIPExtractor.class);
 	private static final String[] HEADERS = {"StartIP", "EndIP", "Start IP (int)", "End IP (int)", "Country code", "Country name"};
@@ -65,47 +52,39 @@ public class GeoIPExtractor extends HTMLExtractor	{
 	}
 
 	private STIXPackage extract (String geoIpInfo)	{
-
 		try	{
-
-			CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(HEADERS);
-			Reader reader = new StringReader(geoIpInfo);
-			CSVParser csvParser = new CSVParser(reader, csvFormat);
-			List<CSVRecord> records = csvParser.getRecords();
+			List<CSVRecord> records = getCSVRecordsList (HEADERS, geoIpInfo);
 			
-			if (records.size() == 0) return null;
-			
-			int start;
-			CSVRecord record = records.get(0);
-			if (record.get(0).equals(STARTIP))	{
-				if (record.size() == 1) return null;
-				else start = 1;
+			if (records.isEmpty()) {
+				return null;
 			}
-			else start = 0;
-
-			GregorianCalendar calendar = new GregorianCalendar();
-			XMLGregorianCalendar now = DatatypeFactory.newInstance().newXMLGregorianCalendar(				
-				new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-			stixPackage = new STIXPackage()				
- 				.withSTIXHeader(new STIXHeaderType().
-					withTitle("Maxmind")) 
-				.withTimestamp(now)
-	 			.withId(new QName("gov.ornl.stucco", "Maxmind-" + UUID.randomUUID().toString(), "stucco"));
-			Observables observables = new Observables()
-				.withCyboxMajorVersion("2.0")
-				.withCyboxMinorVersion("1.0");
-
-		 	for (int i = start; i < records.size(); i++)	{
 			
+			CSVRecord record = records.get(0);
+			int start;
+			if (record.get(0).equals(STARTIP)) {
+				if (record.size() == 1) {
+					return null;
+				} else {
+					start = 1;
+				}
+			} else {
+				start = 0;
+			}
+
+			stixPackage = initStixPackage("Maxmind");			
+			Observables observables = initObservables();
+
+		 	for (int i = start; i < records.size(); i++) {
 				record = records.get(i);
 
+				/* ip */
 				observables
 					.withObservables(new Observable()	
 						.withId(new QName("gov.ornl.stucco", "addressRange-" + UUID.randomUUID().toString(), "stucco"))
 						.withTitle("AddressRange")
 						.withObservableSources(getMeasureSourceType("Maxmind"))
 						.withObject(new ObjectType()
-							.withId(new QName("gov.ornl.stucco", "addressRange-" + record.get(STARTIPINT) + "_" + record.get(ENDIPINT), "stucco"))
+							.withId(new QName("gov.ornl.stucco", "addressRange-" + record.get(STARTIPINT) + "-" + record.get(ENDIPINT), "stucco"))
 							.withLocation(new LocationType()
 								.withId(new QName("gov.ornl.stucco", "countryCode-" + record.get(COUNTRYCODE), "stucco"))
 								.withName(record.get(COUNTRYNAME)))
@@ -118,31 +97,17 @@ public class GeoIPExtractor extends HTMLExtractor	{
 									.withApplyCondition(ConditionApplicationEnum.ANY)
 									.withDelimiter(" - "))
 								.withCategory(CategoryTypeEnum.IPV_4_ADDR))));
-				
-		
 			}
 				
-			stixPackage
+			return stixPackage
 				.withObservables(observables);
 
-		} catch (DatatypeConfigurationException e)	{
+		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();
-		} 
-		catch (IOException e)	{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		return stixPackage;
-	}
-	
-	boolean validate(STIXPackage stixPackage) {
-		
-		try	{
-			return stixPackage.validate();
-		}			
-		catch (SAXException e)	{
-			e.printStackTrace();
-		}
-		return false;
+		return null;
 	}
 }
