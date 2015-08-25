@@ -74,6 +74,10 @@ public class ArgusExtractor extends HTMLExtractor {
 			stixPackage = initStixPackage("Argus");				
 			Observables observables = initObservables();
 			List<CSVRecord> records = getCSVRecordsList(HEADERS, argusInfo);
+			
+			if (records.isEmpty()) {
+				return null;
+			}
 							
 		 	for (int i = 0; i < records.size(); i++) {
 				CSVRecord record = records.get(i);
@@ -90,7 +94,8 @@ public class ArgusExtractor extends HTMLExtractor {
 				String dstPort = null;
 				long srcIpInt = 0;
 				long dstIpInt = 0;
-										
+							
+				/* source ip */			
 				if (!record.get(SOURCE_ADDRESS).isEmpty()) {
 					srcIp = record.get(SOURCE_ADDRESS);
 					srcIpInt = ipToLong(srcIp);
@@ -98,12 +103,16 @@ public class ArgusExtractor extends HTMLExtractor {
 					observables
 						.withObservables(srcIpObservable);
 				}
+
+				/* source port */
  				if (!record.get(SOURCE_PORT).isEmpty()) {
 					srcPort = record.get(SOURCE_PORT);
 					srcPortObservable = setPortObservable(srcPort, "Argus");
 					observables
 						.withObservables(srcPortObservable);
 				}
+
+				/* destination ip */
 				if (!record.get(DESTINATION_ADDRESS).isEmpty()) {
 					dstIp = record.get(DESTINATION_ADDRESS);
 					dstIpInt = ipToLong(dstIp);
@@ -111,22 +120,30 @@ public class ArgusExtractor extends HTMLExtractor {
 					observables
 						.withObservables(dstIpObservable);
 				}
+
+				/* destination port */
 				if (!record.get(DESTINATION_PORT).isEmpty()) {
 					dstPort = record.get(DESTINATION_PORT);
 					dstPortObservable = setPortObservable(dstPort, "Argus");
 					observables
 						.withObservables(dstPortObservable);
 				}
+
+				/* source address */
 				if (srcIp != null && srcPort != null) {
 					srcAddressObservable = setAddressObservable(srcIp, srcIpInt, srcIpObservable.getId(), srcPort, srcPortObservable.getId(), "Argus");
 					observables
 						.withObservables(srcAddressObservable);
 				}
+
+				/* destination address */
 				if (dstIp != null && dstPort != null) {
 					dstAddressObservable = setAddressObservable(dstIp, dstIpInt, dstIpObservable.getId(), dstPort, dstPortObservable.getId(), "Argus");
 					observables
 						.withObservables(dstAddressObservable);
 				}
+
+				/* flow */
 				if (srcIp != null && srcPort != null && dstIp != null && dstPort != null) {
 					flowObservable = initFlowObservable("Argus");	
 					ObjectType flowObject = new ObjectType();
