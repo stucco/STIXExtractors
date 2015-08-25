@@ -24,6 +24,11 @@ import org.mitre.cybox.objects.UserSession;
 
 import org.xml.sax.SAXException;			
 
+/**
+ * LoginEvent to STIX format extractor.
+ *
+ * @author Maria Vincent
+ */
 public class LoginEventExtractor extends HTMLExtractor	{
 						
 	private static final Logger logger = LoggerFactory.getLogger(LoginEventExtractor.class);
