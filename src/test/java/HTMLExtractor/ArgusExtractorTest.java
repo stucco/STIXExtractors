@@ -1,21 +1,8 @@
 package STIXExtractor;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URL;
-import java.nio.charset.Charset;
-
-import org.xml.sax.InputSource;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-import org.json.*;
-import org.jsoup.*;
-import org.jsoup.parser.Parser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -33,6 +20,24 @@ import STIXExtractor.ArgusExtractor;
 public class ArgusExtractorTest	{
 	
 	/**
+	 * Test empty document
+	 */
+	@Test
+	public void test_empty_document()	{
+
+		System.out.println("STIXExtractor.ArgusExtractorTest.test_empty_document()");
+
+		String[] headers = "StartTime,Flgs,Proto,SrcAddr,Sport,Dir,DstAddr,Dport,TotPkts,TotBytes,State".split(",");
+		String argusInfo = "";
+
+		ArgusExtractor argusExtractor = new ArgusExtractor(headers, argusInfo);
+		STIXPackage stixPackage = argusExtractor.getStixPackage();
+
+		System.out.println("Testing that package is null");
+		assertTrue(stixPackage == null);
+	}
+
+	/**
 	 * Test one element
 	 */
 	@Test
@@ -49,7 +54,8 @@ public class ArgusExtractorTest	{
 		assertTrue(argusExtractor.validate(stixPackage));
 		
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
-//testing flow 									
+
+		//testing flow 									
 		Elements elements = doc.select("cybox|Observable:has(cybox|Title:matches(^Flow\\Z))");
 
 		assertEquals(elements.size(), 1);
@@ -108,8 +114,9 @@ public class ArgusExtractorTest	{
 					"] > cybox|object > cybox|Properties > socketaddressobj|port").attr("object_reference");
 			String dstPort = doc.select("[id= " + dstPortId + "] > cybox|Object > cybox|Properties > PortObj|Port_Value").text();
 			assertEquals(dstPort, "22");
-		}			
-//testing address	
+		}
+			
+		//testing address	
 		System.out.println();
 		System.out.println("Testing Address content:");
 		
@@ -159,7 +166,8 @@ public class ArgusExtractorTest	{
 				}	
 			}			
 		}
-//testing IP	
+
+		//testing IP	
 		System.out.println();
 		System.out.println("Testing IP content:");
 		
@@ -197,7 +205,8 @@ public class ArgusExtractorTest	{
 				}	
 			}	
 		}
-//testing port										
+
+		//testing port										
 		System.out.println();
 		System.out.println("Testing Port content:");
 		
