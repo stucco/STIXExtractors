@@ -596,7 +596,7 @@ public abstract class HTMLExtractor {
 	                     	.withValue(source));
 	}
 
-	public HashType getHashType (String hash, String type)	{
+	public HashType setHashType (String hash, String type)	{
 
 		return new HashType()	
 			.withType(new org.mitre.cybox.common_2.ControlledVocabularyStringType()

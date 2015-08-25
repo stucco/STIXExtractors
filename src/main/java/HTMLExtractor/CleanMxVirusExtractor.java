@@ -102,7 +102,7 @@ public class CleanMxVirusExtractor extends HTMLExtractor {
 								.withTools(new ToolsType()
 									.withTools(new ToolInformationType()	//list
 										.withToolHashes(new HashListType()
-											.withHashes(getHashType(entry.select("md5").text(), "md5"))))));
+											.withHashes(setHashType(entry.select("md5").text(), "md5"))))));
 					}
 					
 					//packing everything into malware indicator
