@@ -50,7 +50,7 @@ public class CpeExtractor extends HTMLExtractor {
 			Document doc = Jsoup.parse(cpeInfo);
 			Elements entries = doc.select("cpe-item");
 
-			if (entries.size() == 0) {
+			if (entries.isEmpty()) {
 				return null;
 			}
 			
