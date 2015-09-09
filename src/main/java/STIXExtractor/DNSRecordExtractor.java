@@ -42,6 +42,8 @@ import org.mitre.cybox.objects.DNSResourceRecordsType;
 import org.mitre.cybox.objects.DNSRecord;
 import org.mitre.cybox.objects.Address;
 import org.mitre.cybox.objects.WhoisNameserversType;
+import org.mitre.cybox.objects.WhoisRegistrantsType;
+import org.mitre.cybox.objects.WhoisRegistrantInfoType;
 
 /**
  * DNS record to STIX format extractor.
@@ -225,19 +227,16 @@ public class DNSRecordExtractor extends STIXExtractor {
 			.withObservables(ipObservable);
 
 		WhoisEntry entry = new WhoisEntry()
-			.withIPAddress(new Address()
-				.withObjectReference(ipObservable.getId()));
+			.withIPAddress(new Address()	
+				.withObjectReference(ipObservable.getId()))
+			.withRegistrants((organization.isEmpty() && countrycode.isEmpty()) ? null : new WhoisRegistrantsType()
+				.withRegistrants(new WhoisRegistrantInfoType()
+					.withOrganization((organization.isEmpty()) ? null : new StringObjectPropertyType()
+						.withValue(organization))
+					.withAddress((countrycode.isEmpty()) ? null : new StringObjectPropertyType()
+						.withValue(countrycode))));
 
-		WhoisContactType contact = new WhoisContactType()
-			.withOrganization((organization.isEmpty()) ? null : new StringObjectPropertyType()
-				.withValue(organization))
-			.withAddress((countrycode.isEmpty()) ? null : new StringObjectPropertyType()
-				.withValue(countrycode));
 
-		if (!organization.isEmpty() | !countrycode.isEmpty()) {
-			entry
-				.withContactInfo(contact);
-		}
 		if (!authoritation.isEmpty()) {
 			WhoisNameserversType whoisNameservers = new WhoisNameserversType();
 			String[] nameservers = authoritation.split(" ");
