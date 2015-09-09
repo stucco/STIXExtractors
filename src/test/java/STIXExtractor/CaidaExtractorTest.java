@@ -127,23 +127,27 @@ public class CaidaExtractorTest extends STIXExtractor {
 
 		CaidaExtractor caidaExtractor = new CaidaExtractor(as2orgInfo, pfx2asInfo);
 		STIXPackage stixPackage = caidaExtractor.getStixPackage();
-		
+
 		System.out.println("Validating Caida stixPackage");
 		assertTrue(caidaExtractor.validate(stixPackage));
 
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
-		Element asn = doc.select("cybox|Observable:has(cybox|Title:contains(ASN))").first();
+		Element asn = doc.select("cybox|Observable:has(cybox|Title:contains(AS))").first();
 
 		System.out.println();
-		System.out.println("Testing ASN");
+		System.out.println("Testing AS");
 		System.out.println("Testing Title");
-		assertEquals(asn.select("cybox|Title").text(), "ASN");
+		assertEquals(asn.select("cybox|Title").text(), "AS");
 		System.out.println("Testing Source");
 		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
 		System.out.println("Testing ASN value");
-		assertEquals(asn.select("AddressObj|Address_Value").text(), "19864");
+		assertEquals(asn.select("ASObj|Number").text(), "19864");
+		System.out.println("Testing AS name");
+		assertEquals(asn.select("ASObj|Name").text(), "O1COMM");
+		System.out.println("Testing RIR");
+		assertEquals(asn.select("ASObj|Regional_Internet_Registry").text(), "ARIN");
 		System.out.println("Testing Description");
-		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "19864");
+		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "AS O1COMM has ASN 19864");
 		System.out.println("Testing ASN -> AddressRange");
 		String idref = asn.select("cybox|Related_Object").attr("idref");
 		Element addressRange = doc.select("[id = " + idref + "]").first();
@@ -180,6 +184,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 
 		CaidaExtractor caidaExtractor = new CaidaExtractor(as2orgInfo, pfx2asInfo);
 		STIXPackage stixPackage = caidaExtractor.getStixPackage();
+		
 	
 		System.out.println("Validating Caida stixPackage");
 		assertTrue(caidaExtractor.validate(stixPackage));
@@ -204,15 +209,19 @@ public class CaidaExtractorTest extends STIXExtractor {
 		Element asn = doc.select("[id = " + asnId + "]").first();
 
 		System.out.println();
-		System.out.println("Testing ASN");
+		System.out.println("Testing AS");
 		System.out.println("Testing Title");
-		assertEquals(asn.select("cybox|Title").text(), "ASN");
+		assertEquals(asn.select("cybox|Title").text(), "AS");
 		System.out.println("Testing Source");
 		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
 		System.out.println("Testing ASN value");
-		assertEquals(asn.select("AddressObj|Address_Value").text(), "19864");
+		assertEquals(asn.select("ASObj|Number").text(), "19864");
+		System.out.println("Testing AS name");
+		assertEquals(asn.select("ASObj|Name").text(), "O1COMM");
+		System.out.println("Testing RIR");
+		assertEquals(asn.select("ASObj|Regional_Internet_Registry").text(), "ARIN");
 		System.out.println("Testing Description");
-		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "19864");
+		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "AS O1COMM has ASN 19864");
 		System.out.println("Testing ASN -> AddressRange");
 		String idref = asn.select("cybox|Related_Object").attr("idref");
 		Element addressRange = doc.select("[id = " + idref + "]").first();
@@ -273,15 +282,19 @@ public class CaidaExtractorTest extends STIXExtractor {
 		Element asn = doc.select("[id = " + asnId + "]").first();
 
 		System.out.println();
-		System.out.println("Testing ASN");
+		System.out.println("Testing AS");
 		System.out.println("Testing Title");
-		assertEquals(asn.select("cybox|Title").text(), "ASN");
+		assertEquals(asn.select("cybox|Title").text(), "AS");
 		System.out.println("Testing Source");
 		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
 		System.out.println("Testing ASN value");
-		assertEquals(asn.select("AddressObj|Address_Value").text(), "12285");
+		assertEquals(asn.select("ASObj|Number").text(), "12285");
+		System.out.println("Testing AS name");
+		assertEquals(asn.select("ASObj|Name").text(), "ONE-ELEVEN");
+		System.out.println("Testing RIR");
+		assertEquals(asn.select("ASObj|Regional_Internet_Registry").text(), "ARIN");
 		System.out.println("Testing Description");
-		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "12285");
+		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "AS ONE-ELEVEN has ASN 12285");
 	}
 	
 	/**
@@ -308,7 +321,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 
 		CaidaExtractor caidaExtractor = new CaidaExtractor(as2orgInfo, pfx2asInfo);
 		STIXPackage stixPackage = caidaExtractor.getStixPackage();
-	
+
 		System.out.println("Validating Caida stixPackage");
 		assertTrue(caidaExtractor.validate(stixPackage));
 		
@@ -327,22 +340,24 @@ public class CaidaExtractorTest extends STIXExtractor {
 		assertEquals(org.select("WhoisObj|Registrant_ID").text(), "111S-ARIN");
 		System.out.println("Testing Address");
 		assertEquals(org.select("WhoisObj|Address").text(), "US");
-		System.out.println("Testing Registry");
-		assertEquals(org.select("WhoisObj|Regional_Internet_Registry").text(), "RIPE");
 		System.out.println("Testing Organization -> ASN");
 		String asnId = org.select("WhoisObj|IP_Address").attr("object_reference");
 		Element asn = doc.select("[id = " + asnId + "]").first();
 
 		System.out.println();
-		System.out.println("Testing ASN");
+		System.out.println("Testing AS");
 		System.out.println("Testing Title");
-		assertEquals(asn.select("cybox|Title").text(), "ASN");
+		assertEquals(asn.select("cybox|Title").text(), "AS");
 		System.out.println("Testing Source");
 		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
 		System.out.println("Testing ASN value");
-		assertEquals(asn.select("AddressObj|Address_Value").text(), "12285");
+		assertEquals(asn.select("ASObj|Number").text(), "12285");
+		System.out.println("Testing AS name");
+		assertEquals(asn.select("ASObj|Name").text(), "ONE-ELEVEN");
+		System.out.println("Testing RIR");
+		assertEquals(asn.select("ASObj|Regional_Internet_Registry").text(), "ARIN");
 		System.out.println("Testing Description");
-		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "12285");
+		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "AS ONE-ELEVEN has ASN 12285");
 
 		System.out.println();
 		System.out.println("Testing Organization");
@@ -357,22 +372,24 @@ public class CaidaExtractorTest extends STIXExtractor {
 		assertEquals(org.select("WhoisObj|Registrant_ID").text(), "18VO-ARIN");
 		System.out.println("Testing Address");
 		assertEquals(org.select("WhoisObj|Address").text(), "US");
-		System.out.println("Testing Registry");
-		assertEquals(org.select("WhoisObj|Regional_Internet_Registry").text(), "ARIN");
 		System.out.println("Testing Organization -> ASN");
 		asnId = org.select("WhoisObj|IP_Address").attr("object_reference");
 		asn = doc.select("[id = " + asnId + "]").first();
 
 		System.out.println();
-		System.out.println("Testing ASN");
+		System.out.println("Testing AS");
 		System.out.println("Testing Title");
-		assertEquals(asn.select("cybox|Title").text(), "ASN");
+		assertEquals(asn.select("cybox|Title").text(), "AS");
 		System.out.println("Testing Source");
-		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
 		System.out.println("Testing ASN value");
-		assertEquals(asn.select("AddressObj|Address_Value").text(), "18548");
+		assertEquals(asn.select("ASObj|Number").text(), "18548");
+		System.out.println("Testing AS name");
+		assertEquals(asn.select("ASObj|Name").text(), "18VO");
+		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		System.out.println("Testing RIR");
+		assertEquals(asn.select("ASObj|Regional_Internet_Registry").text(), "ARIN");
 		System.out.println("Testing Description");
-		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "18548");
+		assertEquals(asn.select("cybox|Object > cybox|Description").text(), "AS 18VO has ASN 18548");
 
 
 		System.out.println("Testing ASN -> AddressRange");

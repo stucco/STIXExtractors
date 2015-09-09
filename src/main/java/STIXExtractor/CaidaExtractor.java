@@ -75,7 +75,7 @@ public class CaidaExtractor extends STIXExtractor {
 			String line;
 
 			Map<String, String[]> orgMap = new HashMap<String, String[]>();		
-			Map<String, List<String>> asnMap = new HashMap<String, List<String>>();
+			Map<String, List<String[]>> asnMap = new HashMap<String, List<String[]>>();
 			Set<String> asnSet = new HashSet<String>();
 			boolean marked = false;
 			while ((line = br.readLine()) != null) {
@@ -108,8 +108,8 @@ public class CaidaExtractor extends STIXExtractor {
 							break;
 						}
 						String[] as2org = line.split("\\|");
-						List<String> prefixList = (asnMap.containsKey(as2org[3])) ? asnMap.get(as2org[3]) : new ArrayList<String>();
-						prefixList.add(as2org[0]);
+						List<String[]> prefixList = (asnMap.containsKey(as2org[3])) ? asnMap.get(as2org[3]) : new ArrayList<String[]>();
+						prefixList.add(as2org);
 						asnMap.put(as2org[3], prefixList);
 						asnSet.add(as2org[0]);
 					}
@@ -143,15 +143,15 @@ public class CaidaExtractor extends STIXExtractor {
 			List<QName> asnId = new ArrayList<QName>();
 			for (String asnKey : asnMap.keySet()) {
 				List<QName> asnIdList = new ArrayList<QName>();
-				List<String> asnList = asnMap.get(asnKey);
+				List<String[]> asnList = asnMap.get(asnKey);
 				
 				/* asn observable (adding only if it has matching organization or prefix) */
-				for (String asn : asnList) {
-					Observable asnObservable = setASNObservable(asn, "Caida");
+				for (String[] asn : asnList) {
+					Observable asnObservable = setASNObservable(asn[0], asn[2], asn[4], "Caida");
 					asnIdList.add(asnObservable.getId());
 			
-					if (prefixMap.containsKey(asn)) {
-						List<String> prefixList = prefixMap.get(asn);
+					if (prefixMap.containsKey(asn[0])) {
+						List<String> prefixList = prefixMap.get(asn[0]);
 						List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
 
 						/* addressRange observable */
@@ -162,8 +162,8 @@ public class CaidaExtractor extends STIXExtractor {
 							Observable addressRangeObservable = setAddressRangeObservable(info.getLowAddress(), info.getHighAddress(), "Caida");
 							observables
 								.withObservables(addressRangeObservable);	
-							relatedObjects.add(setRelatedObject(addressRangeObservable.getId(), 
-								"hostsAddressRange", "ASN " + asn + " hosts IP address range " + info.getLowAddress() + " through " + info.getHighAddress(), 
+							relatedObjects.add(setRelatedObject(addressRangeObservable.getId(), "hostsAddressRange", 
+								"AS " + asn[2] + " with ASN " + asn[0] + "  hosts IP address range " + info.getLowAddress() + " through " + info.getHighAddress(), 
 									"Caida"));
 						}
 
@@ -215,8 +215,6 @@ public class CaidaExtractor extends STIXExtractor {
                 	        		.withProperties(new WhoisEntry()
 							.withIPAddress(new Address()	
 								.withObjectReference((asnObservable == null) ? asnIdList.get(0) : asnObservable.getId()))
-							.withRegionalInternetRegistry((!rirSet.contains(orgInfo[4])) ? null : new RegionalRegistryType()
-								.withValue(orgInfo[4]))
 							.withRegistrants(new WhoisRegistrantsType()
 								.withRegistrants(new WhoisRegistrantInfoType()
 									.withRegistrantID(new StringObjectPropertyType()
