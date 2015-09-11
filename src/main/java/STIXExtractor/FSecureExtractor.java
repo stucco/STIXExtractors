@@ -181,9 +181,9 @@ public class FSecureExtractor extends STIXExtractor {
 				if(curr.tagName().equals("p") && prev.tagName().equals("h4") && prev.text().equals("Distribution")){
 					attackPatterns
 						.withAttackPatterns(new AttackPatternType()
-								.withTitle("Distribution")
-								.withDescriptions(new StructuredTextType()
-									.withValue(curr.text())));
+							.withTitle("Distribution")
+							.withDescriptions(new StructuredTextType()
+								.withValue(curr.text())));
 					contents.remove(i);
 					contents.remove(i-1);
 					i -= 1;
@@ -194,9 +194,9 @@ public class FSecureExtractor extends STIXExtractor {
 				if(curr.tagName().equals("p") && prev.tagName().equals("h4") && prev.text().equals("Behavior")){
 					attackPatterns
 						.withAttackPatterns(new AttackPatternType()
-								.withTitle("Behavior")
-								.withDescriptions(new StructuredTextType()
-									.withValue(curr.text())));
+							.withTitle("Behavior")
+							.withDescriptions(new StructuredTextType()
+								.withValue(curr.text())));
 					contents.remove(i);
 				contents.remove(i-1);
 				i -= 1;

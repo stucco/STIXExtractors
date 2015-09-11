@@ -58,7 +58,7 @@ public class PackageListExtractor extends STIXExtractor {
 			CSVRecord record = records.get(0);
 			int start;
 			if (record.get(0).equals(HOSTNAME)) {
-				if (record.size() == 1) {
+				if (records.size() == 1) {
 					return null;
 				} else {
 					start = 1;

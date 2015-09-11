@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Arrays;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +33,8 @@ import java.nio.charset.Charset;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import java.math.BigInteger;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.datatype.DatatypeFactory;
@@ -104,10 +107,15 @@ import org.mitre.cybox.common_2.Property;
 import org.mitre.stix.common_1.ToolInformationType;
 import org.mitre.stix.ttp_1.BehaviorType;
 import org.mitre.stix.ttp_1.MalwareType;
+import org.mitre.cybox.common_2.RegionalRegistryType;
+import org.mitre.cybox.common_2.NonNegativeIntegerObjectPropertyType;
+import org.mitre.cybox.objects.AS;
 
 import org.xml.sax.SAXException;
 
 public abstract class STIXExtractor extends ExtractorUtils {
+
+	private static Set<String> rirSet = new HashSet<String>(Arrays.asList("AFRINIC", "ARIN", "APNIC", "LACNIC", "RIPE"));
 
 	public STIXPackage initStixPackage(String source) throws DatatypeConfigurationException {
 		GregorianCalendar calendar = new GregorianCalendar();
@@ -304,6 +312,28 @@ public abstract class STIXExtractor extends ExtractorUtils {
 					.withCategory(CategoryTypeEnum.IPV_4_ADDR)));
 	}
 
+	public Observable setAddressRangeObservable(IpUtils ipUtils, String source) {
+		return setAddressRangeObservable(ipUtils.getButtomIpAddress(),  ipUtils.getButtomIpBigInt(), ipUtils.getTopIpAddress(), ipUtils.getTopIpBigInt(), source);
+	}
+
+	public Observable setAddressRangeObservable(String startIp, BigInteger startIpInt, String endIp, BigInteger endIpInt, String source) {
+		return new Observable()
+			.withId(new QName("gov.ornl.stucco", "addressRange-" + UUID.randomUUID().toString(), "stucco"))
+			.withTitle("AddressRange")
+			.withObservableSources(setMeasureSourceType(source))
+			.withObject(new ObjectType()								
+				.withId(new QName("gov.ornl.stucco", "addressRange-" + startIpInt + "-" + endIpInt, "stucco"))
+				.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+					.withValue(startIp + " through " + endIp))
+				.withProperties(new Address()
+					.withAddressValue(new StringObjectPropertyType()
+						.withValue(startIp + " - " + endIp)
+					.withCondition(ConditionTypeEnum.INCLUSIVE_BETWEEN)
+					.withApplyCondition(ConditionApplicationEnum.ANY)
+					.withDelimiter(" - "))
+					.withCategory(CategoryTypeEnum.IPV_4_ADDR)));
+	}
+
 	public Observable setIpObservable(String ip, long ipInt, String keyword, String source) {
 		return setIpObservable(ip, ipInt, source)
 			.withKeywords(new KeywordsType()
@@ -326,16 +356,22 @@ public abstract class STIXExtractor extends ExtractorUtils {
 					.withProperties(setAddress(ip, CategoryTypeEnum.IPV_4_ADDR)));
 	}
 	
-	public Observable setASNObservable(String asn, String source)	{
+	public Observable setASNObservable(String asn, String asName, String registry, String source) {
 		return new Observable()
-				.withId(new QName("gov.ornl.stucco", "asn-" + UUID.randomUUID().toString(), "stucco"))	
-				.withTitle("ASN")
+				.withId(new QName("gov.ornl.stucco", "as-" + UUID.randomUUID().toString(), "stucco"))	
+				.withTitle("AS")
 				.withObservableSources(setMeasureSourceType(source))
 				.withObject(new ObjectType()
-					.withId(new QName("gov.ornl.stucco", "asn-" + asn, "stucco"))
+					.withId(new QName("gov.ornl.stucco", "as-" + makeId(asName) + "_" + asn, "stucco"))
 					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
-						.withValue(asn)) 
-					.withProperties(setAddress(asn, CategoryTypeEnum.ASN)));
+						.withValue("AS " + asName + " has ASN " + asn)) 
+					.withProperties(new AS()
+						.withNumber((asn.isEmpty()) ? null : new NonNegativeIntegerObjectPropertyType()
+							.withValue(asn))
+						.withName((asName.isEmpty()) ? null : new StringObjectPropertyType()
+							.withValue(asName))	
+						.withRegionalInternetRegistry((!rirSet.contains(registry)) ? null : new RegionalRegistryType()
+							.withValue(registry))));
 	}
 
 	public Address setAddress(String address) {
@@ -376,7 +412,7 @@ public abstract class STIXExtractor extends ExtractorUtils {
 				.withId(new QName("gov.ornl.stucco", "dnsName-" + makeId(dns), "stucco"))
 				.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 					.withValue(dns))
-				.withProperties(new WhoisEntry()		
+				.withProperties(new WhoisEntry()	// DomainName?? 	
 					.withDomainName(setURIObjectType(dns))));
 	}
 

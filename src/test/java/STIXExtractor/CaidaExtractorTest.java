@@ -128,6 +128,8 @@ public class CaidaExtractorTest extends STIXExtractor {
 		CaidaExtractor caidaExtractor = new CaidaExtractor(as2orgInfo, pfx2asInfo);
 		STIXPackage stixPackage = caidaExtractor.getStixPackage();
 
+		System.out.println(stixPackage.toXMLString(true));
+
 		System.out.println("Validating Caida stixPackage");
 		assertTrue(caidaExtractor.validate(stixPackage));
 

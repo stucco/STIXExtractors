@@ -1,7 +1,5 @@
 package STIXExtractor;
 
-import javax.xml.namespace.QName;
-
 import java.util.UUID;
 import java.util.Iterator;
 import java.util.GregorianCalendar;
@@ -14,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +24,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.InetAddress;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.UnknownHostException;
+
+import java.math.BigInteger;
 
 import java.nio.charset.Charset;
 
@@ -37,6 +40,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.namespace.QName;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -94,8 +98,91 @@ public abstract class ExtractorUtils {
 	private static final int MAX_COMPARE_DEPTH = 8;
 	private static final boolean DEBUG_COMPARE = false;
 
+	public class IpUtils {
+
+		private BigInteger ipBigInt = null;
+		private BigInteger topIpBigInt = null;
+		private BigInteger buttomIpBigInt = null;
+		private String topIpAddress = null;
+		private String buttomIpAddress = null;
+
+		private BigInteger computeIpToBigInt(String ipString) {
+			try {
+				InetAddress address = InetAddress.getByName(ipString);
+
+				return new BigInteger(1, address.getAddress());
+
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+
+		public void computeIpInfo(String ipString, int prefixLength) {
+
+			ipBigInt = null;
+			topIpBigInt = null;
+			buttomIpBigInt = null;
+			topIpAddress = null;
+			buttomIpAddress = null;
+
+			try {
+				InetAddress address = InetAddress.getByName(ipString);
+				int length = 0;
+
+				if (address instanceof Inet4Address) {
+					length = 32;
+				} else { 
+					if (address instanceof Inet6Address) {
+						length = 128;
+					}
+				}
+				
+				ipBigInt = computeIpToBigInt(ipString);
+				topIpBigInt = ipBigInt;
+				buttomIpBigInt = ipBigInt;
+			
+				for (int i = 0; i < length-prefixLength; i++)  {
+					topIpBigInt = topIpBigInt.setBit(i);
+				}
+				//TODO converts it to a signed byte array .... should be unsigned ... needs be fixed
+				byte[] topIp = topIpBigInt.toByteArray();
+				topIpAddress = InetAddress.getByAddress(topIp).toString().replace("/", "");
+
+				buttomIpBigInt = buttomIpBigInt.shiftRight(length - prefixLength).shiftLeft(length - prefixLength);
+				//TODO converts it to a signed byte array .... should be unsigned ... needs be fixed
+				byte[] buttomIp = buttomIpBigInt.toByteArray();
+				buttomIpAddress = InetAddress.getByAddress(buttomIp).toString().replace("/", "");
+		
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+		}
+
+		public BigInteger getIpBigInt() {
+			return ipBigInt;
+		}
+
+		public BigInteger getTopIpBigInt() {
+			return topIpBigInt;
+		}
+
+		public BigInteger getButtomIpBigInt() {
+			return buttomIpBigInt;
+		}
+
+		public String getTopIpAddress() {
+			return topIpAddress;
+		}
+
+		public String getButtomIpAddress() {
+			return buttomIpAddress;
+		}
+	}
+	
 	public String makeId(String id) {
-		return id = id.replaceAll("[:/, ()]", "_");
+		return id.replaceAll("[:/, ()]", "_");
 	}
 
 	public String makeSoftwareDesc(String cpe)	{
@@ -132,7 +219,6 @@ public abstract class ExtractorUtils {
 		return ipLong;
 	}
 	
-
 	public List getCSVRecordsList (String[] HEADERS, String info)	throws IOException	{
 		CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(HEADERS);
 		Reader reader = new StringReader(info);

@@ -385,7 +385,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Address -> DNSName relation");
 			String dnsId = address1.select("cybox|Related_Object").attr("idref");
 			Element dns1 = doc.select("[id = " + dnsId + "]").first();
-			assertEquals(dns1.select("URIObj|Value").text(), "franciz-industries.biz");
+			assertEquals(dns1.select("whoisobj|domain_name > uriobj|value").text(), "franciz-industries.biz");
 			System.out.println("Testing Address -> Port relation");
 			String portId = address1.select("SocketAddressObj|Port").attr("object_reference");
 			Element port = doc.select("[id = " + portId + "]").first();
@@ -403,7 +403,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Address -> DNSName relation");
 			dnsId = address2.select("cybox|Related_Object").attr("idref");
 			Element dns2 = doc.select("[id = " + dnsId + "]").first();
-			assertEquals(dns2.select("URIObj|Value").text(), "www.google.com");
+			assertEquals(dns2.select("whoisobj|domain_name > uriobj|value").text(), "www.google.com");
 			System.out.println("Testing Address -> Port relation");
 			portId = address2.select("SocketAddressObj|Port").attr("object_reference");
 			port = doc.select("[id = " + portId + "]").first();
@@ -421,7 +421,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Address -> DNSName relation");
 			dnsId = address3.select("cybox|Related_Object").attr("idref");
 			Element dns3 = doc.select("[id = " + dnsId + "]").first();
-			assertEquals(dns3.select("URIObj|Value").text(), "www.google.ie");
+			assertEquals(dns3.select("whoisobj|domain_name > uriobj|value").text(), "www.google.ie");
 			System.out.println("Testing Address -> Port relation");
 			portId = address3.select("SocketAddressObj|Port").attr("object_reference");
 			port = doc.select("[id = " + portId + "]").first();
@@ -1059,7 +1059,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Address -> DNSName relation");
 			String dnsId = address.select("cybox|Related_Object").attr("idref");
 			Element dns = doc.select("[id = " + dnsId + "]").first();
-			assertEquals(dns.select("URIObj|Value").text(), "riseandshine.favcc1.com");
+			assertEquals(dns.select("whoisobj|domain_name > uriobj|value").text(), "riseandshine.favcc1.com");
 
 			System.out.println();
 			System.out.println("Testing Port");

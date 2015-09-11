@@ -57,6 +57,7 @@ public class CaidaExtractor extends STIXExtractor {
 						
 	private static final Logger logger = LoggerFactory.getLogger(CaidaExtractor.class);
 	private static Set<String> rirSet = new HashSet<String>(Arrays.asList("AFRINIC", "ARIN", "APNIC", "LACNIC", "RIPE"));
+
 	private STIXPackage stixPackage;
 
 	public CaidaExtractor(String as2orgInfo, String pfx2asInfo) {
