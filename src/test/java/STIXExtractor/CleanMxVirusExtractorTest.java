@@ -453,7 +453,7 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 
 			System.out.println("Testing Address -> DNSName");
 			String dnsRef = stixAddress.select("cybox|Related_Object").attr("idref");
-			String dnsValue = stixDoc.select("[id=" + dnsRef + "]").select("WhoisObj|Domain_Name > URIObj|Value").text();
+			String dnsValue = stixDoc.select("[id=" + dnsRef + "]").select("whoisobj|domain_name > uriobj|value").text();
 			assertEquals(dnsValue, address.select("domain").text());
 		}
 
@@ -488,7 +488,7 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 			System.out.println("Testing ID");
 			assertEquals(stixDns.select("cybox|Object").attr("id"), "stucco:dnsName-" + dns.select("domain").text());
 			System.out.println("Testing Domain name");
-			assertEquals(stixDns.select("WhoisObj|Domain_Name > URIObj|Value").text(), dns.select("domain").text());
+			assertEquals(stixDns.select("whoisobj|domain_name > uriobj|value").text(), dns.select("domain").text());
 			System.out.println("Testing Description");
 			assertEquals(stixDns.select("cybox|Object > cybox|Description").text(), dns.select("domain").text());
 			System.out.println("Testing Namespace");
