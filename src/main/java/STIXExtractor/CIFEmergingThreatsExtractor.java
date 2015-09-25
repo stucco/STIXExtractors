@@ -13,11 +13,13 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.mitre.stix.stix_1.STIXPackage;
-import org.mitre.stix.stix_1.IndicatorsType;
 import org.mitre.cybox.cybox_2.Observable;
 import org.mitre.cybox.cybox_2.Observables;
-import org.mitre.cybox.cybox_2.ObservableCompositionType;
-import org.mitre.cybox.cybox_2.OperatorTypeEnum;
+import org.mitre.stix.ttp_1.BehaviorType;
+import org.mitre.stix.ttp_1.MalwareType;
+import org.mitre.stix.ttp_1.InfrastructureType;
+import org.mitre.stix.ttp_1.ResourceType;
+import org.mitre.stix.stix_1.TTPsType;
 
 /**
  * CIF Emerging Threats data to STIX format extractor
@@ -79,13 +81,16 @@ public class CIFEmergingThreatsExtractor extends STIXExtractor {
 			}
 				
 			return (ipIdList.isEmpty()) ? null : initStixPackage("rules.emergingthreats.net")
-					.withIndicators(new IndicatorsType()
-						.withIndicators(setMalwareIndicator("Malware", "rules.emergingthreats.net")
-							.withObservable((ipIdList.size() == 1) ? ipIdList.get(0) : new Observable()
-								.withObservableComposition(new ObservableCompositionType()
-									.withOperator(OperatorTypeEnum.AND)
-									.withObservables(ipIdList)))))
-					.withObservables(observables);
+				.withObservables(observables)
+				.withTTPs(new TTPsType()
+					.withTTPS(initTTP("Malware", "rules.emergingthreats.net")
+                                  		.withBehavior(new BehaviorType()
+                                           		.withMalware(new MalwareType()
+                                                     		.withMalwareInstances(setMalwareInstance("Malware", "rules.emergingthreats.net"))))
+						.withResources(new ResourceType()
+							.withInfrastructure(new InfrastructureType()
+								.withObservableCharacterization(initObservables()
+									.withObservables(ipIdList))))));
 
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();

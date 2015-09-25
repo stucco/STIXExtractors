@@ -97,11 +97,16 @@ public class FSecureExtractor extends STIXExtractor {
 							.withValue(alias));
 			}
 
-			malware
-				.withTypes((category.isEmpty()) ? null : new ControlledVocabularyStringType()
-					.withValue(category))
-				.withTypes((type.isEmpty()) ? null : new ControlledVocabularyStringType()
-					.withValue(type));
+			if (!category.isEmpty()) {
+				malware
+					.withTypes(new ControlledVocabularyStringType()
+						.withValue(category));
+			}
+			if(!type.isEmpty()) {
+				malware
+					.withTypes(new ControlledVocabularyStringType()
+						.withValue(type));
+			}
 			
 			Element contentDiv = doc.select("div#maincontent").first().select("div.row").first().select("div").first();
 			Elements contents = contentDiv.children().first().children();

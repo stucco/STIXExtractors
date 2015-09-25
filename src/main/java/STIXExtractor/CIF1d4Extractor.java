@@ -13,11 +13,13 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.mitre.stix.stix_1.STIXPackage;
-import org.mitre.stix.stix_1.IndicatorsType;
 import org.mitre.cybox.cybox_2.Observable;
 import org.mitre.cybox.cybox_2.Observables;
-import org.mitre.cybox.cybox_2.ObservableCompositionType;
-import org.mitre.cybox.cybox_2.OperatorTypeEnum;
+import org.mitre.stix.ttp_1.BehaviorType;
+import org.mitre.stix.ttp_1.MalwareType;
+import org.mitre.stix.ttp_1.InfrastructureType;
+import org.mitre.stix.ttp_1.ResourceType;
+import org.mitre.stix.stix_1.TTPsType;
 
 /**
  * CIF 1d4 data to STIX format extractor
@@ -79,14 +81,17 @@ public class CIF1d4Extractor extends STIXExtractor {
 			}
 		
 			return (ipIdList.isEmpty()) ? null : initStixPackage("OneDFour_US")
-					.withIndicators(new IndicatorsType()
-						.withIndicators(setMalwareIndicator("Scanner", "1d4.us")
-							.withObservable((ipIdList.size() == 1) ? ipIdList.get(0) : new Observable()
-								.withObservableComposition(new ObservableCompositionType()
-									.withOperator(OperatorTypeEnum.AND)
-									.withObservables(ipIdList)))))
-					.withObservables(observables);				
-
+					.withObservables(observables)
+					.withTTPs(new TTPsType()
+						.withTTPS(initTTP("Malware", "1d4.us")
+                                   			.withBehavior(new BehaviorType()
+                                           			.withMalware(new MalwareType()
+                                                      			.withMalwareInstances(setMalwareInstance("Scanner", "1d4.us"))))
+							.withResources(new ResourceType()
+								.withInfrastructure(new InfrastructureType()
+									.withObservableCharacterization(initObservables()
+										.withObservables(ipIdList))))));
+											
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();
 		} catch (IOException e)	{

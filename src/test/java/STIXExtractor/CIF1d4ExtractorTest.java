@@ -53,7 +53,7 @@ public class CIF1d4ExtractorTest {
 
 		CIF1d4Extractor cifExtractor = new CIF1d4Extractor(cifInfo);
 		STIXPackage stixPackage = cifExtractor.getStixPackage();
-		
+
 		System.out.println("Validating CIF1d4 stixPackage");
 		assertTrue(cifExtractor.validate(stixPackage));
 
@@ -62,9 +62,9 @@ public class CIF1d4ExtractorTest {
 		
 		System.out.println();
 		System.out.println("Testing Malware content:");
-		Element malware = doc.select("stix|Indicator").first();
+		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("indicator|Title").text(), "Malware");
+		assertEquals(malware.select("ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "1d4.us");
 		System.out.println("Testing Type");
@@ -74,7 +74,7 @@ public class CIF1d4ExtractorTest {
 		System.out.println("Testing Description");
 		assertEquals(malware.select("ttp|Description").text(), "Scanner");
 		System.out.println("Testing Malware -> IP relation");
-		Elements ipId = malware.select("indicator|Observable");
+		Elements ipId = malware.select("cybox|Observable");
 		List<String> ipList = new ArrayList<String>();
 		for (Element ip : ipId) {
 			String id = ip.attr("idref");
@@ -123,9 +123,9 @@ public class CIF1d4ExtractorTest {
 
 		System.out.println();
 		System.out.println("Testing Malware content:");
-		Element malware = doc.select("stix|Indicator").first();
+		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("indicator|Title").text(), "Malware");
+		assertEquals(malware.select("ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "1d4.us");
 		System.out.println("Testing Type");

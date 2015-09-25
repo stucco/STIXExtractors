@@ -61,9 +61,9 @@ public class CIFEmergingThreatsExtractorTest {
 
 		System.out.println();
 		System.out.println("Testing Malware content:");
-		Element malware = doc.select("stix|Indicator").first();
+		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("indicator|Title").text(), "Malware");
+		assertEquals(malware.select("ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "rules.emergingthreats.net");
 		System.out.println("Testing Type");
@@ -73,7 +73,7 @@ public class CIFEmergingThreatsExtractorTest {
 		System.out.println("Testing Description");
 		assertEquals(malware.select("ttp|Description").text(), "Malware");
 		System.out.println("Testing Malware -> IP relation");
-		Elements ipId = malware.select("indicator|Observable");
+		Elements ipId = malware.select("cybox|Observable");
 		List<String> ipList = new ArrayList<String>();
 		for (Element ip : ipId) {
 			String id = ip.attr("idref");
@@ -125,9 +125,9 @@ public class CIFEmergingThreatsExtractorTest {
 		
 		System.out.println();
 		System.out.println("Testing Malware content:");
-		Element malware = doc.select("stix|Indicator").first();
+		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("indicator|Title").text(), "Malware");
+		assertEquals(malware.select("ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "rules.emergingthreats.net");
 		System.out.println("Testing Type");

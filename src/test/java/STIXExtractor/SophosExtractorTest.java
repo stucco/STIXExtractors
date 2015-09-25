@@ -136,7 +136,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			
 			SophosExtractor sophosExtractor = new SophosExtractor(summary, details);
 			STIXPackage receivedPackage = sophosExtractor.getStixPackage();
-			
+
 			System.out.println("Validating StixPackage");					
 			assertTrue(sophosExtractor.validate(receivedPackage));
 			
@@ -324,28 +324,23 @@ public class SophosExtractorTest extends STIXExtractor {
 			assertTrue(processList.contains("c:\\windows\\system32\\ipconfig.exe"));
 			assertTrue(processList.contains("c:\\windows\\system32\\tasklist.exe"));
 
-			System.out.println("Testing FileTypes + Hashed");
-			Elements fileTypes = doc.select("cybox|Object:has(FileObj|File_Name:contains(Windows executable))").select("FileObj|File_Name");
-			List<String> typeList = new ArrayList<String>();
-			for (Element type : fileTypes) {
-				typeList.add(type.text());
+			System.out.println("Testing FileTypes + Hashes");
+
+			Elements fileTypes = doc.select("ttp|Tool:has(cyboxCommon|Name:contains(Windows executable))");
+			assertTrue(fileTypes.size() == 2);
+			List<String>name = new ArrayList<String>();
+			List<String>md5List = new ArrayList<String>();
+			List<String>sha1List = new ArrayList<String>();
+			for (Element file : fileTypes) {
+				name.add(file.select("cyboxCommon|Name").text());
+				sha1List.add(file.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(SHA-1))").first().select("cyboxCommon|Simple_Hash_Value").text());
+				md5List.add(file.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(MD5))").first().select("cyboxCommon|Simple_Hash_Value").text());
 			}
-			assertTrue(typeList.contains("Windows executable"));
-			Elements md5Hashes = doc.select("cybox|Object:has(FileObj|File_Name:contains(Windows executable))")
-					.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(MD5))").select("cyboxCommon|Simple_Hash_Value");
-			List<String> md5List = new ArrayList<String>();
-			for (Element md5 : md5Hashes) {
-				md5List.add(md5.text());
-			}
+			assertTrue(name.contains("Windows executable"));
+			
 			assertTrue(md5List.contains("599990d8fa3d211b0b775d82dd939526"));
 			assertTrue(md5List.contains("ca2fe00295a6255ced2778fb9f43146f"));
 
-			Elements sha1Hashes = doc.select("cybox|Object:has(FileObj|File_Name:contains(Windows executable))")
-					.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(SHA-1))").select("cyboxCommon|Simple_Hash_Value");
-			List<String> sha1List = new ArrayList<String>();
-			for (Element sha1 : sha1Hashes) {
-				sha1List.add(sha1.text());
-			}
 			assertTrue(sha1List.contains("8bff3c73c92314a7d094a0d024cf57a722b0b198"));
 			assertTrue(sha1List.contains("9017bd0da5f94f4ba899e5d990c8c4f4792d6876"));
 
@@ -385,7 +380,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Address -> DNSName relation");
 			String dnsId = address1.select("cybox|Related_Object").attr("idref");
 			Element dns1 = doc.select("[id = " + dnsId + "]").first();
-			assertEquals(dns1.select("whoisobj|domain_name > uriobj|value").text(), "franciz-industries.biz");
+			assertEquals(dns1.select("DomainNameObj|Value").text(), "franciz-industries.biz");
 			System.out.println("Testing Address -> Port relation");
 			String portId = address1.select("SocketAddressObj|Port").attr("object_reference");
 			Element port = doc.select("[id = " + portId + "]").first();
@@ -403,7 +398,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Address -> DNSName relation");
 			dnsId = address2.select("cybox|Related_Object").attr("idref");
 			Element dns2 = doc.select("[id = " + dnsId + "]").first();
-			assertEquals(dns2.select("whoisobj|domain_name > uriobj|value").text(), "www.google.com");
+			assertEquals(dns2.select("DomainNameObj|Value").text(), "www.google.com");
 			System.out.println("Testing Address -> Port relation");
 			portId = address2.select("SocketAddressObj|Port").attr("object_reference");
 			port = doc.select("[id = " + portId + "]").first();
@@ -421,7 +416,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Address -> DNSName relation");
 			dnsId = address3.select("cybox|Related_Object").attr("idref");
 			Element dns3 = doc.select("[id = " + dnsId + "]").first();
-			assertEquals(dns3.select("whoisobj|domain_name > uriobj|value").text(), "www.google.ie");
+			assertEquals(dns3.select("DomainNameObj|Value").text(), "www.google.ie");
 			System.out.println("Testing Address -> Port relation");
 			portId = address3.select("SocketAddressObj|Port").attr("object_reference");
 			port = doc.select("[id = " + portId + "]").first();
@@ -443,7 +438,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Title");
 			assertEquals(dns1.select("cybox|title").text(), "DNSName");
 			System.out.println("Testing Name");
-			assertEquals(dns1.select("whoisobj|domain_name > uriobj|value").text(), "franciz-industries.biz");
+			assertEquals(dns1.select("DomainNameObj|Value").text(), "franciz-industries.biz");
 			System.out.println("Testing Description");
 			assertEquals(dns1.select("cybox|description").text(), "franciz-industries.biz");
 			System.out.println("Testing Source");
@@ -454,7 +449,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Title");
 			assertEquals(dns2.select("cybox|title").text(), "DNSName");
 			System.out.println("Testing Name");
-			assertEquals(dns2.select("whoisobj|domain_name > uriobj|value").text(), "www.google.com");
+			assertEquals(dns2.select("DomainNameObj|Value").text(), "www.google.com");
 			System.out.println("Testing Description");
 			assertEquals(dns2.select("cybox|description").text(), "www.google.com");
 			System.out.println("Testing Source");
@@ -465,7 +460,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Title");
 			assertEquals(dns3.select("cybox|title").text(), "DNSName");
 			System.out.println("Testing Name");
-			assertEquals(dns3.select("whoisobj|domain_name > uriobj|value").text(), "www.google.ie");
+			assertEquals(dns3.select("DomainNameObj|Value").text(), "www.google.ie");
 			System.out.println("Testing Description");
 			assertEquals(dns3.select("cybox|description").text(), "www.google.ie");
 			System.out.println("Testing Source");
@@ -500,15 +495,15 @@ public class SophosExtractorTest extends STIXExtractor {
 			
 			SophosExtractor sophosExtractor = new SophosExtractor(summary, details);
 			STIXPackage receivedPackage = sophosExtractor.getStixPackage();
-			
+
 			System.out.println("Validating StixPackage");					
 			assertTrue(sophosExtractor.validate(receivedPackage));
 			
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
-	
-			Element indicator = doc.select("stix|Indicator").first();	
+					
+			Element ttp = doc.select("stixCommon|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(indicator.select("ttp|Title").text(), "Malware");
+			assertEquals(ttp.select("ttp|Title").text(), "Malware");
 			System.out.println("Testing Names");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
@@ -519,13 +514,13 @@ public class SophosExtractorTest extends STIXExtractor {
 			assertTrue(nameList.contains("Troj/Zbot-AAA"));
 			assertTrue(nameList.contains("Trojan-Spy.Win32.Zbot.aput"));
 			System.out.println("Testing Type");
-			assertEquals(indicator.select("ttp|Type").text(), "Trojan");
+			assertEquals(ttp.select("ttp|Type").text(), "Trojan");
 			System.out.println("Testing Description");				
-			assertEquals(indicator.select("ttp|Description").text(), "Troj/Zbot-AAA");
+			assertEquals(ttp.select("ttp|Description").text(), "Troj/Zbot-AAA");
 			System.out.println("Testing Platform");
-			assertEquals(indicator.select("ttp|Targeted_Systems").text(), "Windows");
+			assertEquals(ttp.select("ttp|Targeted_Systems").text(), "Windows");
 			System.out.println("Testing Source");
-			assertEquals(indicator.select("stixCommon|Name").text(), "Sophos");
+			assertEquals(ttp.select("stixCommon|Name").text(), "Sophos");
 			System.out.println("Testing FilesCreated");
 			Elements files = doc.select("cybox|Action:has(cybox|Description:contains(Created files))").first().select("FileObj|File_Name");
 			List<String> fileList = new ArrayList<String>();
@@ -545,32 +540,26 @@ public class SophosExtractorTest extends STIXExtractor {
 			assertTrue(processList.contains("c:\\windows\\system32\\cmd.exe"));
 			
 			System.out.println("Testing FileTypes + Hashed");
-			Elements fileTypes = doc.select("cybox|Object:has(FileObj|File_Name)").select("FileObj|File_Name");
-			List<String> typeList = new ArrayList<String>();
-			for (Element type : fileTypes) {
-				typeList.add(type.text());
+			
+			Elements fileTypes = doc.select("ttp|Tool:has(cyboxCommon|Name:contains(application/x-ms-dos-executable))");
+			assertTrue(fileTypes.size() == 3);
+			List<String>name = new ArrayList<String>();
+			List<String>md5List = new ArrayList<String>();
+			List<String>sha1List = new ArrayList<String>();
+			for (Element file : fileTypes) {
+				name.add(file.select("cyboxCommon|Name").text());
+				sha1List.add(file.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(SHA-1))").first().select("cyboxCommon|Simple_Hash_Value").text());
+				md5List.add(file.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(MD5))").first().select("cyboxCommon|Simple_Hash_Value").text());
 			}
-			assertTrue(typeList.contains("application/x-ms-dos-executable"));
+			assertTrue(name.contains("application/x-ms-dos-executable"));
 
-			Elements md5Hashes = doc.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(MD5))");
-			List<String> md5List = new ArrayList<String>();
-			for (Element md5 : md5Hashes) {
-				md5List.add(md5.select("cyboxCommon|Simple_Hash_Value").text());
-			}
 			assertTrue(md5List.contains("15eabc798ddf5542afec25946a00e987"));
 			assertTrue(md5List.contains("c4e28e07ebb3a69fd165977f0331f1c5"));
 			assertTrue(md5List.contains("d9dfa48afeb08f6e67fb8b2254a76870"));
 
-			Elements sha1Hashes = doc.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(SHA-1))");
-			List<String> sha1List = new ArrayList<String>();
-			for (Element sha1 : sha1Hashes) {
-				sha1List.add(sha1.select("cyboxCommon|Simple_Hash_Value").text());
-			}
 			assertTrue(sha1List.contains("5d012753322151c9d24bf45b98c35336225f383f"));
 			assertTrue(sha1List.contains("b1005a9483866a45046a9b9d9bea09d39b29dcde"));
 			assertTrue(sha1List.contains("b76ad9b1c6e01e41b8e05ab9be0617fff06fad98"));
-
-
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -607,9 +596,9 @@ public class SophosExtractorTest extends STIXExtractor {
 
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
 
-			Element indicator = doc.select("stix|Indicator").first();	
+			Element ttp  = doc.select("stixCommon|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(indicator.select("ttp|Title").text(), "Malware");
+			assertEquals(ttp.select("ttp|Title").text(), "Malware");
 			System.out.println("Testing Names");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
@@ -620,13 +609,13 @@ public class SophosExtractorTest extends STIXExtractor {
 			assertTrue(nameList.contains("Troj/Weelsof-FG"));
 
 			System.out.println("Testing Type");
-			assertEquals(indicator.select("ttp|Type").text(), "Trojan");
+			assertEquals(ttp.select("ttp|Type").text(), "Trojan");
 			System.out.println("Testing Description");				
-			assertEquals(indicator.select("ttp|Description").text(), "Troj/Weelsof-FG");
+			assertEquals(ttp.select("ttp|Description").text(), "Troj/Weelsof-FG");
 			System.out.println("Testing Platform");
-			assertEquals(indicator.select("ttp|Targeted_Systems").text(), "Windows");
+			assertEquals(ttp.select("ttp|Targeted_Systems").text(), "Windows");
 			System.out.println("Testing Source");
-			assertEquals(indicator.select("stixCommon|Name").text(), "Sophos");
+			assertEquals(ttp.select("stixCommon|Name").text(), "Sophos");
 			System.out.println("Testing FilesCreated");
 			Elements files = doc.select("cybox|Action:has(cybox|Description:contains(Created files))").first().select("FileObj|File_Name");
 			List<String> fileList = new ArrayList<String>();
@@ -655,30 +644,23 @@ public class SophosExtractorTest extends STIXExtractor {
 			assertTrue(keyList.contains("HKCU\\Software\\fopnellh"));
 
 			System.out.println("Testing FileTypes + Hashed");
-			Elements fileTypes = doc.select("FileObj|File_Name");
-			List<String> typeList = new ArrayList<String>();
-			for (Element type : fileTypes) {
-				typeList.add(type.text());
+
+			Elements fileTypes = doc.select("ttp|Tool:has(cyboxCommon|Name:contains(application/x-ms-dos-executable))");
+			assertTrue(fileTypes.size() == 1);
+			List<String>name = new ArrayList<String>();
+			List<String>md5List = new ArrayList<String>();
+			List<String>sha1List = new ArrayList<String>();
+			for (Element file : fileTypes) {
+				name.add(file.select("cyboxCommon|Name").text());
+				sha1List.add(file.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(SHA-1))").first().select("cyboxCommon|Simple_Hash_Value").text());
+				md5List.add(file.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(MD5))").first().select("cyboxCommon|Simple_Hash_Value").text());
 			}
-			assertTrue(typeList.contains("application/x-ms-dos-executable"));
-			
-			Elements md5Hashes = doc.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(MD5))");
-			List<String> md5List = new ArrayList<String>();
-			for (Element md5 : md5Hashes) {
-				md5List.add(md5.select("cyboxCommon|Simple_Hash_Value").text());
-			}
+			assertTrue(name.contains("application/x-ms-dos-executable"));
 			assertTrue(md5List.contains("cc3223eca31b00692fa49e63ac88139b"));
-			
-			Elements sha1Hashes = doc.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(SHA-1))");
-			List<String> sha1List = new ArrayList<String>();
-			for (Element sha1 : sha1Hashes) {
-				sha1List.add(sha1.select("cyboxCommon|Simple_Hash_Value").text());
-			}
 			assertTrue(sha1List.contains("b2a166c4d67f324a6ae87e142040f932ccbb596d"));
 
 			System.out.println("Testing Malware -> Address relation");
-			indicator = doc.select("stix|Indicator").first();
-			Elements idrefs = indicator.select("cybox|Observable[idref]");
+			Elements idrefs = ttp.select("cybox|Observable[idref]");
 			List<String> idrefList = new ArrayList<String>();
 			List<String> addressList = new ArrayList<String>();
 			for (Element idref : idrefs) {
@@ -948,9 +930,9 @@ public class SophosExtractorTest extends STIXExtractor {
 
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
 
-			Element indicator = doc.select("stix|Indicator").first();	
+			Element ttp = doc.select("stixCommon|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(indicator.select("ttp|Title").text(), "Malware");
+			assertEquals(ttp.select("ttp|Title").text(), "Malware");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
 			for (Element name : names) {
@@ -960,13 +942,13 @@ public class SophosExtractorTest extends STIXExtractor {
 			assertTrue(nameList.contains("Troj/MSIL-ACB"));
 
 			System.out.println("Testing Type");
-			assertEquals(indicator.select("ttp|Type").text(), "Trojan");
+			assertEquals(ttp.select("ttp|Type").text(), "Trojan");
 			System.out.println("Testing Description");				
-			assertEquals(indicator.select("ttp|Description").text(), "Troj/MSIL-ACB");
+			assertEquals(ttp.select("ttp|Description").text(), "Troj/MSIL-ACB");
 			System.out.println("Testing Platform");
-			assertEquals(indicator.select("ttp|Targeted_Systems").text(), "Windows");
+			assertEquals(ttp.select("ttp|Targeted_Systems").text(), "Windows");
 			System.out.println("Testing Source");
-			assertEquals(indicator.select("stixCommon|Name").text(), "Sophos");
+			assertEquals(ttp.select("stixCommon|Name").text(), "Sophos");
 			
 			System.out.println("Testing FilesCreated");
 			Elements files = doc.select("cybox|Action:has(cybox|Description:contains(Created files))").first().select("FileObj|File_Name");
@@ -1004,31 +986,23 @@ public class SophosExtractorTest extends STIXExtractor {
 			assertTrue(urlList.contains("http://riseandshine.favcc1.com/gate.php"));
 			
 			System.out.println("Testing FileTypes + Hashed");
-			Elements fileTypes = doc.select("FileObj|File_Name");
-			List<String> typeList = new ArrayList<String>();
-			for (Element type : fileTypes) {
-				typeList.add(type.text());
-			}
-			assertTrue(typeList.contains("application/x-ms-dos-executable"));
 	
-			Elements sha1Hashes = doc.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(SHA-1))");
-			List<String> sha1List = new ArrayList<String>();
-			for (Element sha1 : sha1Hashes) {
-				sha1List.add(sha1.select("cyboxCommon|Simple_Hash_Value").text());
+			Elements fileTypes = doc.select("ttp|Tool:has(cyboxCommon|Name:contains(application/x-ms-dos-executable))");
+			assertTrue(fileTypes.size() == 1);
+			List<String>name = new ArrayList<String>();
+			List<String>md5List = new ArrayList<String>();
+			List<String>sha1List = new ArrayList<String>();
+			for (Element file : fileTypes) {
+				name.add(file.select("cyboxCommon|Name").text());
+				sha1List.add(file.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(SHA-1))").first().select("cyboxCommon|Simple_Hash_Value").text());
+				md5List.add(file.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(MD5))").first().select("cyboxCommon|Simple_Hash_Value").text());
 			}
-			assertTrue(sha1List.size() == 1);
+			assertTrue(name.contains("application/x-ms-dos-executable"));
 			assertTrue(sha1List.contains("4122be8402684403e480aaf5b37caf3b727d8077"));
-
-			Elements md5Hashes = doc.select("cyboxCommon|Hash:has(cyboxCommon|Type:contains(MD5))");
-			List<String> md5List = new ArrayList<String>();
-			for (Element md5 : md5Hashes) {
-				md5List.add(md5.select("cyboxCommon|Simple_Hash_Value").text());
-			}
-			assertTrue(md5List.size() == 1);
 			assertTrue(md5List.contains("c5579ab457536d2fbd48e0a3bc6dc458"));
 
 			System.out.println("Testing Malware -> Address relation");
-			indicator = doc.select("stix|Indicator").first();
+			Element indicator = doc.select("stix|Indicator").first();
 			Elements idrefs = indicator.select("cybox|Observable[idref]");
 			List<String> idrefList = new ArrayList<String>();
 			List<String> addressList = new ArrayList<String>();
@@ -1059,7 +1033,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Address -> DNSName relation");
 			String dnsId = address.select("cybox|Related_Object").attr("idref");
 			Element dns = doc.select("[id = " + dnsId + "]").first();
-			assertEquals(dns.select("whoisobj|domain_name > uriobj|value").text(), "riseandshine.favcc1.com");
+			assertEquals(dns.select("DomainNameObj|Value").text(), "riseandshine.favcc1.com");
 
 			System.out.println();
 			System.out.println("Testing Port");
@@ -1077,7 +1051,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			System.out.println("Testing Title");
 			assertEquals(dns.select("cybox|title").text(), "DNSName");
 			System.out.println("Testing Name");
-			assertEquals(dns.select("whoisobj|domain_name > uriobj|value").text(), "riseandshine.favcc1.com");
+			assertEquals(dns.select("DomainNameObj|Value").text(), "riseandshine.favcc1.com");
 			System.out.println("Testing Description");
 			assertEquals(dns.select("cybox|description").text(), "riseandshine.favcc1.com");
 			System.out.println("Testing Source");

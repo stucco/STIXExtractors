@@ -15,9 +15,9 @@ import javax.xml.namespace.QName;
 
 import org.mitre.stix.stix_1.STIXPackage;
 import org.mitre.stix.stix_1.STIXHeaderType;
-import org.mitre.stix.stix_1.IndicatorsType;
-import org.mitre.stix.indicator_2.Indicator;
+import org.mitre.stix.stix_1.TTPsType;
 import org.mitre.stix.ttp_1.TTP;
+import org.mitre.stix.ttp_1.InfrastructureType;
 import org.mitre.stix.ttp_1.MalwareInstanceType;
 import org.mitre.stix.ttp_1.ResourceType;
 import org.mitre.stix.ttp_1.ToolsType;
@@ -32,6 +32,7 @@ import org.mitre.cybox.common_2.LocationType;
 import org.mitre.cybox.common_2.HashListType;
 import org.mitre.cybox.cybox_2.Observable;
 import org.mitre.cybox.cybox_2.RelatedObjectsType;
+import org.mitre.cybox.cybox_2.RelatedObjectType;
 import org.mitre.cybox.cybox_2.Observables;
 import org.mitre.cybox.objects.WhoisNameserversType;
 import org.mitre.cybox.objects.WhoisEntry;
@@ -64,41 +65,37 @@ public class CleanMxVirusExtractor extends STIXExtractor {
 				return null;
 			}
 			
+			stixPackage = initStixPackage("CleanMx(virus)");
 			Observables observables = initObservables();
-			IndicatorsType indicators = new IndicatorsType();
+			TTPsType ttps = new TTPsType();
 
 			for (Element entry : entries) {	
 
-				Indicator malwareIndicator = null;
 				Observable addressObservable = null;
 				Observable ipObservable = null;
 				Observable portObservable = null;
 				Observable dnsObservable = null;
 				Observable addressRangeObservable = null;
+				TTP malwareTTP = null;
 				String ip = null;
 				String[] ips = null;
 				String port = null;
 				String dns = null;
 				long ipInt = 0;
 
-				/* malware observable */		
+				/* malware indicator */		
 				if (entry.select("id").hasText()) {
-					
-					malwareIndicator = new Indicator()
-						.withId(new QName("gov.ornl.stucco", "malware-" + UUID.randomUUID().toString(), "stucco"))
-						.withTitle("Malware")
-						.withIndicatedTTPs(new RelatedTTPType()
-							.withTTP(initTTP("Malware", "CleanMx(virus)")
-								.withBehavior(new BehaviorType()
-									.withMalware(new MalwareType()
-										.withMalwareInstances(setMalwareInstance(entry.select("id").text(), "CleanMx(virus)")
-											.withNames((!entry.select("virusname").hasText()) ? null : new ControlledVocabularyStringType()
-												.withValue(entry.select("virusname").text())))))
-								.withResources((!entry.select("md5").hasText()) ? null : new ResourceType()
-									.withTools(new ToolsType()
-										.withTools(new ToolInformationType()	//list
-											.withToolHashes(new HashListType()
-												.withHashes(setHashType(entry.select("md5").text(), "md5"))))))));
+					malwareTTP = initTTP("Malware", "CleanMx(virus)")
+						.withBehavior(new BehaviorType()
+							.withMalware(new MalwareType()
+								.withMalwareInstances(setMalwareInstance("CleanMx(virus)_" + entry.select("id").text(), "CleanMx(virus) entry " + entry.select("id").text(), "CleanMx(virus)")
+									.withNames((!entry.select("virusname").hasText()) ? null : new ControlledVocabularyStringType()
+										.withValue(entry.select("virusname").text())))))
+						.withResources((!entry.select("md5").hasText()) ? null : new ResourceType()
+							.withTools(new ToolsType()
+								.withTools(new ToolInformationType()	//list
+									.withToolHashes(new HashListType()
+										.withHashes(setHashType(entry.select("md5").text(), "md5"))))));
 				}
 				
 				/* IP observable */
@@ -126,20 +123,39 @@ public class CleanMxVirusExtractor extends STIXExtractor {
 					dns = entry.select("domain").text();
 					dnsObservable = setDNSObservable(dns, "CleanMx(virus)");
 					WhoisNameserversType ns = new WhoisNameserversType();
-
-					ns												
-						.withNameservers((!entry.select("ns1").hasText()) ? null : setURIObjectType(entry.select("ns1").text()))
-						.withNameservers((!entry.select("ns2").hasText()) ? null : setURIObjectType(entry.select("ns2").text()))
-						.withNameservers((!entry.select("ns3").hasText()) ? null : setURIObjectType(entry.select("ns3").text()))
-						.withNameservers((!entry.select("ns4").hasText()) ? null : setURIObjectType(entry.select("ns4").text()))
-						.withNameservers((!entry.select("ns5").hasText()) ? null : setURIObjectType(entry.select("ns5").text()));
-					
-					if (!ns.getNameservers().isEmpty()) {
-						((WhoisEntry) dnsObservable 
-						 	.getObject()
-								.getProperties())
-									.withNameservers(ns);
+				
+					if (entry.select("ns1").hasText()) {
+						ns												
+							.withNameservers(setURIObjectType(entry.select("ns1").text()));
 					}
+					if (entry.select("ns2").hasText()) {
+						ns												
+							.withNameservers(setURIObjectType(entry.select("ns2").text()));
+					}
+					if (entry.select("ns3").hasText()) {
+						ns												
+							.withNameservers(setURIObjectType(entry.select("ns3").text()));
+					}
+					if (entry.select("ns4").hasText()) {
+						ns												
+							.withNameservers(setURIObjectType(entry.select("ns4").text()));
+					}
+					if (entry.select("ns5").hasText()) {
+						ns												
+							.withNameservers(setURIObjectType(entry.select("ns5").text()));
+					}
+
+					if (!ns.getNameservers().isEmpty()) {
+						dnsObservable
+							.getObject()
+								.withRelatedObjects(new RelatedObjectsType()
+									.withRelatedObjects(new RelatedObjectType()
+										.withRelationship(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
+											.withValue("characterizedBy"))
+										.withProperties(new WhoisEntry()
+											.withNameservers(ns))));
+					}
+		
 					observables
 						.withObservables(dnsObservable);
 				}
@@ -188,24 +204,40 @@ public class CleanMxVirusExtractor extends STIXExtractor {
 				}				
 				
 				/* malware -> address relation */
-				if (malwareIndicator != null && addressObservable != null) {
-					malwareIndicator
-						.withObservable(new Observable()
-							.withIdref(addressObservable.getId()));
-				} 
+				if (malwareTTP != null && addressObservable != null) {
+					ResourceType resource = (malwareTTP.getResources() == null) ? new ResourceType() : malwareTTP.getResources();
+					resource
+						.withInfrastructure(new InfrastructureType()
+							.withObservableCharacterization(initObservables()
+								.withObservables(new Observable()
+									.withIdref(addressObservable.getId()))));
+					malwareTTP
+						.withResources(resource);
+				}
 				
-				observables
-					.withObservables((addressObservable == null) ? null : addressObservable)
-					.withObservables((ipObservable == null) ? null : ipObservable);
-				
-				indicators
-					.withIndicators((malwareIndicator == null) ? null : malwareIndicator);
-
+				if (addressObservable != null) { 
+					observables
+						.withObservables(addressObservable);
+				}
+				if (ipObservable != null) {
+					observables 
+						.withObservables(ipObservable);
+				}
+				if (malwareTTP != null) {
+					ttps
+						.withTTPS(malwareTTP);
+				}
+			}
+			if (!ttps.getTTPS().isEmpty()) {	
+				stixPackage
+					.withTTPs(ttps);
+			}
+			if (!observables.getObservables().isEmpty()) {
+				stixPackage
+					.withObservables(observables);
 			}
 
-			return (indicators.getIndicators().isEmpty() && observables.getObservables().isEmpty()) ? null : initStixPackage("CleanMx(virus)")				
-					.withIndicators((indicators.getIndicators().isEmpty()) ? null : indicators)
-					.withObservables((observables.getObservables().isEmpty()) ? null : observables);
+			return (ttps.getTTPS().isEmpty() && observables.getObservables().isEmpty()) ? null : stixPackage;
 
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();

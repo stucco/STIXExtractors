@@ -92,7 +92,7 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 		
 		/* Testing Malware */
 		System.out.println("Testing Malware content");
-		Elements elements = doc.select("stix|Indicator");
+		Elements elements = doc.select("stix|TTP");
 		
 		assertTrue(elements.size() == 1);
 
@@ -162,7 +162,7 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 
 		for (Element element : elements) {
 			System.out.println("Testing Name");
-			assertEquals(element.select("whoisobj|domain_name > uriobj|value").text(), "idba.cc");
+			assertEquals(element.select("DomainNameObj|Value").text(), "idba.cc");
 			System.out.println("Testing Description");
 			assertEquals(element.select("cybox|description").text(), "idba.cc");
 			System.out.println("Testing Source");
@@ -222,7 +222,7 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 		/* Malware -> Address */
 		System.out.println("Testing Malware -> Address relation");
 
-		String malwareAddressIdref = doc.select("indicator|Observable").attr("idref");
+		String malwareAddressIdref = doc.select("ttp|Observable_Characterization > cybox|Observable").attr("idref");
 		String addressId = doc.select("cybox|Observable:has(cybox|Title:matches(^Address\\Z))").attr("id");
 
 		assertEquals(malwareAddressIdref, addressId);
@@ -453,7 +453,7 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 
 			System.out.println("Testing Address -> DNSName");
 			String dnsRef = stixAddress.select("cybox|Related_Object").attr("idref");
-			String dnsValue = stixDoc.select("[id=" + dnsRef + "]").select("whoisobj|domain_name > uriobj|value").text();
+			String dnsValue = stixDoc.select("[id=" + dnsRef + "]").select("DomainNameObj|Value").text();
 			assertEquals(dnsValue, address.select("domain").text());
 		}
 
@@ -488,7 +488,7 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 			System.out.println("Testing ID");
 			assertEquals(stixDns.select("cybox|Object").attr("id"), "stucco:dnsName-" + dns.select("domain").text());
 			System.out.println("Testing Domain name");
-			assertEquals(stixDns.select("whoisobj|domain_name > uriobj|value").text(), dns.select("domain").text());
+			assertEquals(stixDns.select("DomainNameObj|Value").text(), dns.select("domain").text());
 			System.out.println("Testing Description");
 			assertEquals(stixDns.select("cybox|Object > cybox|Description").text(), dns.select("domain").text());
 			System.out.println("Testing Namespace");

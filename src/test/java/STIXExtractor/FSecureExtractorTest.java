@@ -68,7 +68,7 @@ public class FSecureExtractorTest {
 			
 			FSecureExtractor fsecureExt = new FSecureExtractor(pageContent);
 			STIXPackage fsecurePackage = fsecureExt.getStixPackage();
-		    	
+
 			System.out.println("Validating StixPackage");
 			assertTrue(fsecureExt.validate(fsecurePackage));
 			

@@ -27,6 +27,7 @@ import org.mitre.stix.ttp_1.TTP;
 import org.mitre.stix.ttp_1.VictimTargetingType;
 import org.mitre.stix.ttp_1.ToolsType;
 import org.mitre.stix.ttp_1.ResourceType;
+import org.mitre.stix.ttp_1.InfrastructureType;
 import org.mitre.stix.common_1.ControlledVocabularyStringType;
 import org.mitre.stix.common_1.StructuredTextType;
 import org.mitre.stix.common_1.InformationSourceType;
@@ -38,6 +39,7 @@ import org.mitre.cybox.cybox_2.Observable;
 import org.mitre.cybox.cybox_2.Observables;
 import org.mitre.cybox.cybox_2.ObjectType;
 import org.mitre.cybox.cybox_2.ActionsType;
+import org.mitre.cybox.cybox_2.ActionType;
 import org.mitre.cybox.cybox_2.Event;
 import org.mitre.cybox.cybox_2.RelatedObjectsType;
 import org.mitre.cybox.cybox_2.OperatorTypeEnum;
@@ -86,6 +88,9 @@ public class SophosExtractor extends STIXExtractor {
 			MalwareInstanceType malware = new MalwareInstanceType();
 			InformationSourceType source = new InformationSourceType();
 			Observables observables = initObservables();
+			Observables infrastructureObservables = initObservables();
+			ResourceType resource = null;
+			ToolsType tools = new ToolsType();
 			List<Observable> malwareObservableList = new ArrayList<Observable>();
 			GregorianCalendar calendar = new GregorianCalendar();
 			stixPackage = initStixPackage("Sophos");				
@@ -206,7 +211,7 @@ public class SophosExtractor extends STIXExtractor {
 					if (currTableContents == null) {
 						logger.error("Could not parse table contents! (file info)");
 					} else {			
-						FileObjectType file = null;
+						ToolInformationType fileTool = null;
 						List<HashType> hashes = new ArrayList<HashType>();
 						firstSeen = 0;
 
@@ -218,9 +223,10 @@ public class SophosExtractor extends STIXExtractor {
 							hashes.add(setHash("MD5", currTableContents.get("MD5")));
 						}					
 						if (currTableContents.containsKey("File type")) {
-							file = new FileObjectType()
-								.withFileName(new StringObjectPropertyType()
-										.withValue(currTableContents.get("File type")));
+							fileTool = new ToolInformationType()
+								.withName(currTableContents.get("File type"))
+								.withTypes(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
+									.withValue("File"));
 						}
 						if (currTableContents.containsKey("First seen")) { 
 							firstSeen = convertShortTimestamp(currTableContents.get("First seen"));
@@ -230,17 +236,16 @@ public class SophosExtractor extends STIXExtractor {
 							}
 						}	
 						if (!hashes.isEmpty()) {
-							if (file == null) {	
-								file = new FileObjectType();
+							if (fileTool == null) {	
+								fileTool = new ToolInformationType();
 							}
-							file
-								.withHashes(new HashListType()
+							fileTool
+								.withToolHashes(new HashListType()
 										.withHashes(hashes));
 						}
-						if (file != null) {
-							malwareObservableList.add(new Observable()
-								.withObject(new ObjectType()
-									.withProperties(file)));
+						if (fileTool != null) {
+							tools
+								.withTools(fileTool);
 						}
 					}
 				} else if (curr.text().equals("Runtime Analysis")) {
@@ -269,9 +274,9 @@ public class SophosExtractor extends STIXExtractor {
 			for (String alias : aliasSet) {
 				malware
 					.withNames(new ControlledVocabularyStringType()
-							.withValue(alias));
+						.withValue(alias));
 			}
-
+			
 			//handle the "Runtime Analysis" sections...
 			if (runtimeAnalysisFound) {
 				Element nextNextSibling;
@@ -339,9 +344,8 @@ public class SophosExtractor extends STIXExtractor {
 							}
 							else if (nextSibling.text().equals("HTTP Requests")) {
 								newItems = ulToSet(nextNextSibling);
-								ttp
-									.withResources(new ResourceType()
-											.withTools(setTools("url", newItems)));
+								tools
+									.withTools(setTools("url", newItems).getTools());
 								logger.info("HTTP Requests: {}", newItems);
 							}
 							else {
@@ -355,18 +359,39 @@ public class SophosExtractor extends STIXExtractor {
 					}
 				}
 
-				ActionsType actions = new ActionsType()
-					.withActions((createdFiles.isEmpty()) ? null : setActions("Created", "Created files", createdFiles))
-					.withActions((modifiedFiles.isEmpty()) ? null : setActions("Modified", "Modified files", modifiedFiles))
-					.withActions((createdRegistryKeys.isEmpty()) ? null : setActions("Created", "Created registry keys", createdRegistryKeys))
-					.withActions((modifiedRegistryKeys.isEmpty()) ? null : setActions("Modified", "Modified registry keys", modifiedRegistryKeys))
-					.withActions((createdProcesses.isEmpty()) ? null : setActions("Created", "Created processes", createdProcesses));
-			
+				if (tools.getTools() != null) {
+					resource = new ResourceType()
+						.withTools(tools);
+				}
+				
+				ActionsType actions = new ActionsType();
+					
+				if (!createdFiles.isEmpty()) {
+					actions
+						.withActions(setActions("Created", "Created files", createdFiles));
+				}
+				if (!modifiedFiles.isEmpty()) {
+					actions
+						.withActions(setActions("Modified", "Modified files", modifiedFiles));
+				}
+				if (!createdRegistryKeys.isEmpty()) {
+					actions
+						.withActions(setActions("Created", "Created registry keys", createdRegistryKeys));
+				}
+				if (!modifiedRegistryKeys.isEmpty()) {
+					actions
+						.withActions(setActions("Modified", "Modified registry keys", modifiedRegistryKeys));
+				}
+				if (!createdProcesses.isEmpty()) {
+					actions
+						.withActions(setActions("Created", "Created processes", createdProcesses));
+				}
+
 				if (!actions.getActions().isEmpty()) {
 					malwareObservableList.add(new Observable()
-								.withEvent(new Event()
-									.withEvents(new Event()
-										.withActions(actions))));
+						.withEvent(new Event()
+							.withEvents(new Event()
+								.withActions(actions))));
 				}
 
 				if (!ipConnections.isEmpty()) {
@@ -414,8 +439,9 @@ public class SophosExtractor extends STIXExtractor {
 						}
 						observables
 							.withObservables(addressObservable);
-						malwareObservableList.add(new Observable()
-							.withIdref(addressObservable.getId()));
+						infrastructureObservables
+							.withObservables(new Observable()
+								.withIdref(addressObservable.getId()));
 					}
 				}
 
@@ -464,8 +490,9 @@ public class SophosExtractor extends STIXExtractor {
 						}
 						observables
 							.withObservables(addressObservable);
-						malwareObservableList.add(new Observable()
-							.withIdref(addressObservable.getId()));
+						infrastructureObservables
+							.withObservables(new Observable()
+								.withIdref(addressObservable.getId()));
 					}
 
 				}
@@ -478,22 +505,40 @@ public class SophosExtractor extends STIXExtractor {
 				if (malwareObservableList.size() > 1) {
 					Observable observableComposition = new Observable()
 						.withObservableComposition(new ObservableCompositionType()
-								.withOperator(OperatorTypeEnum.AND)
-								.withObservables(malwareObservableList));
+							.withOperator(OperatorTypeEnum.AND)
+							.withObservables(malwareObservableList));
 					indicator
 						.withObservable(observableComposition);
 				}
 			}
+	
+			if (!infrastructureObservables.getObservables().isEmpty()) {
+				if (resource == null) {
+					resource = new ResourceType();
+				}
+				resource
+					.withInfrastructure(new InfrastructureType()
+						.withObservableCharacterization(infrastructureObservables));
+			}
+
+			if (resource != null) {
+				ttp
+					.setResources(resource);
+			} 
+			
+			if (!observables.getObservables().isEmpty()) {
+				stixPackage
+					.withObservables(observables);
+			}
 
 			return stixPackage
-				.withObservables((observables.getObservables().isEmpty()) ? null : observables)
 				.withIndicators(new IndicatorsType()
-						.withIndicators(indicator
-							.withIndicatedTTPs(new RelatedTTPType()
-								.withTTP(ttp
-									.withBehavior(new BehaviorType()
-										.withMalware(new MalwareType()
-											.withMalwareInstances(malware)))))));
+					.withIndicators(indicator
+						.withIndicatedTTPs(new RelatedTTPType()
+							.withTTP(ttp
+								.withBehavior(new BehaviorType()
+									.withMalware(new MalwareType()
+										.withMalwareInstances(malware)))))));
 									
 			} catch(DatatypeConfigurationException e) {
 				e.printStackTrace();
