@@ -57,7 +57,31 @@ import org.jsoup.select.Elements;
 
 import org.mitre.stix.stix_1.STIXPackage;
 import org.mitre.stix.stix_1.STIXHeaderType;
+import org.mitre.stix.common_1.IdentityType;
+import org.mitre.stix.common_1.InformationSourceType;
 import org.mitre.stix.common_1.ControlledVocabularyStringType;
+import org.mitre.stix.common_1.RelatedCourseOfActionType;
+import org.mitre.stix.common_1.RelatedTTPType;
+import org.mitre.stix.common_1.ToolInformationType;
+import org.mitre.stix.courseofaction_1.CourseOfAction;
+import org.mitre.stix.indicator_2.Indicator;
+import org.mitre.stix.indicator_2.SuggestedCOAsType;
+import org.mitre.stix.ttp_1.ToolsType;
+import org.mitre.stix.ttp_1.BehaviorType;
+import org.mitre.stix.ttp_1.MalwareType;
+import org.mitre.stix.ttp_1.MalwareInstanceType;
+import org.mitre.stix.ttp_1.TTP;
+import org.mitre.cybox.cybox_2.Observables;
+import org.mitre.cybox.cybox_2.RelatedObjectType;
+import org.mitre.cybox.cybox_2.Observable;
+import org.mitre.cybox.cybox_2.ObjectType;
+import org.mitre.cybox.cybox_2.KeywordsType;
+import org.mitre.cybox.cybox_2.RelatedObjectsType;
+import org.mitre.cybox.cybox_2.AssociatedObjectType;
+import org.mitre.cybox.cybox_2.AssociatedObjectsType;
+import org.mitre.cybox.common_2.Property;
+import org.mitre.cybox.common_2.RegionalRegistryType;
+import org.mitre.cybox.common_2.NonNegativeIntegerObjectPropertyType;
 import org.mitre.cybox.common_2.AnyURIObjectPropertyType;
 import org.mitre.cybox.common_2.MeasureSourceType;	
 import org.mitre.cybox.common_2.StringObjectPropertyType;
@@ -65,11 +89,9 @@ import org.mitre.cybox.common_2.HashType;
 import org.mitre.cybox.common_2.SimpleHashValueType;
 import org.mitre.cybox.common_2.PositiveIntegerObjectPropertyType;
 import org.mitre.cybox.common_2.StructuredTextType;
-import org.mitre.cybox.cybox_2.Observables;
-import org.mitre.cybox.cybox_2.RelatedObjectType;
-import org.mitre.cybox.cybox_2.Observable;
-import org.mitre.cybox.cybox_2.ObjectType;
-import org.mitre.cybox.cybox_2.KeywordsType;
+import org.mitre.cybox.common_2.ConditionTypeEnum;
+import org.mitre.cybox.common_2.ConditionApplicationEnum;
+import org.mitre.cybox.common_2.CustomPropertiesType;
 import org.mitre.cybox.objects.URIObjectType;
 import org.mitre.cybox.objects.Address;
 import org.mitre.cybox.objects.CategoryTypeEnum;
@@ -83,33 +105,12 @@ import org.mitre.cybox.objects.SocketAddress;
 import org.mitre.cybox.objects.WhoisEntry;
 import org.mitre.cybox.objects.UserAccountObjectType;
 import org.mitre.cybox.objects.Product;
-import org.mitre.stix.ttp_1.MalwareInstanceType;
-import org.mitre.stix.ttp_1.TTP;
-import org.mitre.stix.common_1.IdentityType;
-import org.mitre.stix.common_1.InformationSourceType;
-import org.mitre.cybox.common_2.ConditionTypeEnum;
-import org.mitre.cybox.common_2.ConditionApplicationEnum;
-import org.mitre.stix.courseofaction_1.CourseOfAction;
-import org.mitre.stix.indicator_2.Indicator;
-import org.mitre.stix.common_1.RelatedCourseOfActionType;
-import org.mitre.stix.indicator_2.SuggestedCOAsType;
-import org.mitre.stix.common_1.RelatedTTPType;
-import org.mitre.cybox.cybox_2.RelatedObjectsType;
-import org.mitre.cybox.common_2.CustomPropertiesType;
-import org.mitre.cybox.cybox_2.AssociatedObjectType;
-import org.mitre.maec.xmlschema.maec_bundle_4.MalwareActionType;
-import org.mitre.stix.ttp_1.ToolsType;
 import org.mitre.cybox.objects.FileObjectType;
 import org.mitre.cybox.objects.ProcessObjectType;
 import org.mitre.cybox.objects.WindowsRegistryKey;
-import org.mitre.cybox.cybox_2.AssociatedObjectsType;
-import org.mitre.cybox.common_2.Property;
-import org.mitre.stix.common_1.ToolInformationType;
-import org.mitre.stix.ttp_1.BehaviorType;
-import org.mitre.stix.ttp_1.MalwareType;
-import org.mitre.cybox.common_2.RegionalRegistryType;
-import org.mitre.cybox.common_2.NonNegativeIntegerObjectPropertyType;
 import org.mitre.cybox.objects.AS;
+import org.mitre.cybox.objects.DomainName;
+import org.mitre.maec.xmlschema.maec_bundle_4.MalwareActionType;
 
 import org.xml.sax.SAXException;
 
@@ -288,7 +289,7 @@ public abstract class STIXExtractor extends ExtractorUtils {
 						.withPort(new Port()
 							.withObjectReference(portId))));
 	}
-
+						
 	public Observable setAddressRangeObservable(String startIp, String endIp, String source) {
 		return setAddressRangeObservable(startIp, endIp, startIp + " through " + endIp, source);
 
@@ -412,8 +413,9 @@ public abstract class STIXExtractor extends ExtractorUtils {
 				.withId(new QName("gov.ornl.stucco", "dnsName-" + makeId(dns), "stucco"))
 				.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 					.withValue(dns))
-				.withProperties(new WhoisEntry()	// DomainName?? 	
-					.withDomainName(setURIObjectType(dns))));
+				.withProperties(new DomainName()
+					.withValue(new StringObjectPropertyType()
+						.withValue(dns))));
 	}
 
 	public Observable setAccountObservable(String user, String source) {
@@ -477,16 +479,25 @@ public abstract class STIXExtractor extends ExtractorUtils {
 				.withTTP(initTTP("Malware", source)
 					.withBehavior(new BehaviorType()
 						.withMalware(new MalwareType()
-							.withMalwareInstances(new MalwareInstanceType()
-								.withId(new QName("gov.ornl.stucco", "malware-" + makeId(name), "stucco"))
-								.withTypes(new ControlledVocabularyStringType() 
-									.withValue(name))
-								.withNames(new ControlledVocabularyStringType() 
-									.withValue(name))
-								.withDescriptions(new org.mitre.stix.common_1.StructuredTextType()
-									.withValue(name)))))));
+							.withMalwareInstances(setMalwareInstance(name, source))))));
+	}
+	
+	public MalwareInstanceType setMalwareInstance(String name, String source) {
+		return setMalwareInstance(name, name, source);
+	}
+													
+	public MalwareInstanceType setMalwareInstance(String name, String description, String source) {
+		return new MalwareInstanceType()
+			.withId(new QName("gov.ornl.stucco", "malware-" + makeId(name), "stucco"))
+			.withTypes(new ControlledVocabularyStringType() 
+				.withValue(name))
+			.withNames(new ControlledVocabularyStringType() 
+				.withValue(name))
+			.withDescriptions(new org.mitre.stix.common_1.StructuredTextType()
+				.withValue(description));
 	}
 
+/*
 	public MalwareInstanceType setMalwareInstance(String id, String source) {
 		return new MalwareInstanceType()
 			.withId(new QName("gov.ornl.stucco", "malware-" + makeId(source + "_" + id), "stucco"))
@@ -497,6 +508,7 @@ public abstract class STIXExtractor extends ExtractorUtils {
 			.withDescriptions(new org.mitre.stix.common_1.StructuredTextType()
 				.withValue(source + " entry " + id));
 	}
+*/
 
 	public RelatedObjectType setRelatedObject(QName idref, String relationship, String description, String source) {
 		return new RelatedObjectType() 

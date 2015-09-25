@@ -202,10 +202,19 @@ public class HoneExtractor extends STIXExtractor {
 					flowObservable =  setFlowObservable(record.get(SOURCE_IP), record.get(SOURCE_PORT), srcAddressObservable.getId(), 
 						record.get(DEST_IP), record.get(DEST_PORT), dstAddressObservable.getId(), "Hone");
 
-					CustomPropertiesType properties = new CustomPropertiesType()
-						.withProperties((record.get(TIMESTAMP_EPOCH_MS).isEmpty()) ? null : setCustomProperty("Start_Time", record.get(TIMESTAMP_EPOCH_MS)))
-						.withProperties((record.get(BYTE_CNT).isEmpty()) ? null : setCustomProperty("Total_Bytes", record.get(BYTE_CNT)))
-						.withProperties((record.get(PACKET_CNT).isEmpty()) ? null : setCustomProperty("Total_Packets", record.get(PACKET_CNT)));
+					CustomPropertiesType properties = new CustomPropertiesType();
+					if (!record.get(TIMESTAMP_EPOCH_MS).isEmpty())	{
+						properties
+							.withProperties(setCustomProperty("Start_Time", record.get(TIMESTAMP_EPOCH_MS)));
+					}
+					if (!record.get(BYTE_CNT).isEmpty()) {
+						properties
+							.withProperties(setCustomProperty("Total_Bytes", record.get(BYTE_CNT)));
+					}	
+					if (!record.get(PACKET_CNT).isEmpty()) {
+						properties
+							.withProperties(setCustomProperty("Total_Packets", record.get(PACKET_CNT)));
+					}
 
 					if (!properties.getProperties().isEmpty()) {
 						flowObservable

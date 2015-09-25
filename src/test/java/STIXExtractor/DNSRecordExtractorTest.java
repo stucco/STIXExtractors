@@ -66,7 +66,7 @@ public class DNSRecordExtractorTest extends STIXExtractor {
 				assertEquals(stixRecord.select("DNSQueryObj|Transaction_ID").text(), csvRecord.get("recnum"));
 				System.out.println("Testing Description");
 				assertEquals(stixRecord.select("DNSRecordObj|Description").text(), 
-						csvRecord.get("daddr") + " requested address of DNS name " + ((!csvRecord.get("rqfqdn").isEmpty()) ? csvRecord.get("rqfqdn") : csvRecord.get("reqdn")));
+						csvRecord.get("daddr") + " requested IP address of domain name " + ((!csvRecord.get("rqfqdn").isEmpty()) ? csvRecord.get("rqfqdn") : csvRecord.get("reqdn")));
 				System.out.println("Testing QueriedDate");
 				assertEquals(stixRecord.select("DNSRecordObj|Queried_Date").text(), csvRecord.get("last_seen_timet"));
 				System.out.println("Testing DomainName");
@@ -236,7 +236,7 @@ public class DNSRecordExtractorTest extends STIXExtractor {
 				assertEquals(stixRecord.select("DNSQueryObj|Transaction_ID").text(), csvRecord.get("recnum"));
 				System.out.println("Testing Description");
 				assertEquals(stixRecord.select("DNSRecordObj|Description").text(), 
-						csvRecord.get("daddr") + " requested address of DNS name " + ((!csvRecord.get("rqfqdn").isEmpty()) ? csvRecord.get("rqfqdn") : csvRecord.get("reqdn")));
+						csvRecord.get("daddr") + " requested IP address of domain name " + ((!csvRecord.get("rqfqdn").isEmpty()) ? csvRecord.get("rqfqdn") : csvRecord.get("reqdn")));
 				System.out.println("Testing QueriedDate");
 				assertEquals(stixRecord.select("DNSRecordObj|Queried_Date").text(), csvRecord.get("last_seen_timet"));
 				System.out.println("Testing DomainName");

@@ -67,10 +67,12 @@ public class BugtraqExtractor extends STIXExtractor {
 			Element content = doc.getElementById("vulnerability");
 			
 			//shortDescription
- 			vulnerability
-				.withShortDescriptions((content.getElementsByClass("title").first().text().isEmpty()) ? null : new StructuredTextType()
-					.withValue(content.getElementsByClass("title").first().text()));
-			
+			if (!content.getElementsByClass("title").first().text().isEmpty()) {
+	 			vulnerability
+					.withShortDescriptions(new StructuredTextType()
+						.withValue(content.getElementsByClass("title").first().text()));
+			}
+
 			//database id
 			String regex = "(?s)\\s*?<td>.*?<span.*?>Bugtraq ID:</span>.*?</td>.*?<td>\\s*(.*?)\\s*</td>";
 			String dbId = findWithRegex(content.html(), regex, 1);
@@ -89,7 +91,7 @@ public class BugtraqExtractor extends STIXExtractor {
 			if (!publishedTS.isEmpty()) {
 				calendar.setTimeInMillis(convertTimestamp(publishedTS));
 				vulnerability
-					.withPublishedDateTime((publishedTS.isEmpty()) ? null : new DateTimeWithPrecisionType()
+					.withPublishedDateTime(new DateTimeWithPrecisionType()
 						.withValue(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar)));
 	    		}
 
@@ -136,9 +138,11 @@ public class BugtraqExtractor extends STIXExtractor {
 			//description
 			doc = Jsoup.parse(discussion);
 			content = doc.getElementById("vulnerability");
-			vulnerability
-				.withDescriptions((content.text().isEmpty()) ? null : new StructuredTextType()
-					.withValue(content.text()));
+			if (!content.text().isEmpty()) {
+				vulnerability
+					.withDescriptions(new StructuredTextType()
+						.withValue(content.text()));
+			}
 
 			//solution 
 			doc = Jsoup.parse(solution);

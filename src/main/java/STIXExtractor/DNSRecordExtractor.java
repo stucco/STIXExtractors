@@ -170,7 +170,7 @@ public class DNSRecordExtractor extends STIXExtractor {
 
 				/* packing record into AssociatedObjectType */
 				DNSQuery dnsQuery = new DNSQuery();
-				String description = record.get(DADDR) + " requested address of DNS name " + ((!record.get(RQFQDN).isEmpty()) ? record.get(RQFQDN) : record.get(REFQDN));
+				String description = record.get(DADDR) + " requested IP address of domain name " + ((!record.get(RQFQDN).isEmpty()) ? record.get(RQFQDN) : record.get(REFQDN));
 				if (!record.get(AUTHORITATIVE_NS).isEmpty()) {
 					dnsQuery
 						.withAuthorityResourceRecords(new DNSResourceRecordsType()
@@ -235,7 +235,6 @@ public class DNSRecordExtractor extends STIXExtractor {
 						.withValue(organization))
 					.withAddress((countrycode.isEmpty()) ? null : new StringObjectPropertyType()
 						.withValue(countrycode))));
-
 
 		if (!authoritation.isEmpty()) {
 			WhoisNameserversType whoisNameservers = new WhoisNameserversType();
