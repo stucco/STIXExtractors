@@ -140,23 +140,21 @@ public class HoneExtractor extends STIXExtractor {
 						}	
 					}
 
-					softwareObservable = new Observable()	
-						.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
-							.withTitle("Software")
-							.withObservableSources(setMeasureSourceType("Hone"))
-							.withObservableComposition(new ObservableCompositionType()
-								.withOperator(OperatorTypeEnum.AND)
-								.withObservables(setSoftwareObservable(record.get(PATH), "Hone"))
-								.withObservables(new Observable()
-									.withObject(new ObjectType()
-										.withProperties(new ProcessObjectType()
-											.withName(new StringObjectPropertyType()	//path as process name
-												.withValue(record.get(PATH)))
-											.withPID((record.get(PROC_PID).isEmpty()) ? null : new UnsignedIntegerObjectPropertyType()	
-												.withValue(record.get(PROC_PID)))
-											.withParentPID((record.get(PROC_PPID).isEmpty()) ? null : new UnsignedIntegerObjectPropertyType() 
-												.withValue(record.get(PROC_PPID)))
-											.withArgumentList((argvs == null) ? null : argvs)))));
+					softwareObservable = setSoftwareObservable(record.get(PATH), "Hone");
+					softwareObservable
+						.getObject()
+							.withRelatedObjects(new RelatedObjectsType()
+								.withRelatedObjects(new RelatedObjectType()
+									.withRelationship(new ControlledVocabularyStringType()
+										.withValue("Initialized_To"))
+									.withProperties(new ProcessObjectType()
+										.withName(new StringObjectPropertyType()	//path as process name
+											.withValue(record.get(PATH)))
+										.withPID((record.get(PROC_PID).isEmpty()) ? null : new UnsignedIntegerObjectPropertyType()	
+											.withValue(record.get(PROC_PID)))
+										.withParentPID((record.get(PROC_PPID).isEmpty()) ? null : new UnsignedIntegerObjectPropertyType() 
+											.withValue(record.get(PROC_PPID)))
+										.withArgumentList((argvs == null) ? null : argvs))));
 				}
 
 				/* source IP */
@@ -196,7 +194,7 @@ public class HoneExtractor extends STIXExtractor {
 						.withObservables(dstAddressObservable = setAddressObservable(record.get(DEST_IP), ipToLong(record.get(DEST_IP)), dstIpObservable.getId(), 
 									record.get(DEST_PORT), dstPortObservable.getId(), "Hone"));
 				}
-
+				
 				//flow, flow -> dstAddress, flow -> srdAddress
 				if (srcAddressObservable != null && dstAddressObservable != null) {
 					flowObservable =  setFlowObservable(record.get(SOURCE_IP), record.get(SOURCE_PORT), srcAddressObservable.getId(), 
@@ -226,7 +224,7 @@ public class HoneExtractor extends STIXExtractor {
 					observables
 						.withObservables(flowObservable);
 				}
-
+				
 				/* account */
 				if (HOSTNAME != null && !record.get(UID).isEmpty()) {	
 					observables	
@@ -294,11 +292,9 @@ public class HoneExtractor extends STIXExtractor {
 					//if relations exist, adding them to the software observable
 					if (!relatedObjects.isEmpty()) {
 						softwareObservable
-							.getObservableComposition()
-								.getObservables().get(0)
-									.getObject()
-										.withRelatedObjects(new RelatedObjectsType()
-											.withRelatedObjects(relatedObjects));
+							.getObject()
+								.getRelatedObjects()
+									.withRelatedObjects(relatedObjects);
 					}
 					
 					observables
