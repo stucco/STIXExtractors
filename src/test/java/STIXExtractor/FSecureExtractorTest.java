@@ -77,7 +77,7 @@ public class FSecureExtractorTest {
 			Element malware = stix.select("stix|TTP").first();
 			System.out.println("Testing Malware");
 			System.out.println("Testing Title");
-			assertEquals(malware.select(" > ttp|Title").text(), "Malware");						
+			assertEquals(malware.select(" > ttp|Title").text(), "Application:W32/InstallBrain");						
 			System.out.println("Testing Platform");
 			assertEquals(malware.select("ttp|Targeted_Systems").text(), "W32");						
 			System.out.println("Testing Types");
@@ -143,7 +143,7 @@ public class FSecureExtractorTest {
 			Element malware = stix.select("stix|TTP").first();
 			System.out.println("Testing Malware");
 			System.out.println("Testing Title");
-			assertEquals(malware.select(" > ttp|Title").text(), "Malware");						
+			assertEquals(malware.select(" > ttp|Title").text(), "Backdoor:W32/Havex");						
 			System.out.println("Testing Platform");
 			assertEquals(malware.select("ttp|Targeted_Systems").text(), "W32");						
 			System.out.println("Testing Types");
@@ -210,7 +210,7 @@ public class FSecureExtractorTest {
 			Element malware = stix.select("stix|TTP").first();
 			System.out.println("Testing Malware");
 			System.out.println("Testing Title");
-			assertEquals(malware.select(" > ttp|Title").text(), "Malware");						
+			assertEquals(malware.select(" > ttp|Title").text(), "Trojan:HTML/Browlock");						
 			System.out.println("Testing Platform");
 			assertEquals(malware.select("ttp|Targeted_Systems").text(), "HTML");						
 			System.out.println("Testing Types");
@@ -274,7 +274,7 @@ public class FSecureExtractorTest {
 			Element malware = stix.select("stix|TTP").first();
 			System.out.println("Testing Malware");
 			System.out.println("Testing Title");
-			assertEquals(malware.select(" > ttp|Title").text(), "Malware");						
+			assertEquals(malware.select(" > ttp|Title").text(), "Trojan:Android/DroidKungFu.C");						
 			System.out.println("Testing Platform");
 			assertEquals(malware.select("ttp|Targeted_Systems").text(), "Android");						
 			System.out.println("Testing Types");
@@ -336,7 +336,7 @@ public class FSecureExtractorTest {
 			Element malware = stix.select("stix|TTP").first();
 			System.out.println("Testing Malware");
 			System.out.println("Testing Title");
-			assertEquals(malware.select(" > ttp|Title").text(), "Malware");						
+			assertEquals(malware.select(" > ttp|Title").text(), "Trojan:BASH/QHost.WB");						
 			System.out.println("Testing Platform");
 			assertEquals(malware.select("ttp|Targeted_Systems").text(), "BASH");						
 			System.out.println("Testing Types");
