@@ -86,6 +86,8 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 		CleanMxVirusExtractor virusExtractor = new CleanMxVirusExtractor(cleanMxInfo);
 		STIXPackage stixPackage = virusExtractor.getStixPackage();
 
+		System.out.println(stixPackage.toXMLString(true));
+
 		assertTrue(virusExtractor.validate(stixPackage));
 
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
@@ -105,7 +107,7 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 			System.out.println("Testing Source");
 			assertEquals(element.select("stixcommon|name").text(), "CleanMx(virus)");
 			System.out.println("Testing Title");
-			assertEquals(element.select("ttp|title").text(), "Malware");
+			assertEquals(element.select(" > ttp|Behavior > ttp|Malware > ttp|Malware_Instance >  ttp|title").text(), "CleanMx(virus)_22447134");
 			System.out.println("Testing Hash Value");
 			assertEquals(element.select("cyboxcommon|simple_hash_value").text(), "b5bcb300eb41207d0d945b79c364a0b5");
 		}
