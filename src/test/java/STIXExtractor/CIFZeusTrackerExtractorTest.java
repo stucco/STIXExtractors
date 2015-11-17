@@ -92,7 +92,7 @@ public class CIFZeusTrackerExtractorTest {
 		System.out.println("Testing Malware content:");
 		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("ttp|Title").text(), "Malware");
+		assertEquals(malware.select("stix|TTP > ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "zeustracker.abuse.ch");
 		System.out.println("Testing Type");
@@ -158,7 +158,7 @@ public class CIFZeusTrackerExtractorTest {
 		System.out.println("Testing Malware content:");
 		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("ttp|Title").text(), "Malware");
+		assertEquals(malware.select("stix|TTP > ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "zeustracker.abuse.ch");
 		System.out.println("Testing Type");

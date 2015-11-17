@@ -63,7 +63,7 @@ public class CIFEmergingThreatsExtractorTest {
 		System.out.println("Testing Malware content:");
 		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("ttp|Title").text(), "Malware");
+		assertEquals(malware.select("stix|TTP > ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "rules.emergingthreats.net");
 		System.out.println("Testing Type");
@@ -127,7 +127,7 @@ public class CIFEmergingThreatsExtractorTest {
 		System.out.println("Testing Malware content:");
 		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("ttp|Title").text(), "Malware");
+		assertEquals(malware.select("stix|TTP > ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "rules.emergingthreats.net");
 		System.out.println("Testing Type");

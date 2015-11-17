@@ -54,6 +54,8 @@ public class CIF1d4ExtractorTest {
 		CIF1d4Extractor cifExtractor = new CIF1d4Extractor(cifInfo);
 		STIXPackage stixPackage = cifExtractor.getStixPackage();
 
+		System.out.println(stixPackage.toXMLString(true));
+
 		System.out.println("Validating CIF1d4 stixPackage");
 		assertTrue(cifExtractor.validate(stixPackage));
 
@@ -64,7 +66,7 @@ public class CIF1d4ExtractorTest {
 		System.out.println("Testing Malware content:");
 		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("ttp|Title").text(), "Malware");
+		assertEquals(malware.select("stix|TTP > ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "1d4.us");
 		System.out.println("Testing Type");
@@ -125,7 +127,7 @@ public class CIF1d4ExtractorTest {
 		System.out.println("Testing Malware content:");
 		Element malware = doc.select("stix|TTP").first();
 		System.out.println("Testing Title");
-		assertEquals(malware.select("ttp|Title").text(), "Malware");
+		assertEquals(malware.select("stix|TTP > ttp|Title").text(), "Malware");
 		System.out.println("Testing Source");
 		assertEquals(malware.select("stixCommon|Identity > stixCommon|Name").text(), "1d4.us");
 		System.out.println("Testing Type");
