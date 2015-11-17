@@ -70,13 +70,12 @@ public class FSecureExtractor extends STIXExtractor {
 			stixPackage = initStixPackage("F-Secure");
 			MalwareInstanceType malware = new MalwareInstanceType();
 			AttackPatternsType attackPatterns = new AttackPatternsType();
-			TTP ttp = null;
+			TTP ttp = initTTP("F-Secure");
 			//name + alias
 			String vertexName = doc.getElementsByTag("title").first().text().replaceAll("\u200b", "").replaceAll("\\:\\?",":");
 			if (vertexName.isEmpty()) {
 				vertexName = "Malware";
 			}
-			ttp = initTTP(vertexName, "F-Secure");
 			malware
 				.withTitle(vertexName);
 			

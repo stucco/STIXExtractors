@@ -94,11 +94,14 @@ public class ServerBannerExtractor extends STIXExtractor {
 				if (ipObservable != null && portObservable != null) {
 					addressObservable = setAddressObservable(record.get(ADDR), ipToLong(record.get(ADDR)), ipObservable.getId(), 
 						record.get(APP_PROTOCOL), portObservable.getId(), "server_banner");
-					addressObservable
+					if (!record.get(BANNER).isEmpty()) {
+						addressObservable
 							.getObject()			
 								.getProperties()
 									.withCustomProperties(new CustomPropertiesType()
 										.withProperties(setCustomProperty("Banner", record.get(BANNER))));
+					}
+
 					observables
 						.withObservables(addressObservable);
 				}
