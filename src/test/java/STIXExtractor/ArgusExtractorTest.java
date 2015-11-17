@@ -90,7 +90,7 @@ public class ArgusExtractorTest	{
 			System.out.println("Testing TotPkts");
 			assertEquals(element.select("[name=TotPkts]").text(), "8");
 			System.out.println("Testing State");
-			assertEquals(element.select("cybox|State").text(), "REQ");
+			assertEquals(element.select("[name=State]").text(), "REQ");
 		
 			System.out.println("Testing Flow Source Address -> Address -> IP, Port reference");
 

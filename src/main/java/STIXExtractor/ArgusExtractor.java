@@ -68,7 +68,6 @@ public class ArgusExtractor extends STIXExtractor {
 		headersSet.remove(SOURCE_PORT);
 		headersSet.remove(DESTINATION_ADDRESS);
 		headersSet.remove(DESTINATION_PORT);
-		headersSet.remove(STATE);
 	}
 
 	private STIXPackage extract (String argusInfo) {
@@ -176,8 +175,8 @@ public class ArgusExtractor extends STIXExtractor {
 							.withObservableSources(setMeasureSourceType("Argus"))
 							.withObject(new ObjectType()
 								.withId(new QName("gov.ornl.stucco", "flow-" + srcIpInt + "_" + srcPort + "-" + dstIpInt + "_" + dstPort, "stucco"))
-								.withState((record.get(STATE).isEmpty()) ? null : new ControlledVocabularyStringType()
-									.withValue(record.get(STATE)))
+							//	.withState((record.get(STATE).isEmpty()) ? null : new ControlledVocabularyStringType()
+							//		.withValue(record.get(STATE)))
 								.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 									.withValue(srcIp + ", port " + srcPort + " to " + dstIp + ", port " + dstPort))
 								.withProperties(new NetworkFlowObject()

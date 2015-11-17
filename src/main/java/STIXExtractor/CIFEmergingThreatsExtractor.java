@@ -72,7 +72,8 @@ public class CIFEmergingThreatsExtractor extends STIXExtractor {
 				record = records.get(i);
 
 				if (!record.get(IP).isEmpty()) {
-					observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Malware", "rules.emergingthreats.net");
+				//	observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Malware", "rules.emergingthreats.net");
+					observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "rules.emergingthreats.net");
 					observables
 						.withObservables(observable);
 					ipIdList.add(new Observable()

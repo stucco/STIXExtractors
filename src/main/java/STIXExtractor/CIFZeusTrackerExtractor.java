@@ -71,7 +71,8 @@ public class CIFZeusTrackerExtractor extends STIXExtractor {
 
 				//avoid empty lines and comments
 				if (!record.get(IP).isEmpty() && !record.get(IP).startsWith("#")) {
-					observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Botnet", "zeustracker.abuse.ch");
+				//	observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Botnet", "zeustracker.abuse.ch");
+					observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "zeustracker.abuse.ch");
 					observables
 						.withObservables(observable);
 					ipIdList.add(new Observable()
