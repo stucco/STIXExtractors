@@ -483,12 +483,17 @@ public abstract class STIXExtractor extends ExtractorUtils {
 	}
 	
 	public MalwareInstanceType setMalwareInstance(String name, String source) {
-		return setMalwareInstance(name, name, source);
+		return setMalwareInstance(name, name, name, source);
 	}
 													
 	public MalwareInstanceType setMalwareInstance(String name, String description, String source) {
+		return setMalwareInstance(name, name, description, source);
+	}
+
+	public MalwareInstanceType setMalwareInstance(String title, String name, String description, String source) {
 		return new MalwareInstanceType()
 			.withId(new QName("gov.ornl.stucco", "malware-" + makeId(name), "stucco"))
+			.withTitle(title)
 			.withTypes(new ControlledVocabularyStringType() 
 				.withValue(name))
 			.withNames(new ControlledVocabularyStringType() 
@@ -531,16 +536,19 @@ public abstract class STIXExtractor extends ExtractorUtils {
 					.withValue(description));
 	}
 
-	public Indicator setMalwareCoaIndicator(QName ttpId, QName coaId, String source) {
+	public Indicator setMalwareCoaIndicator(String malwareName, QName ttpId, QName coaId, String source) {
 		return new Indicator()
-			.withId(new QName("gov.ornl.stucco", "malware" + "-" + UUID.randomUUID().toString(), "stucco"))
+			.withId(new QName("gov.ornl.stucco", "malware_coa" + "-" + UUID.randomUUID().toString(), "stucco"))
+			.withTitle(malwareName)
 			.withTypes(new ControlledVocabularyStringType()
 				.withValue("Malware"))
 			.withTypes(new ControlledVocabularyStringType() 
-				.withValue("COA"))
+				.withValue("Solution"))
 			.withIndicatedTTPs(new RelatedTTPType()
 				.withTTP(new TTP()
 					.withIdref(ttpId)))
+			.withDescriptions(new org.mitre.stix.common_1.StructuredTextType()
+				.withValue("Describes " + malwareName + " and " + " potential solution."))
 			.withSuggestedCOAs(new SuggestedCOAsType()
 				.withSuggestedCOAs(new RelatedCourseOfActionType()
 					.withCourseOfAction(new CourseOfAction()
