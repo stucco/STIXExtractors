@@ -84,9 +84,9 @@ public class SophosExtractorTest extends STIXExtractor {
 			
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
 	
-			Element indicator = doc.select("stix|Indicator").first();	
+			Element indicator = doc.select("stix|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(indicator.select("ttp|Title").text(), "Malware");
+			assertEquals(indicator.select(" > ttp|Title").text(), "Malware");
 			System.out.println("Testing Names");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
@@ -142,9 +142,9 @@ public class SophosExtractorTest extends STIXExtractor {
 			
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
 	
-			Element indicator = doc.select("stix|Indicator").first();	
+			Element indicator = doc.select("stix|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(indicator.select("ttp|Title").text(), "Malware");
+			assertEquals(indicator.select("> ttp|Title").text(), "Malware");
 			System.out.println("Testing Names");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
@@ -196,9 +196,9 @@ public class SophosExtractorTest extends STIXExtractor {
 			
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
 	
-			Element indicator = doc.select("stix|Indicator").first();	
+			Element indicator = doc.select("stix|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(indicator.select("ttp|Title").text(), "Malware");
+			assertEquals(indicator.select("> ttp|Title").text(), "Malware");
 			System.out.println("Testing Names");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
@@ -250,9 +250,9 @@ public class SophosExtractorTest extends STIXExtractor {
 			
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
 	
-			Element indicator = doc.select("stix|Indicator").first();	
+			Element indicator = doc.select("stix|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(indicator.select("ttp|Title").text(), "Malware");
+			assertEquals(indicator.select("> ttp|Title").text(), "Malware");
 			System.out.println("Testing Names");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
@@ -354,7 +354,7 @@ public class SophosExtractorTest extends STIXExtractor {
 			assertTrue(urlList.contains("http://www.google.ie/webhp"));
 
 			System.out.println("Testing Malware -> Address relation");
-			indicator = doc.select("stix|Indicator").first();
+			Element ttp = doc.select("stix|TTP").first();
 			Elements idrefs = indicator.select("cybox|Observable[idref]");
 			List<String> idrefList = new ArrayList<String>();
 			List<String> addressList = new ArrayList<String>();
@@ -501,9 +501,9 @@ public class SophosExtractorTest extends STIXExtractor {
 			
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
 					
-			Element ttp = doc.select("stixCommon|TTP").first();	
+			Element ttp = doc.select("stix|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(ttp.select("ttp|Title").text(), "Malware");
+			assertEquals(ttp.select("> ttp|Title").text(), "Malware");
 			System.out.println("Testing Names");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
@@ -596,9 +596,9 @@ public class SophosExtractorTest extends STIXExtractor {
 
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
 
-			Element ttp  = doc.select("stixCommon|TTP").first();	
+			Element ttp  = doc.select("stix|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(ttp.select("ttp|Title").text(), "Malware");
+			assertEquals(ttp.select("> ttp|Title").text(), "Malware");
 			System.out.println("Testing Names");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
@@ -930,9 +930,9 @@ public class SophosExtractorTest extends STIXExtractor {
 
 			Document doc = Jsoup.parse(receivedPackage.toXMLString(), "", Parser.xmlParser());	
 
-			Element ttp = doc.select("stixCommon|TTP").first();	
+			Element ttp = doc.select("stix|TTP").first();	
 			System.out.println("Testing Title");
-			assertEquals(ttp.select("ttp|Title").text(), "Malware");
+			assertEquals(ttp.select("> ttp|Title").text(), "Malware");
 			Elements names = doc.select("ttp|Name");
 			List<String> nameList = new ArrayList<String>();
 			for (Element name : names) {
@@ -1002,8 +1002,8 @@ public class SophosExtractorTest extends STIXExtractor {
 			assertTrue(md5List.contains("c5579ab457536d2fbd48e0a3bc6dc458"));
 
 			System.out.println("Testing Malware -> Address relation");
-			Element indicator = doc.select("stix|Indicator").first();
-			Elements idrefs = indicator.select("cybox|Observable[idref]");
+			ttp = doc.select("stix|TTP").first();
+			Elements idrefs = ttp.select("cybox|Observable[idref]");
 			List<String> idrefList = new ArrayList<String>();
 			List<String> addressList = new ArrayList<String>();
 			Element address = null;

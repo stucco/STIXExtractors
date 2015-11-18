@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.mitre.stix.stix_1.STIXPackage;
+import org.mitre.stix.stix_1.TTPsType;
 import org.mitre.stix.stix_1.IndicatorsType;
 import org.mitre.stix.indicator_2.Indicator;
 import org.mitre.stix.ttp_1.MalwareInstanceType;
@@ -39,11 +40,13 @@ import org.mitre.cybox.cybox_2.Observable;
 import org.mitre.cybox.cybox_2.Observables;
 import org.mitre.cybox.cybox_2.ObjectType;
 import org.mitre.cybox.cybox_2.ActionsType;
-import org.mitre.cybox.cybox_2.ActionType;
+import org.mitre.cybox.cybox_2.ActionPoolType;
 import org.mitre.cybox.cybox_2.Event;
 import org.mitre.cybox.cybox_2.RelatedObjectsType;
 import org.mitre.cybox.cybox_2.OperatorTypeEnum;
 import org.mitre.cybox.cybox_2.ObservableCompositionType;	
+import org.mitre.cybox.cybox_2.PoolsType;
+import org.mitre.cybox.cybox_2.ActionsType;
 import org.mitre.cybox.common_2.DatatypeEnum;
 import org.mitre.cybox.common_2.Property;
 import org.mitre.cybox.common_2.HashType;
@@ -117,6 +120,8 @@ public class SophosExtractor extends STIXExtractor {
 			String vertexName = titleDiv.getElementsByTag("h1").first().text();
 			logger.info("Name: {}", vertexName);
 			if (!vertexName.isEmpty()) {
+				malware
+					.withTitle(vertexName);
 				malware
 					.withDescriptions(new StructuredTextType()
 						.withValue(vertexName));
@@ -388,11 +393,13 @@ public class SophosExtractor extends STIXExtractor {
 				}
 
 				if (!actions.getActions().isEmpty()) {
-					malwareObservableList.add(new Observable()
-						.withEvent(new Event()
-							.withEvents(new Event()
-								.withActions(actions))));
+					infrastructureObservables
+						.withObservables(new Observable()
+							.withEvent(new Event()
+								.withEvents(new Event()
+									.withActions(actions))));
 				}
+
 
 				if (!ipConnections.isEmpty()) {
 					Observable portObservable = null;								
@@ -498,20 +505,6 @@ public class SophosExtractor extends STIXExtractor {
 				}
 			}
 
-			if (malwareObservableList.size() == 1) {
-				indicator
-					.withObservable(malwareObservableList.get(0));
-			} else {										
-				if (malwareObservableList.size() > 1) {
-					Observable observableComposition = new Observable()
-						.withObservableComposition(new ObservableCompositionType()
-							.withOperator(OperatorTypeEnum.AND)
-							.withObservables(malwareObservableList));
-					indicator
-						.withObservable(observableComposition);
-				}
-			}
-	
 			if (!infrastructureObservables.getObservables().isEmpty()) {
 				if (resource == null) {
 					resource = new ResourceType();
@@ -531,15 +524,15 @@ public class SophosExtractor extends STIXExtractor {
 					.withObservables(observables);
 			}
 
-			return stixPackage
-				.withIndicators(new IndicatorsType()
-					.withIndicators(indicator
-						.withIndicatedTTPs(new RelatedTTPType()
-							.withTTP(ttp
-								.withBehavior(new BehaviorType()
-									.withMalware(new MalwareType()
-										.withMalwareInstances(malware)))))));
-									
+			stixPackage
+				.withTTPs(new TTPsType()
+					.withTTPS(ttp
+						.withBehavior(new BehaviorType()
+							.withMalware(new MalwareType()
+								.withMalwareInstances(malware)))));
+
+			return stixPackage;
+						
 			} catch(DatatypeConfigurationException e) {
 				e.printStackTrace();
 			} catch(NumberFormatException e) {
