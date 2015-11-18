@@ -233,7 +233,7 @@ public class HoneExtractor extends STIXExtractor {
 							.withTitle("Account")
 							.withObservableSources(setMeasureSourceType("Hone"))
 							.withObject(new ObjectType()
-								.withId(new QName("gov.ornl.stucco", "account-" + HOSTNAME + "_" + record.get(UID), "stucco"))
+								.withId(new QName("gov.ornl.stucco", "account-" + makeId(HOSTNAME + "_" + record.get(UID)), "stucco"))
 								.withProperties(new UserAccountObjectType()
 									.withUsername(new StringObjectPropertyType()
 										.withValue(record.get(UID)))

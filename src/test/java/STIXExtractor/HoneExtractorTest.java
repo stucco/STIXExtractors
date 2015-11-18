@@ -90,7 +90,7 @@ public class HoneExtractorTest	{
 		System.out.println();
 		System.out.println("Testing Hostname:");
 		System.out.println("Testing Id");
-		assertEquals(element.select("cybox|Object").attr("id"), "stucco:hostname-Mary");
+		assertEquals(element.select("cybox|Object").attr("id"), "stucco:hostname-mary");
 		System.out.println("Testing Name");
 		assertEquals(element.select("HostnameObj|Hostname_Value").text(), "Mary");
 		System.out.println("Testing Description");
@@ -186,7 +186,7 @@ public class HoneExtractorTest	{
 		element = doc.select("cybox|Observable:has(cybox|Title:matches(Account))").first();
 		System.out.println("Testing Account:");
 		System.out.println("Testing Id");
-		assertEquals(element.select("cybox|Object").attr("id"), "stucco:account-Mary_1000");
+		assertEquals(element.select("cybox|Object").attr("id"), "stucco:account-mary_1000");
 		System.out.println("Testing Title");
 		assertEquals(element.select("cybox|Title").text(), "Account");
 		System.out.println("Testing Full Name");
