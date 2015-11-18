@@ -70,7 +70,7 @@ public class ServiceListExtractor extends STIXExtractor {
 				start = 0;
 			}
 						
-			stixPackage = initStixPackage("service_list");				
+			stixPackage = initStixPackage("Service Description", "service_list");				
 			observables = initObservables();
 
 			for (int i = start; i < records.size(); i++) {

@@ -79,8 +79,8 @@ public class CIFZeusTrackerExtractor extends STIXExtractor {
 						.withIdref(observable.getId()));
 				}
 			}
-										
-			return (ipIdList.isEmpty()) ? null : initStixPackage("zeustracker.abuse.ch")
+			
+			return (ipIdList.isEmpty()) ? null : initStixPackage("IP Addresses of Botnets", "zeustracker.abuse.ch", "zeustracker.abuse.ch")
 				.withObservables(observables)
 					.withTTPs(new TTPsType()
 						.withTTPS(initTTP("Malware", "zeustracker.abuse.ch")

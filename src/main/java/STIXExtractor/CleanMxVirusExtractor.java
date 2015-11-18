@@ -65,7 +65,7 @@ public class CleanMxVirusExtractor extends STIXExtractor {
 				return null;
 			}
 			
-			stixPackage = initStixPackage("CleanMx(virus)");
+			stixPackage = initStixPackage("Virus Description", "CleanMx(virus)");
 			Observables observables = initObservables();
 			TTPsType ttps = new TTPsType();
 

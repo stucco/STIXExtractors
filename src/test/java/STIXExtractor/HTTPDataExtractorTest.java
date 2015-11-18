@@ -106,7 +106,7 @@ public class HTTPDataExtractorTest extends STIXExtractor {
 		
 		HTTPDataExtractor httpExtractor = new HTTPDataExtractor(httpInfo);
 		STIXPackage stixPackage = httpExtractor.getStixPackage();
-		System.out.println(stixPackage.toXMLString(true));
+		
 		System.out.println("Validating STIX_Package");
 		assertTrue(validate(stixPackage));
 

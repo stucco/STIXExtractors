@@ -68,7 +68,7 @@ public class LoginEventExtractor extends STIXExtractor {
 			}
 			else start = 0;
 			
-			stixPackage = initStixPackage("LoginEvent");				
+			stixPackage = initStixPackage("Login Event", "LoginEvent");				
 			Observables observables = initObservables();
 
 		 	for (int i = start; i < records.size(); i++) {

@@ -96,7 +96,7 @@ public class SophosExtractor extends STIXExtractor {
 			ToolsType tools = new ToolsType();
 			List<Observable> malwareObservableList = new ArrayList<Observable>();
 			GregorianCalendar calendar = new GregorianCalendar();
-			stixPackage = initStixPackage("Sophos");				
+			stixPackage = initStixPackage("Malware Description", "Sophos");				
 			TreeSet<String> aliasSet = new TreeSet<String>();
 			
 			//TODO there is not stix field for thore properties .... leave them out for now

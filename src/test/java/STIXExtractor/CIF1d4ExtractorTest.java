@@ -54,8 +54,6 @@ public class CIF1d4ExtractorTest {
 		CIF1d4Extractor cifExtractor = new CIF1d4Extractor(cifInfo);
 		STIXPackage stixPackage = cifExtractor.getStixPackage();
 
-		System.out.println(stixPackage.toXMLString(true));
-
 		System.out.println("Validating CIF1d4 stixPackage");
 		assertTrue(cifExtractor.validate(stixPackage));
 

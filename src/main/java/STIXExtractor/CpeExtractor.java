@@ -121,7 +121,7 @@ public class CpeExtractor extends STIXExtractor {
 							.withProperties(product)));
 	 		}
 
-			return (observables.getObservables().isEmpty()) ? null : initStixPackage("CPE").withObservables(observables);
+			return (observables.getObservables().isEmpty()) ? null : initStixPackage("Software Description", "CPE").withObservables(observables);
 
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();

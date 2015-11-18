@@ -148,7 +148,7 @@ public class CaidaExtractor extends STIXExtractor {
 				
 				/* asn observable (adding only if it has matching organization or prefix) */
 				for (String[] asn : asnList) {
-					Observable asnObservable = setASNObservable(asn[0], asn[2], asn[4], "Caida");
+					Observable asnObservable = setASNObservable(asn[0], asn[2], asn[4], "CAIDA");
 					asnIdList.add(asnObservable.getId());
 			
 					if (prefixMap.containsKey(asn[0])) {
@@ -160,7 +160,7 @@ public class CaidaExtractor extends STIXExtractor {
 							SubnetUtils utils = new SubnetUtils(prefix);
 							SubnetInfo info = utils.getInfo();
 							utils.setInclusiveHostCount(true);	//range includes network address and broadcast address?? 
-							Observable addressRangeObservable = setAddressRangeObservable(info.getLowAddress(), info.getHighAddress(), "Caida");
+							Observable addressRangeObservable = setAddressRangeObservable(info.getLowAddress(), info.getHighAddress(), "CAIDA");
 							observables
 								.withObservables(addressRangeObservable);	
 							relatedObjects.add(setRelatedObject(addressRangeObservable.getId(), "hostsAddressRange", 
@@ -208,7 +208,7 @@ public class CaidaExtractor extends STIXExtractor {
 					Observable organizationObservable = new Observable()
 						.withId(new QName("gov.ornl.stucco", "organization-" + UUID.randomUUID().toString(), "stucco"))
 	           				.withTitle("Organization")
-               					.withObservableSources(setMeasureSourceType("Caida"))
+               					.withObservableSources(setMeasureSourceType("CAIDA"))
                     				.withObject(new ObjectType()
                    					.withId(new QName("gov.ornl.stucco", "organization-" + makeId(orgInfo[2]), "stucco"))
 	                               		.withDescription(new StructuredTextType()
@@ -230,7 +230,7 @@ public class CaidaExtractor extends STIXExtractor {
 			}
 			
 
-			return (observables.getObservables().isEmpty()) ? null :  initStixPackage("Caida").withObservables(observables);
+			return (observables.getObservables().isEmpty()) ? null :  initStixPackage("IP-AS Links Dataset", "CAIDA").withObservables(observables);
 
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();

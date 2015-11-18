@@ -128,7 +128,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		CaidaExtractor caidaExtractor = new CaidaExtractor(as2orgInfo, pfx2asInfo);
 		STIXPackage stixPackage = caidaExtractor.getStixPackage();
 
-		System.out.println("Validating Caida stixPackage");
+		System.out.println("Validating CAIDA stixPackage");
 		assertTrue(caidaExtractor.validate(stixPackage));
 
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
@@ -139,7 +139,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(asn.select("cybox|Title").text(), "AS");
 		System.out.println("Testing Source");
-		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CAIDA");
 		System.out.println("Testing ASN value");
 		assertEquals(asn.select("ASObj|Number").text(), "19864");
 		System.out.println("Testing AS name");
@@ -157,7 +157,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");	
 		assertEquals(addressRange.select("cybox|title").text(), "AddressRange");
 		System.out.println("Testing Source");	
-		assertEquals(addressRange.select("cyboxcommon|information_source_type").text(), "Caida");
+		assertEquals(addressRange.select("cyboxcommon|information_source_type").text(), "CAIDA");
 		System.out.println("Testing AddressRange value");	
 		assertEquals(addressRange.select("addressobj|address_value").text(), "69.19.190.0 - 69.19.190.255");
 		System.out.println("Testing Description");	
@@ -185,7 +185,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		CaidaExtractor caidaExtractor = new CaidaExtractor(as2orgInfo, pfx2asInfo);
 		STIXPackage stixPackage = caidaExtractor.getStixPackage();
 	
-		System.out.println("Validating Caida stixPackage");
+		System.out.println("Validating CAIDA stixPackage");
 		assertTrue(caidaExtractor.validate(stixPackage));
 
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
@@ -196,7 +196,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(org.select("cybox|title").text(), "Organization");
 		System.out.println("Testing Source");
-		assertEquals(org.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		assertEquals(org.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CAIDA");
 		System.out.println("Testing Name");
 		assertEquals(org.select("WhoisObj|Organization").text(), "O1.com");
 		System.out.println("Testing OrgId");
@@ -212,7 +212,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(asn.select("cybox|Title").text(), "AS");
 		System.out.println("Testing Source");
-		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CAIDA");
 		System.out.println("Testing ASN value");
 		assertEquals(asn.select("ASObj|Number").text(), "19864");
 		System.out.println("Testing AS name");
@@ -230,7 +230,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");	
 		assertEquals(addressRange.select("cybox|title").text(), "AddressRange");
 		System.out.println("Testing Source");	
-		assertEquals(addressRange.select("cyboxcommon|information_source_type").text(), "Caida");
+		assertEquals(addressRange.select("cyboxcommon|information_source_type").text(), "CAIDA");
 		System.out.println("Testing AddressRange value");	
 		assertEquals(addressRange.select("addressobj|address_value").text(), "69.19.190.0 - 69.19.190.255");
 		System.out.println("Testing Description");	
@@ -258,7 +258,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		CaidaExtractor caidaExtractor = new CaidaExtractor(as2orgInfo, pfx2asInfo);
 		STIXPackage stixPackage = caidaExtractor.getStixPackage();
 	
-		System.out.println("Validating Caida stixPackage");
+		System.out.println("Validating CAIDA stixPackage");
 		assertTrue(caidaExtractor.validate(stixPackage));
 		
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
@@ -269,7 +269,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(org.select("cybox|title").text(), "Organization");
 		System.out.println("Testing Source");
-		assertEquals(org.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		assertEquals(org.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CAIDA");
 		System.out.println("Testing Name");
 		assertEquals(org.select("WhoisObj|Organization").text(), "One Eleven Internet Services");
 		System.out.println("Testing OrgId");
@@ -285,7 +285,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(asn.select("cybox|Title").text(), "AS");
 		System.out.println("Testing Source");
-		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CAIDA");
 		System.out.println("Testing ASN value");
 		assertEquals(asn.select("ASObj|Number").text(), "12285");
 		System.out.println("Testing AS name");
@@ -321,7 +321,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		CaidaExtractor caidaExtractor = new CaidaExtractor(as2orgInfo, pfx2asInfo);
 		STIXPackage stixPackage = caidaExtractor.getStixPackage();
 
-		System.out.println("Validating Caida stixPackage");
+		System.out.println("Validating CAIDA stixPackage");
 		assertTrue(caidaExtractor.validate(stixPackage));
 		
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
@@ -332,7 +332,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(org.select("cybox|title").text(), "Organization");
 		System.out.println("Testing Source");
-		assertEquals(org.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		assertEquals(org.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CAIDA");
 		System.out.println("Testing Name");
 		assertEquals(org.select("WhoisObj|Organization").text(), "One Eleven Internet Services");
 		System.out.println("Testing OrgId");
@@ -348,7 +348,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(asn.select("cybox|Title").text(), "AS");
 		System.out.println("Testing Source");
-		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CAIDA");
 		System.out.println("Testing ASN value");
 		assertEquals(asn.select("ASObj|Number").text(), "12285");
 		System.out.println("Testing AS name");
@@ -364,7 +364,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(org.select("cybox|title").text(), "Organization");
 		System.out.println("Testing Source");
-		assertEquals(org.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		assertEquals(org.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CAIDA");
 		System.out.println("Testing Name");
 		assertEquals(org.select("WhoisObj|Organization").text(), "1 800 Video On, Inc.");
 		System.out.println("Testing OrgId");
@@ -384,7 +384,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		assertEquals(asn.select("ASObj|Number").text(), "18548");
 		System.out.println("Testing AS name");
 		assertEquals(asn.select("ASObj|Name").text(), "18VO");
-		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "Caida");
+		assertEquals(asn.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "CAIDA");
 		System.out.println("Testing RIR");
 		assertEquals(asn.select("ASObj|Regional_Internet_Registry").text(), "ARIN");
 		System.out.println("Testing Description");
@@ -408,7 +408,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");	
 		assertEquals(addressRange.select("cybox|title").text(), "AddressRange");
 		System.out.println("Testing Source");	
-		assertEquals(addressRange.select("cyboxcommon|information_source_type").text(), "Caida");
+		assertEquals(addressRange.select("cyboxcommon|information_source_type").text(), "CAIDA");
 		System.out.println("Testing AddressRange value");	
 		assertEquals(addressRange.select("addressobj|address_value").text(), "216.98.179.0 - 216.98.179.255");
 		System.out.println("Testing Description");	
@@ -420,7 +420,7 @@ public class CaidaExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");	
 		assertEquals(addressRange.select("cybox|title").text(), "AddressRange");
 		System.out.println("Testing Source");	
-		assertEquals(addressRange.select("cyboxcommon|information_source_type").text(), "Caida");
+		assertEquals(addressRange.select("cyboxcommon|information_source_type").text(), "CAIDA");
 		System.out.println("Testing AddressRange value");	
 		assertEquals(addressRange.select("addressobj|address_value").text(), "216.98.188.0 - 216.98.188.255");
 		System.out.println("Testing Description");	

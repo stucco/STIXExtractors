@@ -63,7 +63,7 @@ public class NvdToStixExtractor extends STIXExtractor {
 				return null;
 			}
 			
-			stixPackage = initStixPackage("NVD");
+			stixPackage = initStixPackage("Vulnerability Description", "NVD");
 			Observables observables = initObservables();
 			ExploitTargetsType ets = new ExploitTargetsType();
 			GregorianCalendar calendar = new GregorianCalendar();

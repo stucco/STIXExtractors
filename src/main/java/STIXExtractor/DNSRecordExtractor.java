@@ -113,7 +113,7 @@ public class DNSRecordExtractor extends STIXExtractor {
 				start = 0;
 			}
 						
-			stixPackage = initStixPackage("DNSRecord");				
+			stixPackage = initStixPackage("DNS Record", "DNSRecord");				
 			observables = initObservables();
 		 	
 			for (int i = start; i < records.size(); i++) {

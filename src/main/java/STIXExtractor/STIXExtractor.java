@@ -118,6 +118,26 @@ public abstract class STIXExtractor extends ExtractorUtils {
 
 	private static Set<String> rirSet = new HashSet<String>(Arrays.asList("AFRINIC", "ARIN", "APNIC", "LACNIC", "RIPE"));
 
+	public STIXPackage initStixPackage(String title, String source) throws DatatypeConfigurationException {
+		return initStixPackage(title, source, source);	
+	}
+
+	public STIXPackage initStixPackage(String title, String id, String source) throws DatatypeConfigurationException {
+		GregorianCalendar calendar = new GregorianCalendar();
+		XMLGregorianCalendar now = DatatypeFactory.newInstance().newXMLGregorianCalendar(				
+			new GregorianCalendar(TimeZone.getTimeZone("UTC")));
+
+		return new STIXPackage()				
+ 			.withSTIXHeader(new STIXHeaderType()
+				.withTitle(title)
+				.withInformationSource(new InformationSourceType()
+					.withIdentity(new IdentityType()
+						.withName(source))))
+			.withTimestamp(now)
+ 			.withId(new QName("gov.ornl.stucco", makeId(id) + "-" + UUID.randomUUID().toString(), "stucco"));
+	}
+	
+	//farther remove
 	public STIXPackage initStixPackage(String source) throws DatatypeConfigurationException {
 		GregorianCalendar calendar = new GregorianCalendar();
 		XMLGregorianCalendar now = DatatypeFactory.newInstance().newXMLGregorianCalendar(				

@@ -69,7 +69,7 @@ public class GeoIPExtractor extends STIXExtractor {
 				start = 0;
 			}
 
-			stixPackage = initStixPackage("Maxmind");			
+			stixPackage = initStixPackage("IP List", "Maxmind");			
 			Observables observables = initObservables();
 
 		 	for (int i = start; i < records.size(); i++) {

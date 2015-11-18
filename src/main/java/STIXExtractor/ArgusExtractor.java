@@ -90,7 +90,7 @@ public class ArgusExtractor extends STIXExtractor {
 				start = 0;
 			}
 			
-			stixPackage = initStixPackage("Argus");				
+			stixPackage = initStixPackage("Network Flow Dataset", "Argus");				
 			Observables observables = initObservables();
 							
 		 	for (int i = start; i < records.size(); i++) {

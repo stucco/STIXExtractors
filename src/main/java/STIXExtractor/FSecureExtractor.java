@@ -67,7 +67,7 @@ public class FSecureExtractor extends STIXExtractor {
 	private STIXPackage extractStixPackage(String pageContent) {
 		try {
 			Document doc = Jsoup.parse(pageContent);
-			stixPackage = initStixPackage("F-Secure");
+			stixPackage = initStixPackage("Malware Description", "F-Secure");
 			MalwareInstanceType malware = new MalwareInstanceType();
 			AttackPatternsType attackPatterns = new AttackPatternsType();
 			TTP ttp = initTTP("F-Secure");
@@ -162,19 +162,19 @@ public class FSecureExtractor extends STIXExtractor {
 					String removalMessage = curr.text();
 					if(removalMessage.startsWith("Once detected, the F-Secure security product will automatically disinfect the suspect file")){
 						//creating COA (Course of Actions)
-						CourseOfAction coa = setCourseOfAction(vertexName, "F-Secure", "F-Secure");
+						CourseOfAction coa = setCourseOfAction("Malware", "F-Secure", "F-Secure");
 						stixPackage
 							.withCoursesOfAction(new CoursesOfActionType()	//adding COA to STIXPackage
 									.withCourseOfActions(coa))
 							.withIndicators(new IndicatorsType()		//adding Indicator as a connector bw Malware and COA
-									.withIndicators(setMalwareCoaIndicator(vertexName, ttp.getId(), coa.getId(), "F-Secure")));
+									.withIndicators(setMalwareCoaIndicator("Malware", ttp.getId(), coa.getId(), "F-Secure")));
 					}else{
-						CourseOfAction coa = setCourseOfAction(vertexName, "F-Secure: " + removalMessage, "F-Secure");
+						CourseOfAction coa = setCourseOfAction("Malware", "F-Secure: " + removalMessage, "F-Secure");
 						stixPackage
 							.withCoursesOfAction(new CoursesOfActionType()
 									.withCourseOfActions(coa))
 							.withIndicators(new IndicatorsType()
-									.withIndicators(setMalwareCoaIndicator(vertexName, ttp.getId(), coa.getId(), "F-Secure")));
+									.withIndicators(setMalwareCoaIndicator("Malware", ttp.getId(), coa.getId(), "F-Secure")));
 					}
 					contents.remove(i);
 					contents.remove(i-1);

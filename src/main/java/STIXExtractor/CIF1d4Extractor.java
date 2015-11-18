@@ -81,7 +81,7 @@ public class CIF1d4Extractor extends STIXExtractor {
 				}
 			}
 		
-			return (ipIdList.isEmpty()) ? null : initStixPackage("OneDFour_US")
+			return (ipIdList.isEmpty()) ? null : initStixPackage("IP Addresses of SSH Scanners", "onedfourdotus", "1d4.us")
 					.withObservables(observables)
 					.withTTPs(new TTPsType()
 						.withTTPS(initTTP("Malware", "1d4.us")

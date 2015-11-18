@@ -67,7 +67,7 @@ public class PackageListExtractor extends STIXExtractor {
 				start = 0;
 			}
 
-			stixPackage = initStixPackage("PackageList");				
+			stixPackage = initStixPackage("Software Description", "PackageList");				
 			Observables observables = initObservables();
 
 		 	for (int i = start; i < records.size(); i++) {

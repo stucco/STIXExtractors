@@ -94,7 +94,7 @@ public class HTTPDataExtractor extends STIXExtractor {
 				start = 0;
 			}
 						
-			stixPackage = initStixPackage("HTTP_Request");				
+			stixPackage = initStixPackage("HTTP Request", "HTTP_Request");				
 			observables = initObservables();
 
 			for (int i = start; i < records.size(); i++) {

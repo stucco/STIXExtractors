@@ -86,7 +86,7 @@ public class MetasploitExtractor extends STIXExtractor {
 				start = 0;
 			}
 
-			stixPackage = initStixPackage("Metasploit");				
+			stixPackage = initStixPackage("Vulnerability and Malware Description", "Metasploit");				
 			ExploitTargetsType ets = new ExploitTargetsType();
 			TTPsType ttps = new TTPsType();
 

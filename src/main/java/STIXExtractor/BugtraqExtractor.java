@@ -55,7 +55,7 @@ public class BugtraqExtractor extends STIXExtractor {
 				
 	private STIXPackage extract(String info, String discussion, String exploit, String solution, String references) {
 		try {
-			stixPackage = initStixPackage("Bugtraq");
+			stixPackage = initStixPackage("Vulnerability Description", "Bugtraq");
 			GregorianCalendar calendar = new GregorianCalendar();
 			Observables observables = initObservables();
 			ExploitTarget exploitTarget = new ExploitTarget();

@@ -42,7 +42,7 @@ public class CveExtractor extends STIXExtractor {
 				return null;
 			}
 
-			stixPackage = initStixPackage("CVE");				
+			stixPackage = initStixPackage("Vulnerability Description", "CVE");				
 			ExploitTargetsType exploitTargets = new ExploitTargetsType();			
 
 			for (Element entry : entries) {	

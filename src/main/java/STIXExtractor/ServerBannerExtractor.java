@@ -65,7 +65,7 @@ public class ServerBannerExtractor extends STIXExtractor {
 				start = 0;
 			}
 						
-			stixPackage = initStixPackage("server_banner");				
+			stixPackage = initStixPackage("Server Banner", "server_banner");				
 			observables = initObservables();
 
 			for (int i = start; i < records.size(); i++) {

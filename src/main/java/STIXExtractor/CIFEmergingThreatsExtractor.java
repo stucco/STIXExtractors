@@ -80,8 +80,7 @@ public class CIFEmergingThreatsExtractor extends STIXExtractor {
 						.withIdref(observable.getId()));
 				}
 			}
-				
-			return (ipIdList.isEmpty()) ? null : initStixPackage("rules.emergingthreats.net")
+			return (ipIdList.isEmpty()) ? null : initStixPackage("Malicious IP Addresses", "rules.emergingthreats.net", "rules.emergingthreats.net")
 				.withObservables(observables)
 				.withTTPs(new TTPsType()
 					.withTTPS(initTTP("Malware", "rules.emergingthreats.net")

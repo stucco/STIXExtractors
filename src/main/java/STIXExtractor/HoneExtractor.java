@@ -102,7 +102,7 @@ public class HoneExtractor extends STIXExtractor {
 				start = 0;
 			}
 
-			stixPackage = initStixPackage("Hone");
+			stixPackage = initStixPackage("Network Flow Dataset", "Hone");
 			Observables observables = initObservables();
 
 		 	for (int i = start; i < records.size(); i++) {
