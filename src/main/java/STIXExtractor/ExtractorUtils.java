@@ -182,7 +182,7 @@ public abstract class ExtractorUtils {
 	}
 	
 	public String makeId(String id) {
-		return id.replaceAll("[:/, ()]", "_");
+		return id.replaceAll("[:/, ()]", "_").toLowerCase();
 	}
 
 	public String makeSoftwareDesc(String cpe)	{

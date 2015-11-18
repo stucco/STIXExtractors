@@ -1,5 +1,7 @@
 package STIXExtractor;
 
+import java.util.UUID;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -54,7 +56,7 @@ public class CveExtractor extends STIXExtractor {
 				
 				if (entry.select("desc").hasText()) {
 					vulnerability
-						.withDescriptions((!entry.select("desc").hasText()) ? null : new StructuredTextType()
+						.withDescriptions(new StructuredTextType()
 							.withValue(entry.select("desc").text()));
 				}
 										
@@ -81,7 +83,7 @@ public class CveExtractor extends STIXExtractor {
 		
 				exploitTargets
 					.withExploitTargets(new ExploitTarget()
-						.withId(new QName("gov.ornl.stucco", "cveId_" + entry.attr("name"), "stucco"))
+						.withId(new QName("gov.ornl.stucco", "vulnerability-" + UUID.randomUUID().toString(), "stucco"))
 						.withTitle("Vulnerability")
 						.withVulnerabilities(vulnerability	
 							.withSource("CVE")));	
