@@ -44,6 +44,7 @@ import org.mitre.cybox.objects.Address;
 import org.mitre.cybox.objects.WhoisNameserversType;
 import org.mitre.cybox.objects.WhoisRegistrantsType;
 import org.mitre.cybox.objects.WhoisRegistrantInfoType;
+import org.mitre.cybox.objects.URIObjectType;
 
 /**
  * DNS record to STIX format extractor.
@@ -57,30 +58,14 @@ public class DNSRecordExtractor extends STIXExtractor {
 					   "refqdn", "raddr", "preference", "answer_ns", "authoritative_ns", "times_seen", "first_seen_timet", "last_seen_timet", 
 					   "scountrycode", "sorganization", "dcountrycode", "dorganization", "rcountrycode", "rorganization"};
 	private static final String FILENAME = "filename";	
-	private static final String RECNUM = "recnum";	
-	private static final String FILE_TYPE = "file_type";	
-	private static final String AMP_VERSION = "amp_version";	
-	private static final String SITE = "site";	
 	private static final String SADDR = "saddr";	
 	private static final String DADDR = "daddr";	
 	private static final String TTL = "ttl";	
 	private static final String RQTYPE = "rqtype";	
 	private static final String FLAGS = "flags";	
 	private static final String RQFQDN = "rqfqdn";	
-	private static final String REFQDN = "refqdn";	
 	private static final String RADDR = "raddr";	
-	private static final String PREFERENCE = "preference";	
-	private static final String ANSWER_NS = "answer_ns";	
-	private static final String AUTHORITATIVE_NS = "authoritative_ns";	
-	private static final String TIMES_SEEN = "times_seen";	
-	private static final String FIRST_SEEN_TIMET = "first_seen_timet";	
 	private static final String LAST_SEEN_TIMET = "last_seen_timet";	
-	private static final String SCOUNTRYCODE = "scountrycode";	
-	private static final String SORGANIZATION = "sorganization";	
-	private static final String DCOUNTRYCODE = "dcountrycode";	
-	private static final String DORGANIZATION = "dorganization";	
-	private static final String RCOUNTRYCODE = "rcountrycode";	
-	private static final String RORGANIZATION = "rorganization";	
 
 	private STIXPackage stixPackage;
 	private Observables observables;
@@ -113,54 +98,54 @@ public class DNSRecordExtractor extends STIXExtractor {
 				start = 0;
 			}
 						
-			stixPackage = initStixPackage("DNS Record", "DNSRecord");				
 			observables = initObservables();
 		 	
 			for (int i = start; i < records.size(); i++) {
 
 				record = records.get(i);
-				AssociatedObjectsType associatedObjects = new AssociatedObjectsType();
+				if (record.get(RQFQDN).isEmpty() && record.get(RADDR).isEmpty()) {
+					continue;
+				}
+				
+				Observable srcIpObservable = null;
+				Observable dstIpObservable = null;
+				Observable rIpObservable = null;
+				Observable rDnsObservable = null;
 								
 				/* saddr (address of responding DNS server) Observable */		
 				if (!record.get(SADDR).isEmpty()) {
-					WhoisEntry entry = setWhoisEntry(record.get(SADDR), record.get(SORGANIZATION), 
-									 record.get(SCOUNTRYCODE), record.get(AUTHORITATIVE_NS));
-					associatedObjects		
-						.withAssociatedObjects(new AssociatedObjectType()
-							.withAssociationType(new ControlledVocabularyStringType()
-								.withValue("Address of responding DNS server"))
-							.withProperties(entry));
+					srcIpObservable = setIpObservable(record.get(SADDR),ipToLong(record.get(SADDR)), "DNSRecord");
+					observables
+						.withObservables(srcIpObservable);
 				}
 
 				/* daddr (address of DNS requester) Observable */
 				if (!record.get(DADDR).isEmpty()) {
-					WhoisEntry entry = setWhoisEntry(record.get(DADDR), record.get(DORGANIZATION), 
-									 record.get(DCOUNTRYCODE), "");
-					associatedObjects		
-						.withAssociatedObjects(new AssociatedObjectType()
-							.withAssociationType(new ControlledVocabularyStringType()
-								.withValue("Address of DNS requester"))
-							.withProperties(entry));
+					dstIpObservable = setIpObservable(record.get(DADDR),ipToLong(record.get(DADDR)), "DNSRecord");
+					observables
+						.withObservables(dstIpObservable);
 				}
 
-				/* raddr (address of requested DNS) Observable */
-				if (!record.get(RADDR).isEmpty()) {
-					WhoisEntry entry = setWhoisEntry(record.get(RADDR), record.get(RORGANIZATION), 
-									 record.get(RCOUNTRYCODE), "");
-					associatedObjects		
-						.withAssociatedObjects(new AssociatedObjectType()
-							.withAssociationType(new ControlledVocabularyStringType()
-								.withValue("Address of requested DNS"))
-							.withProperties(entry));
-				}	
+				/* raddr (requested address) Observable */
+				rIpObservable = setIpObservable(record.get(RADDR),ipToLong(record.get(RADDR)), "DNSRecord");
+				observables 
+					.withObservables(rIpObservable);
+				
+				/* DNSName observable */
+				rDnsObservable = setDNSObservable(record.get(RQFQDN), "DNSRecord");
+				observables 
+					.withObservables(rDnsObservable);
 
-				/* creating DNS Record */
+				/* DNS Record */
 				DNSRecord dnsRecord = new DNSRecord()
+					.withDescription(new StructuredTextType()
+						.withValue("Requested domain name " + record.get(RQFQDN) + " resolved to IP address " + record.get(RADDR)))
 					.withQueriedDate((record.get(LAST_SEEN_TIMET).isEmpty()) ? null : new DateTimeObjectPropertyType()
 						.withValue(record.get(LAST_SEEN_TIMET)))
-					.withDomainName((!record.get(RQFQDN).isEmpty()) ? setURIObjectType(record.get(RQFQDN)) 
-						: ((!record.get(REFQDN).isEmpty()) ? setURIObjectType(record.get(REFQDN)) : null))
-					.withIPAddress((record.get(RADDR).isEmpty()) ? null : setAddress(record.get(RADDR)))
+					.withDomainName(new URIObjectType()
+						.withObjectReference(rDnsObservable.getId()))
+					.withIPAddress(new Address()
+						.withObjectReference(rIpObservable.getId()))
 					.withEntryType((record.get(RQTYPE).isEmpty()) ? null : new StringObjectPropertyType()
 						.withValue(record.get(RQTYPE)))
 					.withTTL((record.get(TTL).isEmpty()) ? null : new IntegerObjectPropertyType()
@@ -168,47 +153,20 @@ public class DNSRecordExtractor extends STIXExtractor {
 					.withFlags((record.get(FLAGS).isEmpty()) ? null : new HexBinaryObjectPropertyType()
 						.withValue(record.get(FLAGS)));
 
-				/* packing record into AssociatedObjectType */
-				DNSQuery dnsQuery = new DNSQuery();
-				String description = record.get(DADDR) + " requested IP address of domain name " + ((!record.get(RQFQDN).isEmpty()) ? record.get(RQFQDN) : record.get(REFQDN));
-				if (!record.get(AUTHORITATIVE_NS).isEmpty()) {
-					dnsQuery
-						.withAuthorityResourceRecords(new DNSResourceRecordsType()
-								.withResourceRecords(dnsRecord
-									.withDescription(new StructuredTextType()
-										.withValue(description))));
-				} else {
-					if (!record.get(ANSWER_NS).isEmpty()) {
-						dnsQuery
-							.withAnswerResourceRecords(new DNSResourceRecordsType()
-								.withResourceRecords(dnsRecord
-									.withDescription(new StructuredTextType()
-										.withValue(description))));
-					} else {
-						dnsQuery
-							.withAdditionalRecords(new DNSResourceRecordsType()
-								.withResourceRecords(dnsRecord
-									.withDescription(new StructuredTextType()
-										.withValue(description))));
-					}
-				} 
-
+				/* packing record into Observable */
 				observables
 					.withObservables(new Observable()
 						.withId(new QName("gov.ornl.stucco", "dnsRecord-" + UUID.randomUUID().toString(), "stucco"))
 						.withTitle("DNSRecord")
 						.withObservableSources(setMeasureSourceType("DNSRecord"))
-						.withEvent(new Event()
-							.withActions(new ActionsType()
-								.withActions(new ActionType()
-									.withAssociatedObjects(associatedObjects
-										.withAssociatedObjects(new AssociatedObjectType()
-											.withProperties(dnsQuery
-												.withTransactionID(new HexBinaryObjectPropertyType()
-													.withValue(record.get(RECNUM))))))))));
+						.withObject(new ObjectType()
+							.withProperties(dnsRecord)
+							.withRelatedObjects(new RelatedObjectsType()
+								.withRelatedObjects(setRelatedObject(dstIpObservable.getId(), "Requested_By", "Requested IP." ,"DNSRequest"))
+								.withRelatedObjects(setRelatedObject(srcIpObservable.getId(), "Served_By", "Served IP request." ,"DNSRequest")))));
 			}
 
-			return (observables.getObservables().isEmpty()) ? null : initStixPackage("DNSRecord").withObservables(observables);	
+			return (observables.getObservables().isEmpty()) ? null : initStixPackage("DNS Record", "DNSRecord").withObservables(observables);	
 
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();
@@ -218,36 +176,5 @@ public class DNSRecordExtractor extends STIXExtractor {
 
 		return null;
 	}
-
-	private WhoisEntry setWhoisEntry(String ip, String organization, String countrycode, String authoritation) {
-					
-		long ipInt = ipToLong(ip);
-		Observable ipObservable = setIpObservable(ip, ipInt, "DNSRecord");
-		observables
-			.withObservables(ipObservable);
-
-		WhoisEntry entry = new WhoisEntry()
-			.withIPAddress(new Address()	
-				.withObjectReference(ipObservable.getId()))
-			.withRegistrants((organization.isEmpty() && countrycode.isEmpty()) ? null : new WhoisRegistrantsType()
-				.withRegistrants(new WhoisRegistrantInfoType()
-					.withOrganization((organization.isEmpty()) ? null : new StringObjectPropertyType()
-						.withValue(organization))
-					.withAddress((countrycode.isEmpty()) ? null : new StringObjectPropertyType()
-						.withValue(countrycode))));
-
-		if (!authoritation.isEmpty()) {
-			WhoisNameserversType whoisNameservers = new WhoisNameserversType();
-			String[] nameservers = authoritation.split(" ");
-
-			for (int j = 0; j < nameservers.length; j++) {
-				whoisNameservers							
-					.withNameservers(setURIObjectType(nameservers[j]));
-			}
-			entry
-				.withNameservers(whoisNameservers);
-		}
-
-		return entry;
-	}
 }
+
