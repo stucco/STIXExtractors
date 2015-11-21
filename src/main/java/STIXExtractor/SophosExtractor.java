@@ -491,7 +491,7 @@ public class SophosExtractor extends STIXExtractor {
 								.getObject()
 								.withRelatedObjects(new RelatedObjectsType()
 										.withRelatedObjects(setRelatedObject(dnsObservable.getId(),
-												"hasDNSName",
+												"Has_DNSName",
 												dnsString + ", port unknown has DNS name " + dnsString,
 												"Sophos")));
 						}

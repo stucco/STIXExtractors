@@ -163,8 +163,8 @@ public class CaidaExtractor extends STIXExtractor {
 							Observable addressRangeObservable = setAddressRangeObservable(info.getLowAddress(), info.getHighAddress(), "CAIDA");
 							observables
 								.withObservables(addressRangeObservable);	
-							relatedObjects.add(setRelatedObject(addressRangeObservable.getId(), "hostsAddressRange", 
-								"AS " + asn[2] + " with ASN " + asn[0] + "  hosts IP address range " + info.getLowAddress() + " through " + info.getHighAddress(), 
+							relatedObjects.add(setRelatedObject(addressRangeObservable.getId(), "Contains", 
+								"AS " + asn[2] + " with ASN " + asn[0] + " contains IP address range " + info.getLowAddress() + " through " + info.getHighAddress(), 
 									"Caida"));
 						}
 
@@ -228,7 +228,6 @@ public class CaidaExtractor extends STIXExtractor {
 						.withObservables(organizationObservable);
 				}
 			}
-			
 
 			return (observables.getObservables().isEmpty()) ? null :  initStixPackage("IP-AS Links Dataset", "CAIDA").withObservables(observables);
 

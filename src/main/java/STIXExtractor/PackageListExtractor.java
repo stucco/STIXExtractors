@@ -106,7 +106,7 @@ public class PackageListExtractor extends STIXExtractor {
 					hostObservable
 						.getObject()
 							.withRelatedObjects(new RelatedObjectsType()
-								.withRelatedObjects(setRelatedObject(softwareObservable.getId(), "runs", 
+								.withRelatedObjects(setRelatedObject(softwareObservable.getId(), "Runs", 
 									record.get(HOSTNAME) + " runs " + record.get(PACKAGE) + "_" + record.get(VERSION), "PackageList")));
 				}
 

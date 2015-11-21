@@ -85,7 +85,7 @@ public class LoginEventExtractorTest	{
 		System.out.println("Testing Title");
 		assertEquals(element.select("cybox|Title").text(), "Host");
 		System.out.println("Testing Hostname -> Software relation");
-		String softwareId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^runs\\Z))").attr("idref");
+		String softwareId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Runs\\Z))").attr("idref");
 		Element software = doc.select("[id=" + softwareId + "]").first();
 		assertEquals(software.select("ProductObj|Product").text(), "sshd");
 		
@@ -102,7 +102,7 @@ public class LoginEventExtractorTest	{
 		System.out.println("Testing Title");
 		assertEquals(element.select("cybox|Title").text(), "Host");
 		System.out.println("Testing Hostname_at_IP -> IP relation");
-		String ipId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^hasIP\\Z))").attr("idref");
+		String ipId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Resolved_To\\Z))").attr("idref");
 		Element ip = doc.select("[id=" + ipId + "]").first();
 		assertEquals(ip.select("AddressObj|Address_Value").text(), "192.168.10.11");
 		

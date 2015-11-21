@@ -141,7 +141,7 @@ public class HTTPDataExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(srcIp.select("cybox|Title").text(), "IP");
 		System.out.println("Testing Source");
-		assertEquals(srcIp.select("cyboxCommon|Information_Source_Type").text(), "HTTP_Request");
+		assertEquals(srcIp.select("cyboxCommon|Information_Source_Type").text(), "HTTPRequest");
 		System.out.println("Testing IP Long (ID)");
 		assertEquals(srcIp.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong("128.219.49.13"));
 		System.out.println("Testing IP String");
@@ -158,7 +158,7 @@ public class HTTPDataExtractorTest extends STIXExtractor {
 		System.out.println("Testing Description");
 		assertEquals(dns.select("cybox|description").text(), "cdn455.telemetryverification.net");
 		System.out.println("Testing Source");
-		assertEquals(dns.select("cyboxcommon|information_source_type").text(), "HTTP_Request");
+		assertEquals(dns.select("cyboxcommon|information_source_type").text(), "HTTPRequest");
 		System.out.println("Testing Title");
 		assertEquals(dns.select("cybox|title").text(), "DNSName");
 		
@@ -169,7 +169,7 @@ public class HTTPDataExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(dstIp.select("cybox|Title").text(), "IP");
 		System.out.println("Testing Source");
-		assertEquals(dstIp.select("cyboxCommon|Information_Source_Type").text(), "HTTP_Request");
+		assertEquals(dstIp.select("cyboxCommon|Information_Source_Type").text(), "HTTPRequest");
 		System.out.println("Testing IP Long (ID)");
 		assertEquals(dstIp.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong("54.192.138.232"));
 		System.out.println("Testing IP String");
@@ -184,7 +184,7 @@ public class HTTPDataExtractorTest extends STIXExtractor {
 		System.out.println("Testing Title");
 		assertEquals(dstPort.select("cybox|Title").text(), "Port");
 		System.out.println("Testing Source");
-		assertEquals(dstPort.select("cyboxCommon|Information_Source_Type").text(), "HTTP_Request");
+		assertEquals(dstPort.select("cyboxCommon|Information_Source_Type").text(), "HTTPRequest");
 		System.out.println("Testing Port value");
 		assertEquals(dstPort.select("PortObj|Port_Value").text(), "80");
 		System.out.println("Testing Description");

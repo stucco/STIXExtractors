@@ -190,7 +190,7 @@ public class CleanMxVirusExtractor extends STIXExtractor {
 					ipObservable
 						.getObject()
 							.withRelatedObjects(new RelatedObjectsType()
-								.withRelatedObjects(setRelatedObject(addressRangeObservable.getId(), "inAddressRange",
+								.withRelatedObjects(setRelatedObject(addressRangeObservable.getId(), "Contained_Within",
 									ip + " is in address range " + ips[0] + " through " + ips[1], "CleanMx(virus)")));
 				}
 				

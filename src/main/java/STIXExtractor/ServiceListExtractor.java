@@ -70,7 +70,6 @@ public class ServiceListExtractor extends STIXExtractor {
 				start = 0;
 			}
 						
-			stixPackage = initStixPackage("Service Description", "service_list");				
 			observables = initObservables();
 
 			for (int i = start; i < records.size(); i++) {
@@ -110,7 +109,7 @@ public class ServiceListExtractor extends STIXExtractor {
 					.withObservables(processObservable);
 			}
 
-			return (observables.getObservables().isEmpty()) ? null : initStixPackage("server_banner").withObservables(observables);	
+			return (observables.getObservables().isEmpty()) ? null : initStixPackage("Service Description", "serviceList", "service_list").withObservables(observables);	
 
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();

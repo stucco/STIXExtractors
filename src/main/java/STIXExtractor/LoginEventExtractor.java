@@ -116,7 +116,7 @@ public class LoginEventExtractor extends STIXExtractor {
 					/* account -> hostname relation */
 					if (hostnameObservable != null) {
 						relatedObjects.add(
-							setRelatedObject(hostnameObservable.getId(), "logsInTo", record.get(USER) + " logs in to " + record.get(HOSTNAME), "LoginEvent")  
+							setRelatedObject(hostnameObservable.getId(), "Logs_In_To", record.get(USER) + " logs in to " + record.get(HOSTNAME), "LoginEvent")  
 								.withState(new ControlledVocabularyStringType()
 									.withValue(record.get(STATUS)))
 								.withProperties(new UserSession()
@@ -127,7 +127,7 @@ public class LoginEventExtractor extends STIXExtractor {
 					/* account -> ip relation */
 					if (ipObservable != null) {
 						relatedObjects.add(
-							setRelatedObject(hostAtIpObservable.getId(), "logsInFrom", record.get(USER) + " logs in from host at " + record.get(FROM_IP), "LoginEvent") 
+							setRelatedObject(hostAtIpObservable.getId(), "Logs_In_From", record.get(USER) + " logs in from host at " + record.get(FROM_IP), "LoginEvent") 
 								.withState(new ControlledVocabularyStringType()
 									.withValue(record.get(STATUS)))
 								.withProperties(new UserSession()
@@ -149,7 +149,7 @@ public class LoginEventExtractor extends STIXExtractor {
 						hostnameObservable
 							.getObject()
 								.withRelatedObjects(new RelatedObjectsType()
-									.withRelatedObjects(setRelatedObject(softwareObservable.getId(), "runs", record.get(HOSTNAME) + " runs " + record.get(LOGIN_SOFTWARE), "LoginEvent")));
+									.withRelatedObjects(setRelatedObject(softwareObservable.getId(), "Runs", record.get(HOSTNAME) + " runs " + record.get(LOGIN_SOFTWARE), "LoginEvent")));
 					}
 					observables
 						.withObservables(hostnameObservable);
@@ -162,7 +162,7 @@ public class LoginEventExtractor extends STIXExtractor {
 							.getObject()
 								.withRelatedObjects(new RelatedObjectsType()
 									.withRelatedObjects(
-										setRelatedObject(ipObservable.getId(), "hasIP", "host_at_" + record.get(FROM_IP) + " has IP " + record.get(FROM_IP), "LoginEvent")));
+										setRelatedObject(ipObservable.getId(), "Resolved_To", "host_at_" + record.get(FROM_IP) + " resolved to IP " + record.get(FROM_IP), "LoginEvent")));
 					}
 					observables
 						.withObservables(hostAtIpObservable);

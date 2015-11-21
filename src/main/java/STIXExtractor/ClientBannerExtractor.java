@@ -65,7 +65,6 @@ public class ClientBannerExtractor extends STIXExtractor {
 				start = 0;
 			}
 						
-			stixPackage = initStixPackage("Client Banner", "client_banner");				
 			observables = initObservables();
 
 			for (int i = start; i < records.size(); i++) {
@@ -106,7 +105,7 @@ public class ClientBannerExtractor extends STIXExtractor {
 				}
 			}
 
-			return (observables.getObservables().isEmpty()) ? null : initStixPackage("client_banner").withObservables(observables);	
+			return (observables.getObservables().isEmpty()) ? null : initStixPackage("Client Banner", "client_banner").withObservables(observables);	
 
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();

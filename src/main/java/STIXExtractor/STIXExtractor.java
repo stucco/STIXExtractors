@@ -137,19 +137,6 @@ public abstract class STIXExtractor extends ExtractorUtils {
  			.withId(new QName("gov.ornl.stucco", makeId(id) + "-" + UUID.randomUUID().toString(), "stucco"));
 	}
 	
-	//farther remove
-	public STIXPackage initStixPackage(String source) throws DatatypeConfigurationException {
-		GregorianCalendar calendar = new GregorianCalendar();
-		XMLGregorianCalendar now = DatatypeFactory.newInstance().newXMLGregorianCalendar(				
-			new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-
-		return new STIXPackage()				
- 			.withSTIXHeader(new STIXHeaderType()
-				.withTitle(source)) 
-			.withTimestamp(now)
- 			.withId(new QName("gov.ornl.stucco", makeId(source) + "-" + UUID.randomUUID().toString(), "stucco"));
-	}
-
 	public Observables initObservables() {
 		return new Observables()
 			.withCyboxMajorVersion("2.0")

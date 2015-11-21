@@ -94,7 +94,6 @@ public class HTTPDataExtractor extends STIXExtractor {
 				start = 0;
 			}
 						
-			stixPackage = initStixPackage("HTTP Request", "HTTP_Request");				
 			observables = initObservables();
 
 			for (int i = start; i < records.size(); i++) {
@@ -111,22 +110,22 @@ public class HTTPDataExtractor extends STIXExtractor {
 				Observable domainNameObservable = null;
 			
 				if (!record.get(SADDR).isEmpty()) {
-					srcIpObservable = setIpObservable(record.get(SADDR), "HTTP_Request");
+					srcIpObservable = setIpObservable(record.get(SADDR), "HTTPRequest");
 					observables
 						.withObservables(srcIpObservable);
 				}
 				if (!record.get(DADDR).isEmpty()) {
-					dstIpObservable = setIpObservable(record.get(DADDR), "HTTP_Request");
+					dstIpObservable = setIpObservable(record.get(DADDR), "HTTPRequest");
 					observables
 						.withObservables(dstIpObservable);
 				}
 				if (!record.get(DPORT).isEmpty()) {
-					dstPortObservable = setPortObservable(record.get(DPORT), "HTTP_Request");
+					dstPortObservable = setPortObservable(record.get(DPORT), "HTTPRequest");
 					observables
 						.withObservables(dstPortObservable);
 				}
 				if (!record.get(SERVER_FQDN).isEmpty()) {
-					domainNameObservable = setDNSObservable(record.get(SERVER_FQDN), "HTTP_Request");
+					domainNameObservable = setDNSObservable(record.get(SERVER_FQDN), "HTTPRequest");
 					if (dstIpObservable != null) {
 						domainNameObservable
 							.getObject()
@@ -141,12 +140,12 @@ public class HTTPDataExtractor extends STIXExtractor {
 				}
 
 				Observable httpRequestObservable = new Observable()
-					.withId(new QName("gov.ornl.stucco", "http_request-" + UUID.randomUUID().toString(), "stucco"))	
-					.withTitle("HTTP Request")
-					.withObservableSources(setMeasureSourceType("HTTP Request"))
+					.withId(new QName("gov.ornl.stucco", "httpRequest-" + UUID.randomUUID().toString(), "stucco"))	
+					.withTitle("HTTPRequest")
+					.withObservableSources(setMeasureSourceType("HTTPRequest"))
 					.withObject(new ObjectType()
 						.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
-							.withValue("http request data"))
+							.withValue("HTTP request of URL " + record.get(REQUEST)))
 						.withProperties(new HTTPSession() 
 							.withHTTPRequestResponses(new HTTPRequestResponseType()
 								.withHTTPClientRequest(new HTTPClientRequestType()
@@ -184,7 +183,7 @@ public class HTTPDataExtractor extends STIXExtractor {
 
 			}
 
-			return (observables.getObservables().isEmpty()) ? null : initStixPackage("HTTP_Request").withObservables(observables);	
+			return (observables.getObservables().isEmpty()) ? null : initStixPackage("HTTPRequest", "HTTPRequest").withObservables(observables);				
 
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();

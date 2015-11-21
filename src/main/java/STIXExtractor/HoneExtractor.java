@@ -249,14 +249,13 @@ public class HoneExtractor extends STIXExtractor {
 					List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
 					if (softwareObservable != null)	{
 						relatedObjects.add(
-							setRelatedObject(softwareObservable.getId(), "runs", 
-								HOSTNAME + " runs " + record.get(PATH), "Hone"));
+							setRelatedObject(softwareObservable.getId(), "Runs", HOSTNAME + " runs " + record.get(PATH), "Hone"));
 					}
 
 					/* host -> source address relation */
 					if (srcAddressObservable != null) {
 						relatedObjects.add(	
-							setRelatedObject(srcAddressObservable.getId(), "usesAddress", 			
+							setRelatedObject(srcAddressObservable.getId(), "Uses_Address", 			
 								HOSTNAME + " uses address " + record.get(SOURCE_IP) + ", port " + record.get(SOURCE_PORT), "Hone"));
 					}
 
@@ -277,15 +276,15 @@ public class HoneExtractor extends STIXExtractor {
 					List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
 					if (flowObservable != null) {
 						relatedObjects.add(
-							setRelatedObject(flowObservable.getId(), "hasFlow",
-								record.get(PATH) + " has flow " + record.get(SOURCE_IP) + ", port " + record.get(SOURCE_PORT) +" to " + 
+							setRelatedObject(flowObservable.getId(), "Moved_By",
+								record.get(PATH) + " moved by flow " + record.get(SOURCE_IP) + ", port " + record.get(SOURCE_PORT) +" to " + 
 									record.get(DEST_IP) + ", port " + record.get(DEST_PORT), "Hone"));
 					}
 
 					/* software -> account relation */
 					if (accountObservable != null) {
 						relatedObjects.add(
-							setRelatedObject(accountObservable.getId(), "runsAs",
+							setRelatedObject(accountObservable.getId(), "Runs_As",
 								record.get(PATH) + " runs as uid " + record.get(UID) + " on host " + HOSTNAME, "Hone"));	
 					}
 

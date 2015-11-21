@@ -102,12 +102,12 @@ public class HoneExtractorTest	{
 
 		//hostname -> software relation
 		System.out.println("Testing Hostname -> Software relation");
-		String softwareId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^runs$))").attr("idref");
+		String softwareId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Runs$))").attr("idref");
 		Element software = doc.select("[id=" + softwareId + "]").first();
 		assertEquals(software.select("ProductObj|Product").text(), "/usr/lib/gvfs/gvfsd-smb");
 		System.out.println("Testing Relationship");
-		Element relation = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^runs$))").first();
-		assertEquals(relation.select("cybox|Relationship").text(), "runs");
+		Element relation = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Runs$))").first();
+		assertEquals(relation.select("cybox|Relationship").text(), "Runs");
 		System.out.println("Testing Relation Description");
 		assertEquals(relation.select("cybox|Description").text(), "Mary runs /usr/lib/gvfs/gvfsd-smb");
 		System.out.println("Testing Relation Source");
@@ -115,7 +115,7 @@ public class HoneExtractorTest	{
 
 		//hostname -> address relation
 		System.out.println("Testing Hostname -> Address relation");
-		String addressId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^usesAddress$))").attr("idref");
+		String addressId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Uses_Address$))").attr("idref");
 		Element srcAddress = doc.select("[id=" + addressId + "]").first();
 		String sourceIpId = srcAddress.select("SocketAddressObj|IP_Address").attr("object_reference");
 		String ip = doc.select("[id= " + sourceIpId + "] > cybox|Object > cybox|Properties > AddressObj|Address_Value").text();
@@ -124,8 +124,8 @@ public class HoneExtractorTest	{
 		String port = doc.select("[id= " + sourcePortId + "] > cybox|Object > cybox|Properties > PortObj|Port_Value").text();
 		assertEquals(port, "49870");
 		System.out.println("Testing Relationship");
-		relation = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^usesAddress$))").first();
-		assertEquals(relation.select("cybox|Relationship").text(), "usesAddress");
+		relation = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Uses_Address$))").first();
+		assertEquals(relation.select("cybox|Relationship").text(), "Uses_Address");
 		System.out.println("Testing Relation Description");
 		assertEquals(relation.select("cybox|Description").text(), "Mary uses address 10.32.92.230, port 49870");
 		System.out.println("Testing Relation Source");
@@ -157,25 +157,25 @@ public class HoneExtractorTest	{
 
 		//software -> flow relation
 		System.out.println("Testing Software -> Flow relation:");
-		String flowId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^hasFlow$))").attr("idref");
+		String flowId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Moved_By$))").attr("idref");
 		Element flow = doc.select("[id=" + flowId + "]").first();
 		assertEquals(flow.select("cybox|Description").text(), "10.32.92.230, port 49870 to 69.42.215.170, port 6667");
 		System.out.println("Testing Relationship");
-		relation = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^hasFlow$))").first();
-		assertEquals(relation.select("cybox|Relationship").text(), "hasFlow");
+		relation = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Moved_By$))").first();
+		assertEquals(relation.select("cybox|Relationship").text(), "Moved_By");
 		System.out.println("Testing Relation Description");
-		assertEquals(relation.select("cybox|Description").text(), "/usr/lib/gvfs/gvfsd-smb has flow 10.32.92.230, port 49870 to 69.42.215.170, port 6667");
+		assertEquals(relation.select("cybox|Description").text(), "/usr/lib/gvfs/gvfsd-smb moved by flow 10.32.92.230, port 49870 to 69.42.215.170, port 6667");
 		System.out.println("Testing Relation Source");
 		assertEquals(relation.select("cybox|Discovery_Method > cyboxCommon|Information_Source_Type").text(), "Hone");
 
 		//software -> account
 		System.out.println("Testing Software -> Account relation:");
-		String accountId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^runsAs$))").attr("idref");
+		String accountId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Runs_As$))").attr("idref");
 		Element account = doc.select("[id=" + accountId + "]").first();
 		assertEquals(account.select("AccountObj|Description").text(), "uid 1000 on host Mary");
 		System.out.println("Testing Relationship");
-		relation = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^runsAs$))").first();
-		assertEquals(relation.select("cybox|Relationship").text(), "runsAs");
+		relation = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Runs_As$))").first();
+		assertEquals(relation.select("cybox|Relationship").text(), "Runs_As");
 		System.out.println("Testing Relation Description");
 		assertEquals(relation.select("cybox|Description").text(), "/usr/lib/gvfs/gvfsd-smb runs as uid 1000 on host Mary");
 		System.out.println("Testing Relation Source");

@@ -172,7 +172,7 @@ public class BugtraqExtractor extends STIXExtractor {
 			stixPackage 
 				.withExploitTargets(new ExploitTargetsType()
 					.withExploitTargets(exploitTarget
-						.withId(new QName("gov.ornl.stucco", "Bugtraq-" + UUID.randomUUID().toString(), "stucco"))
+						.withId(new QName("gov.ornl.stucco", "vulnerability-" + UUID.randomUUID().toString(), "stucco"))
 						.withTitle("Vulnerability")
 						.withVulnerabilities(vulnerability
 							.withSource("Bugtraq"))));
