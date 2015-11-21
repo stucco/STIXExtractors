@@ -83,7 +83,7 @@ public class CleanMxVirusExtractor extends STIXExtractor {
 				String dns = null;
 				long ipInt = 0;
 
-				/* malware indicator */		
+				/* malware ttp */		
 				if (entry.select("id").hasText()) {
 					malwareTTP = initTTP("Malware", "CleanMx(virus)")
 						.withBehavior(new BehaviorType()
