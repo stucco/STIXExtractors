@@ -94,7 +94,7 @@ public class FSecureExtractor extends STIXExtractor {
 			for (String alias : aliasSet) {
 				malware
 					.withNames(new ControlledVocabularyStringType()
-							.withValue(alias));
+						.withValue(alias));
 			}
 
 			if (!category.isEmpty()) {
@@ -150,7 +150,7 @@ public class FSecureExtractor extends STIXExtractor {
 				if(curr.tagName().equals("p") && prev.tagName().equals("h2") && prev.text().equals("Summary")){
 					malware
 						.withDescriptions(new StructuredTextType()
-								.withValue(curr.text()));
+							.withValue(curr.text()));
 					contents.remove(i);
 					contents.remove(i-1);
 					i--;
@@ -165,16 +165,16 @@ public class FSecureExtractor extends STIXExtractor {
 						CourseOfAction coa = setCourseOfAction("Malware", "F-Secure", "F-Secure");
 						stixPackage
 							.withCoursesOfAction(new CoursesOfActionType()	//adding COA to STIXPackage
-									.withCourseOfActions(coa))
+								.withCourseOfActions(coa))
 							.withIndicators(new IndicatorsType()		//adding Indicator as a connector bw Malware and COA
-									.withIndicators(setMalwareCoaIndicator("Malware", ttp.getId(), coa.getId(), "F-Secure")));
+								.withIndicators(setMalwareCoaIndicator("Malware", ttp.getId(), coa.getId(), "F-Secure")));
 					}else{
 						CourseOfAction coa = setCourseOfAction("Malware", "F-Secure: " + removalMessage, "F-Secure");
 						stixPackage
 							.withCoursesOfAction(new CoursesOfActionType()
-									.withCourseOfActions(coa))
+								.withCourseOfActions(coa))
 							.withIndicators(new IndicatorsType()
-									.withIndicators(setMalwareCoaIndicator("Malware", ttp.getId(), coa.getId(), "F-Secure")));
+								.withIndicators(setMalwareCoaIndicator("Malware", ttp.getId(), coa.getId(), "F-Secure")));
 					}
 					contents.remove(i);
 					contents.remove(i-1);

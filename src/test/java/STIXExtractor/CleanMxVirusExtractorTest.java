@@ -86,8 +86,6 @@ public class CleanMxVirusExtractorTest extends STIXExtractor {
 		CleanMxVirusExtractor virusExtractor = new CleanMxVirusExtractor(cleanMxInfo);
 		STIXPackage stixPackage = virusExtractor.getStixPackage();
 
-		System.out.println(stixPackage.toXMLString(true));
-
 		assertTrue(virusExtractor.validate(stixPackage));
 
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
