@@ -127,14 +127,18 @@ public class DNSRecordExtractor extends STIXExtractor {
 				}
 
 				/* raddr (requested address) Observable */
-				rIpObservable = setIpObservable(record.get(RADDR),ipToLong(record.get(RADDR)), "DNSRecord");
-				observables 
-					.withObservables(rIpObservable);
+				if (!record.get(RADDR).isEmpty()) {
+					rIpObservable = setIpObservable(record.get(RADDR),ipToLong(record.get(RADDR)), "DNSRecord");
+					observables 
+						.withObservables(rIpObservable);
+				}
 				
 				/* DNSName observable */
-				rDnsObservable = setDNSObservable(record.get(RQFQDN), "DNSRecord");
-				observables 
-					.withObservables(rDnsObservable);
+				if (!record.get(RQFQDN).isEmpty()) {
+					rDnsObservable = setDNSObservable(record.get(RQFQDN), "DNSRecord");
+					observables 
+						.withObservables(rDnsObservable);
+				}
 
 				/* DNS Record */
 				DNSRecord dnsRecord = new DNSRecord()
@@ -142,9 +146,9 @@ public class DNSRecordExtractor extends STIXExtractor {
 						.withValue("Requested domain name " + record.get(RQFQDN) + " resolved to IP address " + record.get(RADDR)))
 					.withQueriedDate((record.get(LAST_SEEN_TIMET).isEmpty()) ? null : new DateTimeObjectPropertyType()
 						.withValue(record.get(LAST_SEEN_TIMET)))
-					.withDomainName(new URIObjectType()
+					.withDomainName((rDnsObservable == null) ? null : new URIObjectType()
 						.withObjectReference(rDnsObservable.getId()))
-					.withIPAddress(new Address()
+					.withIPAddress((rIpObservable == null) ? null : new Address()
 						.withObjectReference(rIpObservable.getId()))
 					.withEntryType((record.get(RQTYPE).isEmpty()) ? null : new StringObjectPropertyType()
 						.withValue(record.get(RQTYPE)))
@@ -162,8 +166,8 @@ public class DNSRecordExtractor extends STIXExtractor {
 						.withObject(new ObjectType()
 							.withProperties(dnsRecord)
 							.withRelatedObjects(new RelatedObjectsType()
-								.withRelatedObjects(setRelatedObject(dstIpObservable.getId(), "Requested_By", "Requested IP." ,"DNSRequest"))
-								.withRelatedObjects(setRelatedObject(srcIpObservable.getId(), "Served_By", "Served IP request." ,"DNSRequest")))));
+								.withRelatedObjects((dstIpObservable == null) ? null : setRelatedObject(dstIpObservable.getId(), "Requested_By", "Requested IP." ,"DNSRequest"))
+								.withRelatedObjects(setRelatedObject((srcIpObservable == null) ? null : srcIpObservable.getId(), "Served_By", "Served IP request." ,"DNSRequest")))));
 			}
 
 			return (observables.getObservables().isEmpty()) ? null : initStixPackage("DNS Record", "DNSRecord").withObservables(observables);	
