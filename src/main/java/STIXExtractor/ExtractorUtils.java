@@ -210,9 +210,9 @@ public abstract class ExtractorUtils {
 		long ipLong = 0;
 		long ip;
 		String[] ipArray = ipString.split("\\.");
-
-		for (int i = 3; i >= 0; i--) {
-			ip = Long.parseLong(ipArray[3 - i]);
+		int length = ipArray.length - 1;
+		for (int i = length; i >= 0; i--) {
+			ip = Long.parseLong(ipArray[length - i]);
 			ipLong |= ip << (i * 8);
 		}
 		
