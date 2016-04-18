@@ -32,7 +32,7 @@ public class FSecureExtractorTest {
 
 	private String loadContent(String entryName, boolean localMode) throws IOException{
 		String pageContent;
-		String filePath = "./testData/f-secure/";
+		String filePath = "./src/test/resources/f-secure/";
 		Charset charset = Charset.defaultCharset();
 		if(localMode){
 			File infoFD = new File(filePath + entryName + ".shtml");

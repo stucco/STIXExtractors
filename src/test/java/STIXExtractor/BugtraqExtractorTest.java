@@ -36,7 +36,7 @@ public class BugtraqExtractorTest extends STIXExtractor {
 	
 	private Map<String,String> loadContent(int entryNum, boolean localMode) throws IOException {
 		Map<String,String> pageContent = new HashMap<String,String>();
-		String filePath = "./testData/bugtraq/";
+		String filePath = "./src/test/resources/bugtraq/";
 		Charset charset = Charset.defaultCharset();
 		if (localMode) {
 			File infoFD = new File(filePath + entryNum + ".info.html");

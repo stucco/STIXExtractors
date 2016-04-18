@@ -1,0 +1,387 @@
+<html class="ltr yui3-js-enabled webkit ltr js chrome chrome21 chrome21-0 win js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths" dir="ltr" lang="en-US" style=""></html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>Trojan:​Android/DroidKungFu.C</title>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, minimum-scale=1.0">
+   <link href="/theme/images/favicon.ico" rel="Shortcut Icon">
+   <link href="css/main.css" rel="stylesheet" type="text/css">
+   <link href="css/main.css" rel="stylesheet" type="text/css">
+   <link class="lfr-css-file" href="css/main.css" rel="stylesheet" type="text/css">
+   <link rel="stylesheet" href="css/style.min.css" type="text/css" media="all"><script type="text/javascript" src="css/jquery.js"></script><script type="text/javascript" src="css/details.js"></script></head>
+<body class="yui3-skin-sam controls-visible signed-out public-page site">
+   <div id="wrapper">
+      <header class="nav-combined-container is-sticky" style="margin-top: 0px; ">
+         <nav class="container"><a href="http://www.f-secure.com/"><img class="logo-header" src="css/logo-header.png" alt="F-Secure logo"></a><a href="javascript:void(0);" class="site-search-toggle"><i aria-hidden="true" class="icon icon-search"></i></a><a class="nav-toggle collapsed hidden-md hidden-lg margin-right" href="javascript:void(0);" data-target="#nav-top" data-toggle="collapse"><i aria-hidden="true" class="icon icon-menu"></i></a><ul id="nav-top" class="nav-top collapse">
+               <li><a href="https://www.f-secure.com/en/web/home_global/home">For Home</a></li>
+               <li class="hasSub hideSub"><a href="https://www.f-secure.com/en/web/business_global">For Business</a></li>
+               <li><a href="https://www.f-secure.com/en/web/partners_global">For Partners</a></li>
+               <li class="current showSub"><a href="http://www.f-secure.com/en/web/labs_global/labs" class="invisible-lg invisible-md">Labs</a><ul class="nav-primary">
+                     <li class=""><a href="http://www.f-secure.com/en/web/labs_global/home">Home</a></li>
+                     <li class=""><a href="http://www.f-secure.com/en/web/labs_global/news">News</a></li>
+                     <li class=" hasSub hideSub"><a href="http://www.f-secure.com/en/web/labs_global/tools-beta">Tools &amp; Beta</a><div class="nav-secondary mini">
+                           <div class="mega-dropdown-row clearfix">
+                              <ul class="nav-secondary-group">
+                                 <li class="uc home-link hidden-lg hidden-md "><a href="https://www.f-secure.com/en/web/labs_global/tools-beta"><span class="icon icon-home inline-block"></span>Tools &amp; Beta</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/database-updates">Database Updates</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/rescue-cd">Rescue CD</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/dns-check">DNS Check</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/flashback-removal">Flashback Removal</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/beta-programs">Beta Programs</a></li>
+                              </ul>
+                           </div>
+                        </div>
+                     </li>
+                     <li class="current hasSub hideSub"><a href="http://www.f-secure.com/en/web/labs_global/knowledge-base">Knowledge Base</a><div class="nav-secondary mini">
+                           <div class="mega-dropdown-row clearfix">
+                              <ul class="nav-secondary-group">
+                                 <li class="uc home-link hidden-lg hidden-md "><a href="https://www2.f-secure.com/en/web/labs_global/knowledge-base"><span class="icon icon-home inline-block"></span>Knowledge Base</a></li>
+                                 <li class="current"><a href="http://www.f-secure.com/en/web/labs_global/threat-descriptions">Threat Descriptions</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/removal-instructions">Removal Instructions</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/security-advisories">Security Advisories</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/vulnerability-protection">Vulnerability Protection</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/whitepapers">Whitepapers</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/articles">Articles</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/terminology">Terminology</a></li>
+                                 <li><a href="http://www.f-secure.com/en/web/labs_global/classification">Classification</a></li>
+                              </ul>
+                           </div>
+                        </div>
+                     </li>
+                     <li class=""><a href="http://www.f-secure.com/en/web/labs_global/inform-us">Inform Us</a></li>
+                     <li class=""><a href="http://www.f-secure.com/en/web/labs_global/about-labs">About Labs</a></li>
+                  </ul>
+               </li>
+            </ul>
+            <ul class="site-search">
+               <li>
+                  <form id="search" class="site-search-form invisible" action="https://www.google.com/cse"><input type="hidden" value="014625612662474666087:2paeijvwemq" name="cx"><input type="hidden" value="UTF-8" name="ie"><input type="text" placeholder="Search" id="searchKeyword" name="q"><button class="btn add-icon remove-bg"><span class="icon icon-search"></span></button></form>
+               </li>
+            </ul>
+         </nav>
+      </header>
+      <div id="content">
+         <div class="portlet-boundary portlet-boundary_103_ portlet-static portlet-static-end "><span id="p_103"></span><div class="portlet-body"></div>
+         </div>
+         <div class="columns-1" id="main-content" role="main">
+            <div>
+               <div id="column-1">
+                  <div class="portlet-dropzone portlet-column-content portlet-column-content-only" id="layout-column_column-1">
+                     <div class="portlet-boundary portlet-boundary_56_ portlet-static portlet-static-end portlet-journal-content ">
+                        <div class="portlet-body">
+                           <section class="portlet">
+                              <div>
+                                 <div class="portlet-content-container" style="background:rgb(0,186,255);">
+                                    <div class="portlet-body">
+                                       <div class="journal-content-article">
+                                          <section class="fs-section collapsible">
+                                             <div class="container">
+                                                <div class="row">
+                                                   <div>
+                                                      <h3 class="threat-desc">Threat Description</h3>
+                                                      <h1>Trojan:​Android/DroidKungFu.C</h1>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </section>
+                                       </div>
+                                    </div>
+                                    <div class="portlet-body" style="background:rgb(0,153,255); height:60px;">
+                                       <div class="journal-content-article">
+                                          <section class="fs-section collapsible">
+                                             <div class="container">
+                                                <div class="row">
+                                                   <div>
+                                                      <h3 data-icon="open" class="detailsheader-open">Details</h3>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </section>
+                                       </div>
+                                    </div>
+                                    <div class="portlet-boundary portlet-boundary_56_ portlet-static portlet-static-end portlet-journal-content">
+                                       <div class="portlet-body" style="background:rgb(102,102,102);">
+                                          <section class="portlet">
+                                             <div>
+                                                <div class="details">
+                                                   <div class="portlet-content-container">
+                                                      <div class="portlet-body">
+                                                         <div class="journal-content-article">
+                                                            <section class="fs-section collapsible">
+                                                               <div class="container">
+                                                                  <div class="row">
+                                                                     <div>
+                                                                        <table class="details-table">
+                                                                           <tr>
+                                                                              <td><b><a href="http://www.f-secure.com/en/web/labs_global/terminology">Aliases:</a></b></td>
+                                                                              <td>Trojan:​Android/DroidKungFu.C, Trojan:​Android/DroidKungFu.C, DroidKungFu, DroidKungFu.C</td>
+                                                                           </tr>
+                                                                           <tr>
+                                                                              <td><b><a href="http://www.f-secure.com/en/web/labs_global/classification">Category:</a></b></td>
+                                                                              <td>Malware<br></td>
+                                                                           </tr>
+                                                                           <tr>
+                                                                              <td><b><a href="http://www.f-secure.com/en/web/labs_global/classification">Type:</a></b></td>
+                                                                              <td>Trojan</td>
+                                                                           </tr>
+                                                                           <tr>
+                                                                              <td><b><a href="http://www.f-secure.com/en/web/labs_global/classification">Platform:</a></b></td>
+                                                                              <td>Android<br></td>
+                                                                           </tr>
+                                                                        </table>
+                                                                     </div>
+                                                                  </div>
+                                                               </div>
+                                                            </section>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </section>
+                                       </div>
+                                    </div>
+                                    <div class="portlet-boundary portlet-boundary_56_ portlet-static portlet-static-end portlet-journal-content">
+                                       <div class="portlet-body" style="background:white;">
+                                          <section class="portlet">
+                                             <div>
+                                                <div class=" portlet-content-container" style="">
+                                                   <div class="portlet-body">
+                                                      <div class="journal-content-article">
+                                                         <section class="fs-section collapsible">
+                                                            <div class="container" id="maincontent">
+                                                               <div class="row">
+                                                                  <div>
+                                                                     <h2>Summary</h2>
+                                                                     <hr><br>
+                                                                     
+                                                                     <p>Trojan:Android/DroidKungFu.C forwards confidential details to a remote server.</p>
+                                                                     <br><br><h2>Removal</h2>
+                                                                     <hr><br>
+                                                                     
+                                                                     <h4 style="margin-top:15px;">Automatic</h4>
+                                                                     
+                                                                     <p>F-Secure's Mobile Security<a href="http://www.f-secure.com/en/web/home_global/protection/mobile-security/overview?icid=481"></a> product blocks installation of this program with default settings.
+                                                                     </p>
+                                                                     
+                                                                     <h4 style="margin-top:15px;">Manual Removal</h4>
+                                                                     
+                                                                     <p>Monitoring-Tool:Android/DroidKungFu.C can be uninstalled by following the steps below:</p>
+                                                                     
+                                                                     <ul>
+                                                                        
+                                                                        <li>Go to<b><i>Settings</i></b></li>
+                                                                        
+                                                                        <li>Go to<b><i>Applications</i></b></li>
+                                                                        
+                                                                        <li>Go to<b><i>Manage Applications</i></b></li>
+                                                                        
+                                                                        <li>Select the application</li>
+                                                                        
+                                                                        <li>Press "Clear data"</li>
+                                                                        
+                                                                        <li>Press "Uninstall"</li>
+                                                                        
+                                                                        <li>Select "OK" when asked for confirmation and wait</li>
+                                                                        
+                                                                     </ul>
+                                                                     
+                                                                     <h5>More</h5>
+                                                                     
+                                                                     <p>More information on scanning or removal options are available in the <a href="https://www.f-secure.com/en/web/home_global/downloads">documentation</a> for your F-Secure Mobile Security product on the Downloads section of our Home -
+                                                                        Global site. 
+                                                                     </p>
+                                                                     
+                                                                     <p>You may also refer to the <a href="http://community.f-secure.com/t5/English/tkbc-p/EN">Knowledge Base</a> on the F-Secure Community site for more assistance.
+                                                                     </p>
+                                                                     <br><br><h2>Technical Details</h2>
+                                                                     <hr><br>
+                                                                     
+                                                                     <p>Trojan:Android/DroidKungFu.C are distributed on unauthorized Android app sites as
+                                                                        trojanized versions of legitimate applications.
+                                                                     </p>
+                                                                     
+                                                                     <h4 style="margin-top:15px;">Installation</h4>
+                                                                     
+                                                                     <p>Prior to installation, this new variant of the DroidKungFu family requests the following
+                                                                        permissions:
+                                                                     </p>
+                                                                     <img src="http://www.f-secure.com/virus-info/v-pics/trojan_android_droidkungfu_c_permissions_1.png" align="middle" style="display:block; margin-left:auto; margin-right:auto; width:px; border: 1px solid black; margin-top:15px; margin-bottom:10px;">
+                                                                     <img src="http://www.f-secure.com/virus-info/v-pics/trojan_android_droidkungfu_c_permissions_2.png" align="middle" style="display:block; margin-left:auto; margin-right:auto; width:px; border: 1px solid black; margin-top:15px; margin-bottom:10px;">
+                                                                     
+                                                                     <h4 style="margin-top:15px;">Activity</h4>
+                                                                     
+                                                                     <p>Once installed, DroidKungFu.C attempts to root the phone (gain control of the system)
+                                                                        by using exploits, including RageAgainstTheCage. These exploits are stored in the
+                                                                        malware package and encrypted with a key.
+                                                                     </p>
+                                                                     
+                                                                     <p>The trojan also attempts to collect the following information from the compromised
+                                                                        device:
+                                                                     </p>
+                                                                     
+                                                                     <ul>
+                                                                        
+                                                                        <li>International Mobile Equipment Identity (IMEI)</li>
+                                                                        
+                                                                        <li>Mobile device model</li>
+                                                                        
+                                                                        <li>Network operator</li>
+                                                                        
+                                                                        <li>Network type</li>
+                                                                        
+                                                                        <li>Operating system (OS) APIs</li>
+                                                                        
+                                                                        <li>OS type</li>
+                                                                        
+                                                                        <li>Information stored in the Phone memory</li>
+                                                                        
+                                                                        <li>Information stored in the SD card memory</li>
+                                                                        
+                                                                     </ul>
+                                                                     
+                                                                     <p>The collected information is reported to remote command and control (C&amp;C) servers
+                                                                        at multiple locations:
+                                                                     </p> 
+                                                                     
+                                                                     <ul>
+                                                                        
+                                                                        <li>http://[...]search.gongfu-android.com:8511/[...]search/</li>
+                                                                        
+                                                                        <li>http://[...]search.zi18.com:8511/[...]search/</li>
+                                                                        
+                                                                        <li>http://[...]search.zs169.com:8511/[...]search/</li>
+                                                                        
+                                                                     </ul>
+                                                                     
+                                                                     <h4 style="margin-top:15px;">More</h4>
+                                                                     
+                                                                     <p>This trojan was discovered by researchers at the North Carolina State University.
+                                                                        For additional information, see:
+                                                                     </p> 
+                                                                     
+                                                                     <ul>
+                                                                        
+                                                                        <li> <a href="http://www.csc.ncsu.edu/faculty/jiang/DroidKungFu3/">Security Alert: New DroidKungFu Variant -- AGAIN! -- Found in Alternative Android
+                                                                              Markets</a>.
+                                                                        </li>
+                                                                        
+                                                                     </ul>
+                                                                     <br><br><br><br><p></p><br></div>
+                                                               </div>
+                                                            </div>
+                                                         </section>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </section>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </section>
+                           <div class="portlet-boundary portlet-boundary_56_ portlet-static portlet-static-end portlet-journal-content " id="p_p_id_56_INSTANCE_PXYERg92Fjov_"><span id="p_56_INSTANCE_PXYERg92Fjov"></span><div class="portlet-body">
+                                 <section class="portlet" id="portlet_56_INSTANCE_PXYERg92Fjov">
+                                    <div>
+                                       <div class=" portlet-content-container" style="">
+                                          <div class="portlet-body">
+                                             <div class="journal-content-article">
+                                                <section class="fs-section bg-blueDarker font-white">
+                                                   <div class="container">
+                                                      <div class="row">
+                                                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center">
+                                                            <h2 class="font-white"><span data-element-name="leftTitle">
+                                                                  SUBMIT A SAMPLE</span></h2>
+                                                            <p class="lead">
+                                                               Suspect a file or URL was wrongly detected? Submit a sample to our Labs for analysis
+                                                            </p>
+                                                            <p><a href="https://analysis.f-secure.com/portal/login.html" class="btn inverted btn-primary ___omniture">Submit Now</a></p>
+                                                         </div>
+                                                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center">
+                                                            <h2 class="font-white"><span data-element-name="rightTitle">Keep your mobile device protected</span></h2>
+                                                            <p class="lead">F-Secure Mobile Security will keep your mobile device protected on the go and enable
+                                                               you to find it in case you lose it
+                                                            </p>
+                                                            <p><a href="http://www.f-secure.com/en/web/home_global/protection/mobile-security/overview?icid=481" class="btn inverted btn-primary ___omniture">Learn More</a></p>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </section>
+                                             </div>
+                                             <footer role="contentinfo">
+                                                <div class="footer-links container">
+                                                   <div class="row">
+                                                      <div class="footer-link-group col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                                                         <p class="footer-link-title lead"><a href="http://www2.f-secure.com/en/web/corporation_global">About</a></p><i aria-hidden="true" class="icon icon-scroll-down footer-accordion-icon hidden-md hidden-lg"></i><ul class="unstyled hidden-sm hidden-xs">
+                                                            <li><a href="http://www2.f-secure.com/en/web/corporation_global/company">Company</a></li>
+                                                            <li><a href="http://www.f-secure.com/en/web/press_global/news/">News</a></li>
+                                                            <li><a href="http://www2.f-secure.com/en/web/corporation_global/investors/investors">Investors</a></li>
+                                                            <li><a href="http://www2.f-secure.com/en/web/corporation_global/careers">Careers</a></li>
+                                                            <li><a href="http://www2.f-secure.com/en/web/corporation_global/contact/offices">Offices</a></li>
+                                                         </ul>
+                                                      </div>
+                                                      <hr class="hidden-lg hidden-md col-sm-12 col-xs-12">
+                                                      <div class="footer-link-group col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                                                         <p class="footer-link-title lead"><a href="http://www.f-secure.com/en/web/labs_global/home">Labs</a></p><i aria-hidden="true" class="icon icon-scroll-down footer-accordion-icon hidden-md hidden-lg"></i><ul class="unstyled hidden-sm hidden-xs">
+                                                            <li class="hidden-md hidden-lg"><a href="http://www.f-secure.com/en/web/labs_global/home">Labs</a></li>
+                                                            <li><a href="http://www.f-secure.com/en/web/labs_global/labs-blog">Labs blog</a></li>
+                                                            <li><a href="http://www.f-secure.com/en/web/labs_global/inform-us">Submit a sample</a></li>
+                                                            <li><a href="http://www.f-secure.com/en/web/labs_global/threat-descriptions">Latest Threats</a></li>
+                                                            <li><a href="http://www.f-secure.com/en/web/labs_global/removal-instructions">Remove Threats</a></li>
+                                                            <li><a href="http://www.f-secure.com/en/web/labs_global/beta-programs">Beta programs</a></li>
+                                                         </ul>
+                                                      </div>
+                                                      <hr class="hidden-lg hidden-md col-sm-12 col-xs-12">
+                                                      <div class="footer-link-group col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                                                         <p class="footer-link-title lead"><a href="http://www.f-secure.com/en/web/home_global/support">Support</a></p><i aria-hidden="true" class="icon icon-scroll-down footer-accordion-icon hidden-md hidden-lg"></i><ul class="unstyled hidden-sm hidden-xs">
+                                                            <li class="hidden-md hidden-lg"><a href="http://www.f-secure.com/en/web/home_global/support">Support</a></li>
+                                                            <li><a href="http://community.f-secure.com/t5/Home-Security/tkbc-p/Home_Security_Solutions">Knowledge base</a></li>
+                                                            <li><a href="http://www.f-secure.com/en/web/home_global/downloads">Software updates</a></li>
+                                                            <li><a href="http://community.f-secure.com/t5/English/ct-p/EN?skin=default">Community</a></li>
+                                                            <li><a href="http://www.f-secure.com/en/web/home_global/support/contact">Contact support</a></li>
+                                                         </ul>
+                                                      </div>
+                                                      <hr class="hidden-lg hidden-md col-sm-12 col-xs-12">
+                                                      <div class="footer-link-group col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                                                         <p class="footer-link-title lead"><a href="http://www.f-secure.com/en/web/legal_global">Legal</a></p><i aria-hidden="true" class="icon icon-scroll-down footer-accordion-icon hidden-md hidden-lg"></i><ul class="unstyled hidden-sm hidden-xs">
+                                                            <li><a href="http://www.f-secure.com/en/web/legal_global/terms">Legal</a></li>
+                                                            <li><a href="http://www.f-secure.com/en/web/legal_global/privacy">Privacy</a></li>
+                                                         </ul>
+                                                      </div>
+                                                      <hr class="hidden-lg hidden-md col-sm-12 col-xs-12">
+                                                      <div class="footer-link-group col-lg-3 col-md-3 col-sm-12 col-xs-12 padding-top">
+                                                         <p class="footer-link-title lead hidden-xs hidden-sm">Follow</p>
+                                                         <div class="social-links"><a href="https://www.facebook.com/pages/F-Secure/107471754306" class="icon icon-facebook margin-right" aria-hidden="true"></a><a href="http://twitter.com/FSecure" class="icon icon-twitter margin-right" aria-hidden="true"></a><a href="http://www.youtube.com/user/FSecureNews" class="icon icon-youtube" aria-hidden="true"></a></div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </footer><script>/**/jQuery(function(){$("#country").change(function(){location.href=$(this).val()})});/**/</script><div class="footer-end padding-bottom">
+                                                <div class="container">
+                                                   <div class="row">
+                                                      <div class="col-lg-4 col-lg-push-8 col-md-4 col-md-push-8 col-sm-4 col-sm-push-8 col-xs-12"></div>
+                                                      <div class="col-lg-8 col-lg-pull-4 col-md-8 col-md-pull-4 col-sm-8 col-sm-pull-4 col-xs-12 footer-end-tagline">
+                                                         <h5>SWITCH ON FREEDOM</h5>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div><script src="http://www.f-secure.com/documents/null/js/common/cookieconsent.min.js"></script><script type="text/javascript">/**/var displayLanguage;if(cookieconsent.isLangSupported("en_GLOBAL")===true){displayLanguage="en_GLOBAL"}else{displayLanguage=cookieconsent.lang}cookieconsent.init({privacyURL:"/en/web/legal_global/privacy/website-privacy-policy",bgColor:"grayLightest",lang:displayLanguage});/*
+*/</script><script type="text/javascript">/**/window.s_account="fsecure";/**/</script><div class="mq-detector visible-xs"></div>
+                                          <div class="mq-detector visible-sm"></div>
+                                          <div class="mq-detector visible-md"></div>
+                                          <div class="mq-detector visible-lg"></div><script type="text/javascript" src="http://www.f-secure.com/documents/null/js/javascript.min.js"></script><script type="text/javascript" src="http://www.f-secure.com/js/s_code.js"></script><script type="text/javascript" src="http://www.f-secure.com/js/omniture-lib.js"></script><script type="text/javascript" src="http://www.f-secure.com/documents/null/js/common/variables.js"></script></div>
+                                    </div>
+                                 </section>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>

@@ -36,7 +36,7 @@ public class SophosExtractorTest extends STIXExtractor {
 	
 	private Map<String,String> loadContent(String entryName, boolean localMode) throws IOException{
 		Map<String,String> pageContent = new HashMap<String,String>();
-		String filePath = "./testData/sophos/";
+		String filePath = "./src/test/resources/sophos/";
 		Charset charset = Charset.defaultCharset();
 		if(localMode){
 			File infoFD = new File(filePath + entryName + ".aspx");
