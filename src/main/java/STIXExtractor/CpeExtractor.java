@@ -56,72 +56,23 @@ public class CpeExtractor extends STIXExtractor {
 
 			for (Element entry : entries) {	
 		
-				Product product = new Product();
-				String[] cpe = entry.attr("name").split(":");
-
-				if (cpe.length == 0) {
-					continue;
-				}
-		
-				for (int i = 1; i < cpe.length; i++) {
-					if (cpe[i].isEmpty()) {
-						continue;
-					}
-
-					switch (i) {
-					case 1:	
-						product
-							.withCustomProperties(new CustomPropertiesType()
-								.withProperties(setCustomProperty("Part", cpe[1])));
-						break;
-					case 2:	
-						product
-							.withVendor(new StringObjectPropertyType()
-								.withValue(cpe[2]));
-						break;
-					case 3:	
-						product
-							.withProduct(new StringObjectPropertyType()
-								.withValue(cpe[3]));
-						break;
-					case 4:	
-						product
-							.withVersion(new StringObjectPropertyType()
-								.withValue(cpe[4]));
-						break;
-					case 5:	
-						product 
-							.withUpdate(new StringObjectPropertyType()
-								.withValue(cpe[5]));
-						break;
-					case 6:	
-						product
-							.withEdition(new StringObjectPropertyType()
-								.withValue(cpe[6]));
-						break;
-					case 7:	
-						product
-							.withLanguage(new StringObjectPropertyType()
-								.withValue(cpe[7]));
-						break;
-					}
-				}		
-
+				Product product = getProduct(entry.attr("name")); 
+				
 				/* software */
 				observables
 					.withObservables(new Observable()
-                       				.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
-                        			.withTitle("Software")
+	   				.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
+	    			.withTitle("Software")
 						.withObservableSources(setMeasureSourceType("CPE"))
-                                 		.withObject(new ObjectType()
-                                         		.withId(new QName("gov.ornl.stucco", "software-" + makeId(entry.attr("name")), "stucco"))
-                                   			.withDescription(new StructuredTextType()
-                                   				.withValue((!entry.select("title[xml:lang=en-US]").text().isEmpty())
-                                                			? entry.select("title[xml:lang=en-US]").text() : makeSoftwareDesc(entry.attr("name"))))
+           		.withObject(new ObjectType()
+                   		.withId(new QName("gov.ornl.stucco", "software-" + makeId(entry.attr("name")), "stucco"))
+             			.withDescription(new StructuredTextType()
+             				.withValue((!entry.select("title[xml:lang=en-US]").text().isEmpty())
+                          			? entry.select("title[xml:lang=en-US]").text() : makeSoftwareDesc(entry.attr("name"))))
 							.withProperties(product)));
 	 		}
 
-			return (observables.getObservables().isEmpty()) ? null : initStixPackage("Software Description", "CPE").withObservables(observables);
+			return (observables.getObservables().isEmpty()) ? null : initStixPackage("CPE").withObservables(observables);
 
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();
