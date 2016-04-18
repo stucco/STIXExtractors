@@ -144,7 +144,12 @@ public class NvdToStixExtractorTest {
 				for (Element stixSw : stixSws) {
 					String id = stixSw.attr("idref");
 					Element foundSw = stix.select("cybox|Observable[id=" + id + "]").first();
-					found = (foundSw.select("ProductObj|Product").first().text().equals(infoSw.text())) ? true : false;
+
+					String foundCpe = "cpe:" + foundSw.select("cyboxCommon|Property[name=Part]").text() + ":" +
+						foundSw.select("ProductObj|Vendor").text() + ":" +
+						foundSw.select("ProductObj|Product").text() + ":" +
+						foundSw.select("ProductObj|Version").text();
+						found = (foundCpe.equals(infoSw.text())) ? true : false;
 					if (found) {
 						break;
 					}
@@ -247,7 +252,7 @@ public class NvdToStixExtractorTest {
 			assertEquals(stixEntry.select("et|Published_DateTime").text(), entry.select("vuln|published-datetime").text());
 			System.out.println("Testing CVSSScore");
 			assertEquals(stixEntry.select("et|Base_Score").text(), entry.select("cvss|score").text());
-
+			
 			System.out.println("Testing AffectedSoftware");
 			Elements infoSws = entry.select("vuln|product");
 			Elements stixSws = stixEntry.select("et|Affected_Software > et|Affected_Software > stixCommon|Observable");
@@ -257,7 +262,12 @@ public class NvdToStixExtractorTest {
 				for (Element stixSw : stixSws) {
 					String id = stixSw.attr("idref");
 					Element foundSw = stix.select("cybox|Observable[id=" + id + "]").first();
-					found = (foundSw.select("ProductObj|Product").first().text().equals(infoSw.text())) ? true : false;
+
+					String foundCpe = "cpe:" + foundSw.select("cyboxCommon|Property[name=Part]").text() + ":" +
+						foundSw.select("ProductObj|Vendor").text() + ":" +
+						foundSw.select("ProductObj|Product").text() + ":" +
+						foundSw.select("ProductObj|Version").text();
+					found = (foundCpe.equals(infoSw.text())) ? true : false;
 					if (found) {
 						break;
 					}
@@ -337,26 +347,30 @@ public class NvdToStixExtractorTest {
 			assertEquals(stixEntry.select("et|Base_Score").text(), entry.select("cvss|score").text());
 
 			System.out.println("Testing AffectedSoftware");
-				Elements infoSws = entry.select("vuln|product");
-				Elements stixSws = stixEntry.select("et|Affected_Software > et|Affected_Software > stixCommon|Observable");
-				assertEquals(infoSws.size(), stixSws.size());
-				for (Element infoSw : infoSws) {
-					boolean found = false;
-					for (Element stixSw : stixSws) {
-						String id = stixSw.attr("idref");
-						Element foundSw = stix.select("cybox|Observable[id=" + id + "]").first();
-						found = (foundSw.select("ProductObj|Product").first().text().equals(infoSw.text())) ? true : false;
-						if (found) {
-							break;
-						}
-					}
+			Elements infoSws = entry.select("vuln|product");
+			Elements stixSws = stixEntry.select("et|Affected_Software > et|Affected_Software > stixCommon|Observable");
+			assertEquals(infoSws.size(), stixSws.size());
+			for (Element infoSw : infoSws) {
+				boolean found = false;
+				for (Element stixSw : stixSws) {
+					String id = stixSw.attr("idref");
+					Element foundSw = stix.select("cybox|Observable[id=" + id + "]").first();
+					String foundCpe = "cpe:" + foundSw.select("cyboxCommon|Property[name=Part]").text() + ":" +
+						foundSw.select("ProductObj|Vendor").text() + ":" +
+						foundSw.select("ProductObj|Product").text() + ":" +
+						foundSw.select("ProductObj|Version").text();
+					found = (foundCpe.equals(infoSw.text())) ? true : false;
 					if (found) {
-						assertTrue(found);
-					} else {
-						System.out.println("ERROR: Could not find " + infoSw.text());
-						assertTrue(found);
+						break;
 					}
 				}
+				if (found) {
+					assertTrue(found);
+				} else {
+					System.out.println("ERROR: Could not find " + infoSw.text());
+					assertTrue(found);
+				}
+			}
 		}
 
 	}

@@ -118,6 +118,10 @@ public abstract class STIXExtractor extends ExtractorUtils {
 
 	private static Set<String> rirSet = new HashSet<String>(Arrays.asList("AFRINIC", "ARIN", "APNIC", "LACNIC", "RIPE"));
 
+	public STIXPackage initStixPackage(String source) throws DatatypeConfigurationException {
+		return initStixPackage(source, source, source);
+	}
+
 	public STIXPackage initStixPackage(String title, String source) throws DatatypeConfigurationException {
 		return initStixPackage(title, source, source);	
 	}
@@ -444,6 +448,14 @@ public abstract class STIXExtractor extends ExtractorUtils {
 	}
 
 	public Observable setSoftwareObservable(String software, String description, String source) {
+		Product product = null;
+		if (software.startsWith("cpe")) {
+			product = getProduct(software);
+		} else {
+			product = new Product()
+				.withProduct(new StringObjectPropertyType()
+						.withValue(software));
+		}
 		return new Observable()
 			.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
 			.withTitle("Software")
@@ -452,9 +464,61 @@ public abstract class STIXExtractor extends ExtractorUtils {
 				.withId(new QName("gov.ornl.stucco", "software-" + makeId(software), "stucco"))
 				.withDescription(new StructuredTextType()
 					.withValue(description))
-				.withProperties(new Product()
+				.withProperties(product));
+	}
+
+	public Product getProduct(String software) {
+		if (software == null || software.isEmpty()) {
+			return null;
+		}
+		Product product = new Product();
+		String[] cpe = software.split(":");
+
+		for (int i = 1; i < cpe.length; i++) {
+			if (cpe[i].isEmpty()) {
+				continue;
+			}
+
+			switch (i) {
+			case 1:	
+				product
+					.withCustomProperties(new CustomPropertiesType()
+						.withProperties(setCustomProperty("Part", cpe[1])));
+				break;
+			case 2:	
+				product
+					.withVendor(new StringObjectPropertyType()
+						.withValue(cpe[2]));
+				break;
+			case 3:	
+				product
 					.withProduct(new StringObjectPropertyType()
-						.withValue(software))));
+						.withValue(cpe[3]));
+				break;
+			case 4:	
+				product
+					.withVersion(new StringObjectPropertyType()
+						.withValue(cpe[4]));
+				break;
+			case 5:	
+				product 
+					.withUpdate(new StringObjectPropertyType()
+						.withValue(cpe[5]));
+				break;
+			case 6:	
+				product
+					.withEdition(new StringObjectPropertyType()
+						.withValue(cpe[6]));
+				break;
+			case 7:	
+				product
+					.withLanguage(new StringObjectPropertyType()
+						.withValue(cpe[7]));
+				break;
+			}
+		}		
+
+		return product;
 	}
 
 	public Observable setFlowObservable(String srcIp, String srcPort, QName srcId, String dstIp, String dstPort, QName dstId, String source) {
