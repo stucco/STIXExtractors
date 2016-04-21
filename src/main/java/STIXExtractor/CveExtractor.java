@@ -49,11 +49,16 @@ public class CveExtractor extends STIXExtractor {
 				VulnerabilityType vulnerability = new VulnerabilityType();
 				ReferencesType referencesType = new ReferencesType();
 
+				//cve
 				vulnerability
-					.withCVEID((!entry.hasAttr("name")) ? null : entry.attr("name"))
-					.withIsPubliclyAcknowledged((entry.select("status").text().equals("Candidate")) 
-						? false : ((entry.select("status").text().equals("Entry")) ? true : null));
+					.withCVEID((!entry.hasAttr("name")) ? null : entry.attr("name"));
 				
+				//acknowledgement
+				if (entry.select("status").hasText()) {
+					vulnerability
+						.withIsPubliclyAcknowledged(entry.select("status").text().equals("Entry"));
+				}
+
 				if (entry.select("desc").hasText()) {
 					vulnerability
 						.withDescriptions(new StructuredTextType()
@@ -94,7 +99,9 @@ public class CveExtractor extends STIXExtractor {
 			
 		} catch (DatatypeConfigurationException e) {
 			e.printStackTrace();
-		} 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return null;
 	}
