@@ -85,18 +85,18 @@ public class SophosExtractor extends STIXExtractor {
 	}
 	
 	private STIXPackage extract(String summary, String details) {
-		try {
-			Indicator indicator = new Indicator();
 			TTP ttp = initTTP("Malware", "Sophos");				
 			MalwareInstanceType malware = new MalwareInstanceType();
-			InformationSourceType source = new InformationSourceType();
 			Observables observables = initObservables();
 			Observables infrastructureObservables = initObservables();
 			ResourceType resource = null;
 			ToolsType tools = new ToolsType();
-			List<Observable> malwareObservableList = new ArrayList<Observable>();
-			GregorianCalendar calendar = new GregorianCalendar();
-			stixPackage = initStixPackage("Malware Description", "Sophos");				
+			try {
+				stixPackage = initStixPackage("Malware Description", "Sophos");				
+			} catch(DatatypeConfigurationException e) {
+				e.printStackTrace();
+				return null;
+			} 			
 			TreeSet<String> aliasSet = new TreeSet<String>();
 			
 			//TODO there is not stix field for thore properties .... leave them out for now
@@ -135,7 +135,7 @@ public class SophosExtractor extends STIXExtractor {
 			String addedDate = rowOne.child(3).text();
 			if(!addedDate.equals("")) {
 				//some don't list dates, not sure why
-				signatureDate = convertTimestamp(addedDate);
+			//	signatureDate = convertTimestamp(addedDate);
 				discoveredDate = convertTimestamp(addedDate);
 			}			
 		
@@ -186,24 +186,31 @@ public class SophosExtractor extends STIXExtractor {
 					break;
 				}
 			}
-			String platformName = affectedHeading.nextElementSibling().getElementsByTag("img").first().attr("alt");
-			if (!platformName.isEmpty()) {
-				ttp
-					.withVictimTargeting(new VictimTargetingType()
-						.withTargetedSystems(new ControlledVocabularyStringType()
-							.withValue(platformName)));
-			}
 			if (affectedHeading != null) {
-				logger.info("Platform: {}", platformName);
+				Element nextSibling = affectedHeading.nextElementSibling();
+				if (nextSibling != null) {
+					Elements platformElements = nextSibling.getElementsByTag("img");
+					if (!platformElements.isEmpty()) {
+					//	System.out.println(platformNames.isEmpty());
+					//	.first().attr("alt1");
+						Element platformElement = platformElements.first();
+						if (platformElement.hasAttr("alt")) {
+							String platformName = platformElement.attr("alt");
+							ttp
+								.withVictimTargeting(new VictimTargetingType()
+									.withTargetedSystems(new ControlledVocabularyStringType()
+										.withValue(platformName)));
+							logger.info("Platform: {}", platformName);
+						}
+					}
+				}
 			}
-		
 		
 			doc = Jsoup.parse(details);
 			content = doc.getElementsByClass("threatDetail").first();
 			Elements h4headings = content.getElementsByTag("h4");
 			Element curr, nextSibling;
 			Map<String,String> currTableContents;
-			Observables malwareObservables = initObservables();
 			long firstSeen;
 			boolean runtimeAnalysisFound = false;
 
@@ -532,12 +539,5 @@ public class SophosExtractor extends STIXExtractor {
 								.withMalwareInstances(malware)))));
 
 			return stixPackage;
-						
-			} catch(DatatypeConfigurationException e) {
-				e.printStackTrace();
-			} catch(NumberFormatException e) {
-				e.printStackTrace();
-			}
-			return null;
 		}
 	}

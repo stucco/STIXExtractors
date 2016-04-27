@@ -42,63 +42,67 @@ public class CIF1d4Extractor extends STIXExtractor {
 	}
 
 	private STIXPackage extract (String cifInfo) {
+		List<CSVRecord> records;
 		try {
-			List<CSVRecord> records = getCSVRecordsList(HEADERS, cifInfo);
-			
-			if (records.isEmpty()) {
-				return null;
-			}
-			
-			//calculating start to avoid header line
-			CSVRecord record = records.get(0);
-			int start;
-			if (record.get(0).equals(IP)) {
-				if (records.size() == 1)	{
-					return null;
-				} else {
-					start = 1;
-				}
-			} else {
-				start = 0;
-			}
-			
-			//has to modify source name from 1d4.us to oneDFour.us to pass validation
-			Observable observable = new Observable();
-			Observables observables = initObservables();
-			List<Observable> ipIdList = new ArrayList<Observable>();
-
-		 	for (int i = start; i < records.size(); i++) {
-				
-				record = records.get(i);
-
-				if (!record.get(IP).isEmpty()) {
-				//	observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Scanner", "1d4.us");
-					observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "1d4.us");
-					observables
-						.withObservables(observable);
-					ipIdList.add(new Observable()
-						.withIdref(observable.getId()));
-				}
-			}
+			records = getCSVRecordsList(HEADERS, cifInfo);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} 
 		
-			return (ipIdList.isEmpty()) ? null : initStixPackage("IP Addresses of SSH Scanners", "onedfourdotus", "1d4.us")
+		if (records.isEmpty()) {
+			return null;
+		}
+		
+		//calculating start to avoid header line
+		CSVRecord record = records.get(0);
+		int start;
+		if (record.get(0).equals(IP)) {
+			if (records.size() == 1)	{
+				return null;
+			} else {
+				start = 1;
+			}
+		} else {
+			start = 0;
+		}
+		
+		//has to modify source name from 1d4.us to oneDFour.us to pass validation
+		Observables observables = initObservables();
+		List<Observable> ipIdList = new ArrayList<Observable>();
+
+	 	for (int i = start; i < records.size(); i++) {
+			
+			record = records.get(i);
+
+			if (!record.get(IP).isEmpty()) {
+			//	observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Scanner", "1d4.us");
+				Observable observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "1d4.us");
+				observables
+					.withObservables(observable);
+				ipIdList.add(new Observable()
+					.withIdref(observable.getId()));
+			}
+		}
+
+		if (!ipIdList.isEmpty()) {
+			try {
+				stixPackage = initStixPackage("IP Addresses of SSH Scanners", "onedfourdotus", "1d4.us")
 					.withObservables(observables)
 					.withTTPs(new TTPsType()
 						.withTTPS(initTTP("Malware", "1d4.us")
-                                   			.withBehavior(new BehaviorType()
-                                           			.withMalware(new MalwareType()
-                                                      			.withMalwareInstances(setMalwareInstance("Scanner", "1d4.us"))))
+	       			.withBehavior(new BehaviorType()
+	         			.withMalware(new MalwareType()
+	          			.withMalwareInstances(setMalwareInstance("Scanner", "1d4.us"))))
 							.withResources(new ResourceType()
 								.withInfrastructure(new InfrastructureType()
 									.withObservableCharacterization(initObservables()
 										.withObservables(ipIdList))))));
-											
-		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
-		} catch (IOException e)	{
-			e.printStackTrace();
+			} catch (DatatypeConfigurationException e) {
+				e.printStackTrace();
+			}
 		}
 
-		return null;
+		return stixPackage;
 	}
 }

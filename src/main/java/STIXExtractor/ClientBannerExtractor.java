@@ -46,73 +46,77 @@ public class ClientBannerExtractor extends STIXExtractor {
 	}
 
 	private STIXPackage extract (String clientBannerInfo) {
+		List<CSVRecord> records;
 		try {
-			List<CSVRecord> records = getCSVRecordsList(HEADERS, clientBannerInfo);
-			
-			if (records.isEmpty()) {
-				return null;
-			}
-
-			CSVRecord record = records.get(0);
-			int start;
-			if (record.get(0).equals(FILENAME))	{
-				if (records.size() == 1)	{
-					return null;
-				} else {
-					start = 1;
-				}
-			} else {
-				start = 0;
-			}
-						
-			observables = initObservables();
-
-			for (int i = start; i < records.size(); i++) {
-
-				record = records.get(i);
-				
-				Observable ipObservable = null;
-				Observable portObservable = null;
-				Observable addressObservable = null;
-
-				/* IP */
-				if (!record.get(ADDR).isEmpty()) {
-					ipObservable = setIpObservable(record.get(ADDR), "client_banner");
-					observables
-						.withObservables(ipObservable);
-				}
-
-				/* Port */
-				if (!record.get(APP_PROTOCOL).isEmpty()) {
-					portObservable = setPortObservable(record.get(APP_PROTOCOL), "client_banner");
-					observables
-						.withObservables(portObservable);
-				}
-
-				/* Address */
-				if (ipObservable != null && portObservable != null) {
-					addressObservable = setAddressObservable(record.get(ADDR), ipToLong(record.get(ADDR)), ipObservable.getId(), 
-						record.get(APP_PROTOCOL), portObservable.getId(), "client_banner");
-					if (!record.get(BANNER).isEmpty()) {
-						addressObservable
-								.getObject()			
-									.getProperties()
-										.withCustomProperties(new CustomPropertiesType()
-											.withProperties(setCustomProperty("Banner", record.get(BANNER))));
-					}
-					observables
-						.withObservables(addressObservable);
-				}
-			}
-
-			return (observables.getObservables().isEmpty()) ? null : initStixPackage("Client Banner", "client_banner").withObservables(observables);	
-
-		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
+			records = getCSVRecordsList(HEADERS, clientBannerInfo);
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
+		}	
+		if (records.isEmpty()) {
+			return null;
 		}
 
-		return null;
+		CSVRecord record = records.get(0);
+		int start;
+		if (record.get(0).equals(FILENAME))	{
+			if (records.size() == 1)	{
+				return null;
+			} else {
+				start = 1;
+			}
+		} else {
+			start = 0;
+		}
+					
+		observables = initObservables();
+
+		for (int i = start; i < records.size(); i++) {
+
+			record = records.get(i);
+			
+			Observable ipObservable = null;
+			Observable portObservable = null;
+			Observable addressObservable = null;
+
+			/* IP */
+			if (!record.get(ADDR).isEmpty()) {
+				ipObservable = setIpObservable(record.get(ADDR), "client_banner");
+				observables
+					.withObservables(ipObservable);
+			}
+
+			/* Port */
+			if (!record.get(APP_PROTOCOL).isEmpty()) {
+				portObservable = setPortObservable(record.get(APP_PROTOCOL), "client_banner");
+				observables
+					.withObservables(portObservable);
+			}
+
+			/* Address */
+			if (ipObservable != null && portObservable != null) {
+				addressObservable = setAddressObservable(record.get(ADDR), ipToLong(record.get(ADDR)), ipObservable.getId(), 
+					record.get(APP_PROTOCOL), portObservable.getId(), "client_banner");
+				if (!record.get(BANNER).isEmpty()) {
+					addressObservable
+							.getObject()			
+								.getProperties()
+									.withCustomProperties(new CustomPropertiesType()
+										.withProperties(setCustomProperty("Banner", record.get(BANNER))));
+				}
+				observables
+					.withObservables(addressObservable);
+			}
+		}
+
+		if (!observables.getObservables().isEmpty()) {
+			try {
+				stixPackage = initStixPackage("Client Banner", "client_banner")
+					.withObservables(observables);
+			} catch (DatatypeConfigurationException e) {
+				e.printStackTrace();
+			}
+		}
+		return stixPackage;	
 	}
 }

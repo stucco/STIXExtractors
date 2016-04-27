@@ -98,7 +98,7 @@ public abstract class ExtractorUtils {
 	private static final int MAX_COMPARE_DEPTH = 8;
 	private static final boolean DEBUG_COMPARE = false;
 
-	public class IpUtils {
+	public static class IpUtils {
 
 		private BigInteger ipBigInt = null;
 		private BigInteger topIpBigInt = null;
@@ -187,7 +187,7 @@ public abstract class ExtractorUtils {
 
 	public String makeSoftwareDesc(String cpe)	{
 		String[] parts = cpe.split(":");
-		String desc = new String();
+		String desc = "";
 
 		for (int i = 2; i < parts.length; i++)	{
 			switch (i)	{
@@ -590,6 +590,7 @@ public abstract class ExtractorUtils {
 
 		if (object1 == null && object2 != null) return false;
 		if (object1 != null && object2 == null) return false;			
+		if (object1 == null && object2 == null) return true;
 
 		List<String> keysArray1 = new ArrayList<String>();
 		List<String> keysArray2 = new ArrayList<String>();
@@ -625,8 +626,8 @@ public abstract class ExtractorUtils {
 						
 	public static boolean compareJSONArrays(JSONArray array1, JSONArray array2)	{
 		
-		if (array1 == null && array2 != null) return false;
-		if (array1 != null && array2 == null) return false;			
+		if (array1 == null && array2 == null) return true;
+		if (array1 == null || array2 == null) return false;	
 		if (array1.length() != array2.length())	return false;
 
 		for (int i = 0; i < array1.length(); i++)	{

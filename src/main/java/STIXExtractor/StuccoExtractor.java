@@ -66,85 +66,95 @@ public class StuccoExtractor extends STIXExtractor {
 			return null;
 		}
 		JSONArray edges = stuccoInfo.optJSONArray("edges");
-		try {
-			stixPackage = initStixPackage("NVD");
-			observables = initObservables();
-			ets = new ExploitTargetsType();
-			calendar = new GregorianCalendar();
-			Map<String, Object> stuccoMap = new HashMap<String, Object>();
-			Set<Object> keys = vertices.keySet();
-			Iterator<Object> iterator = keys.iterator();
-			//constructing vertices
-			while (iterator.hasNext()) {
-				String key = iterator.next().toString();
-				JSONObject vertex = vertices.getJSONObject(key);
-				String type = vertex.getString("vertexType");
-				switch (type) {
-					case "vulnerability":
-						ExploitTarget et = constructVulnerability(vertex);
-						ets
-							.withExploitTargets(et);
-						stuccoMap.put(key, et);
+		observables = initObservables();
+		ets = new ExploitTargetsType();
+		calendar = new GregorianCalendar();
+		Map<String, Object> stuccoMap = new HashMap<String, Object>();
+		Set<Object> keys = vertices.keySet();
+		Iterator<Object> iterator = keys.iterator();
+		//constructing vertices
+		while (iterator.hasNext()) {
+			String key = iterator.next().toString();
+			JSONObject vertex = vertices.getJSONObject(key);
+			String type = vertex.getString("vertexType");
+			switch (type) {
+				case "vulnerability":
+					ExploitTarget et = constructVulnerability(vertex);
+					ets
+						.withExploitTargets(et);
+					stuccoMap.put(key, et);
+					break;
+				case "software":
+					Observable software = constructSoftware(vertex);
+					observables
+						.withObservables(software);
+					stuccoMap.put(key, software);
+					break;
+				case "file":
+					Observable file = constructFile(vertex);
+					observables
+						.withObservables(file);
+					stuccoMap.put(key, file);
+					break;
+				case "function":
+					Observable function = constructFunction(vertex); 
+					observables
+						.withObservables(function);
+					stuccoMap.put(key, function);
+					break;
+			}
+			iterator.remove();
+		}
+
+		if (edges != null) {
+			//constructing edges
+			for (int i = 0; i < edges.length(); i++) {
+				JSONObject edge = edges.getJSONObject(i);
+				String outVertID = edge.getString("outVertID");
+				String inVertID = edge.getString("inVertID");
+				String relation = edge.getString("relation");
+				switch (relation) {
+					case "ExploitTargetRelatedObservable" :
+						ExploitTarget et = (ExploitTarget) stuccoMap.get(outVertID);
+						Observable observable = (Observable) stuccoMap.get(inVertID);
+						constructExploitTargetRelatedObservable(et, observable);
 						break;
-					case "software":
-						Observable software = constructSoftware(vertex);
-						observables
-							.withObservables(software);
-						stuccoMap.put(key, software);
+					case "Sub-Observable":
+						Observable outOobservable = (Observable) stuccoMap.get(outVertID);
+						Observable inObservable = (Observable) stuccoMap.get(inVertID);
+						constructSubObservable(outOobservable, inObservable);
 						break;
-					case "file":
-						Observable file = constructFile(vertex);
-						observables
-							.withObservables(file);
-						stuccoMap.put(key, file);
-						break;
-					case "function":
-						Observable function = constructFunction(vertex); 
-						observables
-							.withObservables(function);
-						stuccoMap.put(key, function);
+					default:
+						logger.debug("Unknow relation: " + relation + "; came from document: " + stuccoInfo);
 						break;
 				}
-				iterator.remove();
 			}
+		}
 
-			if (edges != null) {
-				//constructing edges
-				for (int i = 0; i < edges.length(); i++) {
-					JSONObject edge = edges.getJSONObject(i);
-					String outVertID = edge.getString("outVertID");
-					String inVertID = edge.getString("inVertID");
-					String relation = edge.getString("relation");
-					switch (relation) {
-						case "ExploitTargetRelatedObservable" :
-							ExploitTarget et = (ExploitTarget) stuccoMap.get(outVertID);
-							Observable observable = (Observable) stuccoMap.get(inVertID);
-							constructExploitTargetRelatedObservable(et, observable);
-							break;
-						case "Sub-Observable":
-							Observable outOobservable = (Observable) stuccoMap.get(outVertID);
-							Observable inObservable = (Observable) stuccoMap.get(inVertID);
-							constructSubObservable(outOobservable, inObservable);
-							break;
-					}
-				}
-			}
-
-			if (!observables.getObservables().isEmpty()) {
-				stixPackage
+		if (!observables.getObservables().isEmpty()) {
+			try {
+				stixPackage = initStixPackage("NVD")
 					.withObservables(observables);
+			} catch(DatatypeConfigurationException e) {
+				e.printStackTrace();
 			}
-			if (!ets.getExploitTargets().isEmpty()) {
+		}
+		
+		if (!ets.getExploitTargets().isEmpty()) {
+			if (stixPackage == null) {
+				try {
+					stixPackage = initStixPackage("NVD")
+						.withExploitTargets(ets);
+				} catch(DatatypeConfigurationException e) {
+					e.printStackTrace();
+				}
+			} else {
 				stixPackage
 					.withExploitTargets(ets);
 			}
-
-			return stixPackage;
-		} catch(DatatypeConfigurationException e) {
-			e.printStackTrace();
 		}
 
-		return null;
+		return stixPackage;
 	}
 
 	private ExploitTarget constructVulnerability(JSONObject vertex) {
