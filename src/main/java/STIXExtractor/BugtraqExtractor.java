@@ -50,7 +50,7 @@ public class BugtraqExtractor extends STIXExtractor {
 	}
 	
 	private long convertTimestamp(String time) { 
-		return convertTimestamp(time + " (GMT)", "MMM dd yyyy hh:mma");
+		return convertTimestamp(time, "MMM dd yyyy hh:mma");
 	}
 				
 	private STIXPackage extract(String info, String discussion, String exploit, String solution, String references) {

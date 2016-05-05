@@ -51,7 +51,7 @@ public class NvdToStixExtractor extends STIXExtractor {
 	}
 	
 	private long convertTimestamp(String time) { 
-		return convertTimestamp(time + "(GMT)", "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+		return convertTimestamp(time, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 	}
 
 	private STIXPackage extract (String nvdInfo) {
@@ -79,7 +79,7 @@ public class NvdToStixExtractor extends STIXExtractor {
 							.withValue(entry.select("vuln|summary").text()));				
 			}
 
-			//cve
+			//cve 
 			if (!entry.select("vuln|cve-id").isEmpty()) {
 				vulnerability
 						.withCVEID(entry.select("vuln|cve-id").text());
