@@ -44,39 +44,42 @@ public class CpeExtractor extends STIXExtractor {
 	}
 
 	private STIXPackage extract(String cpeInfo) {
-		try {
-			Document doc = Jsoup.parse(cpeInfo);
-			Elements entries = doc.select("cpe-item");
+		Document doc = Jsoup.parse(cpeInfo);
+		Elements entries = doc.select("cpe-item");
 
-			if (entries.isEmpty()) {
-				return null;
-			}
-			
-			Observables observables = initObservables();
-
-			for (Element entry : entries) {	
+		if (entries.isEmpty()) {
+			return null;
+		}
 		
-				Product product = getProduct(entry.attr("name")); 
-				
-				/* software */
-				observables
-					.withObservables(new Observable()
-	   				.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
-	    			.withTitle("Software")
-						.withObservableSources(setMeasureSourceType("CPE"))
-           		.withObject(new ObjectType()
-                   		.withId(new QName("gov.ornl.stucco", "software-" + makeId(entry.attr("name")), "stucco"))
-             			.withDescription(new StructuredTextType()
-             				.withValue((!entry.select("title[xml:lang=en-US]").text().isEmpty())
-                          			? entry.select("title[xml:lang=en-US]").text() : makeSoftwareDesc(entry.attr("name"))))
-							.withProperties(product)));
-	 		}
+		Observables observables = initObservables();
 
-			return (observables.getObservables().isEmpty()) ? null : initStixPackage("CPE").withObservables(observables);
+		for (Element entry : entries) {	
+	
+			Product product = getProduct(entry.attr("name")); 
+			
+			/* software */
+			observables
+				.withObservables(new Observable()
+   				.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
+    			.withTitle("Software")
+					.withObservableSources(setMeasureSourceType("CPE"))
+         		.withObject(new ObjectType()
+                 		.withId(new QName("gov.ornl.stucco", "software-" + makeId(entry.attr("name")), "stucco"))
+           			.withDescription(new StructuredTextType()
+           				.withValue((!entry.select("title[xml:lang=en-US]").text().isEmpty())
+                        			? entry.select("title[xml:lang=en-US]").text() : makeSoftwareDesc(entry.attr("name"))))
+						.withProperties(product)));
+ 		}
 
-		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
-		} 
-		return null;
+ 		if (!observables.getObservables().isEmpty()) {
+ 			try {
+	 			stixPackage = initStixPackage("CPE")
+	 				.withObservables(observables);
+	 		} catch (DatatypeConfigurationException e) {
+				e.printStackTrace();
+			} 
+ 		}
+			
+		return stixPackage;
 	}
 }

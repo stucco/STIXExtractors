@@ -75,122 +75,126 @@ public class HTTPDataExtractor extends STIXExtractor {
 	}
 
 	private STIXPackage extract (String httpInfo) {
+		List<CSVRecord> records;
 		try {
-			List<CSVRecord> records = getCSVRecordsList(HEADERS, httpInfo);
-			
-			if (records.isEmpty()) {
-				return null;
-			}
-
-			CSVRecord record = records.get(0);
-			int start;
-			if (record.get(0).equals(FILENAME))	{
-				if (records.size() == 1)	{
-					return null;
-				} else {
-					start = 1;
-				}
-			} else {
-				start = 0;
-			}
-						
-			observables = initObservables();
-
-			for (int i = start; i < records.size(); i++) {
-
-				record = records.get(i);
-
-				if (record.get(SADDR).isEmpty() && record.get(DADDR).isEmpty() && record.get(SERVER_FQDN).isEmpty() && record.get(REQUEST).isEmpty()) {
-					continue;
-				}
-
-				Observable srcIpObservable = null;
-				Observable dstIpObservable = null;
-				Observable dstPortObservable = null;
-				Observable domainNameObservable = null;
-			
-				if (!record.get(SADDR).isEmpty()) {
-					srcIpObservable = setIpObservable(record.get(SADDR), "HTTPRequest");
-					observables
-						.withObservables(srcIpObservable);
-				}
-				if (!record.get(DADDR).isEmpty()) {
-					dstIpObservable = setIpObservable(record.get(DADDR), "HTTPRequest");
-					observables
-						.withObservables(dstIpObservable);
-				}
-				if (!record.get(DPORT).isEmpty()) {
-					dstPortObservable = setPortObservable(record.get(DPORT), "HTTPRequest");
-					observables
-						.withObservables(dstPortObservable);
-				}
-				if (!record.get(SERVER_FQDN).isEmpty()) {
-					domainNameObservable = setDNSObservable(record.get(SERVER_FQDN), "HTTPRequest");
-					if (dstIpObservable != null) {
-						domainNameObservable
-							.getObject()
-								.withRelatedObjects(new RelatedObjectsType()
-									.withRelatedObjects(new RelatedObjectType()
-										.withRelationship(new ControlledVocabularyStringType()
-											.withValue("Resolved_To"))
-										.withIdref(dstIpObservable.getId())));
-					}
-					observables
-						.withObservables(domainNameObservable);
-				}
-
-				Observable httpRequestObservable = new Observable()
-					.withId(new QName("gov.ornl.stucco", "httpRequest-" + UUID.randomUUID().toString(), "stucco"))	
-					.withTitle("HTTPRequest")
-					.withObservableSources(setMeasureSourceType("HTTPRequest"))
-					.withObject(new ObjectType()
-						.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
-							.withValue("HTTP request of URL " + record.get(REQUEST)))
-						.withProperties(new HTTPSession() 
-							.withHTTPRequestResponses(new HTTPRequestResponseType()
-								.withHTTPClientRequest(new HTTPClientRequestType()
-									.withHTTPRequestLine(new HTTPRequestLineType()
-										.withHTTPMethod((record.get(METHOD).isEmpty()) ? null : new HTTPMethodType()
-											.withValue(record.get(METHOD)))
-										.withValue((record.get(REQUEST).isEmpty()) ? null : new StringObjectPropertyType()
-											.withValue(record.get(REQUEST)))
-										.withVersion((record.get(AMP_VERSION).isEmpty()) ? null : new StringObjectPropertyType()
-											.withValue(record.get(AMP_VERSION))))
-									.withHTTPRequestHeader(new HTTPRequestHeaderType()
-										.withRawHeader((record.get(FULL_DATA).isEmpty()) ? null : new StringObjectPropertyType()
-											.withValue(record.get(FULL_DATA)))
-										.withParsedHeader(new HTTPRequestHeaderFieldsType()
-											.withAcceptLanguage((record.get(ACCEPT_LANGUAGE).isEmpty()) ? null : new StringObjectPropertyType()
-												.withValue(record.get(ACCEPT_LANGUAGE)))
-											.withContentLength((record.get(REQUEST_LEN).isEmpty()) ? null : new IntegerObjectPropertyType()
-												.withValue(record.get(REQUEST_LEN)))
-											.withDate((record.get(LAST_SEEN_TIMET).isEmpty()) ? null : new DateTimeObjectPropertyType()
-												.withValue(record.get(LAST_SEEN_TIMET)))
-											.withFrom((srcIpObservable == null) ? null : new Address() 
-												.withObjectReference(srcIpObservable.getId()))
-											.withHost(new HostFieldType()	
-												.withDomainName((record.get(SERVER_FQDN).isEmpty()) ? null : new URIObjectType()
-													.withObjectReference(domainNameObservable.getId()))
-												.withPort((dstPortObservable == null) ? null : new Port()
-													.withObjectReference(dstPortObservable.getId())))
-											.withReferer((record.get(REFERER).isEmpty()) ? null : new URIObjectType()	
-												.withValue(new AnyURIObjectPropertyType()
-													.withValue(record.get(REFERER))))
-											.withUserAgent((record.get(USER_AGENT).isEmpty()) ? null : new StringObjectPropertyType()
-												.withValue(record.get(USER_AGENT)))))))));
-				observables
-					.withObservables(httpRequestObservable);
-
-			}
-
-			return (observables.getObservables().isEmpty()) ? null : initStixPackage("HTTPRequest", "HTTPRequest").withObservables(observables);				
-
-		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
+			records = getCSVRecordsList(HEADERS, httpInfo);
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
+		}
+		if (records.isEmpty()) {
+			return null;
 		}
 
-		return null;
+		CSVRecord record = records.get(0);
+		int start;
+		if (record.get(0).equals(FILENAME))	{
+			if (records.size() == 1)	{
+				return null;
+			} else {
+				start = 1;
+			}
+		} else {
+			start = 0;
+		}
+					
+		observables = initObservables();
+
+		for (int i = start; i < records.size(); i++) {
+			record = records.get(i);
+
+			if (record.get(SADDR).isEmpty() && record.get(DADDR).isEmpty() && record.get(SERVER_FQDN).isEmpty() && record.get(REQUEST).isEmpty()) {
+				continue;
+			}
+
+			Observable srcIpObservable = null;
+			Observable dstIpObservable = null;
+			Observable dstPortObservable = null;
+			Observable domainNameObservable = null;
+		
+			if (!record.get(SADDR).isEmpty()) {
+				srcIpObservable = setIpObservable(record.get(SADDR), "HTTPRequest");
+				observables
+					.withObservables(srcIpObservable);
+			}
+			if (!record.get(DADDR).isEmpty()) {
+				dstIpObservable = setIpObservable(record.get(DADDR), "HTTPRequest");
+				observables
+					.withObservables(dstIpObservable);
+			}
+			if (!record.get(DPORT).isEmpty()) {
+				dstPortObservable = setPortObservable(record.get(DPORT), "HTTPRequest");
+				observables
+					.withObservables(dstPortObservable);
+			}
+			if (!record.get(SERVER_FQDN).isEmpty()) {
+				domainNameObservable = setDNSObservable(record.get(SERVER_FQDN), "HTTPRequest");
+				if (dstIpObservable != null) {
+					domainNameObservable
+						.getObject()
+							.withRelatedObjects(new RelatedObjectsType()
+								.withRelatedObjects(new RelatedObjectType()
+									.withRelationship(new ControlledVocabularyStringType()
+										.withValue("Resolved_To"))
+									.withIdref(dstIpObservable.getId())));
+				}
+				observables
+					.withObservables(domainNameObservable);
+			}
+
+			Observable httpRequestObservable = new Observable()
+				.withId(new QName("gov.ornl.stucco", "httpRequest-" + UUID.randomUUID().toString(), "stucco"))	
+				.withTitle("HTTPRequest")
+				.withObservableSources(setMeasureSourceType("HTTPRequest"))
+				.withObject(new ObjectType()
+					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+						.withValue("HTTP request of URL " + record.get(REQUEST)))
+					.withProperties(new HTTPSession() 
+						.withHTTPRequestResponses(new HTTPRequestResponseType()
+							.withHTTPClientRequest(new HTTPClientRequestType()
+								.withHTTPRequestLine(new HTTPRequestLineType()
+									.withHTTPMethod((record.get(METHOD).isEmpty()) ? null : new HTTPMethodType()
+										.withValue(record.get(METHOD)))
+									.withValue((record.get(REQUEST).isEmpty()) ? null : new StringObjectPropertyType()
+										.withValue(record.get(REQUEST)))
+									.withVersion((record.get(AMP_VERSION).isEmpty()) ? null : new StringObjectPropertyType()
+										.withValue(record.get(AMP_VERSION))))
+								.withHTTPRequestHeader(new HTTPRequestHeaderType()
+									.withRawHeader((record.get(FULL_DATA).isEmpty()) ? null : new StringObjectPropertyType()
+										.withValue(record.get(FULL_DATA)))
+									.withParsedHeader(new HTTPRequestHeaderFieldsType()
+										.withAcceptLanguage((record.get(ACCEPT_LANGUAGE).isEmpty()) ? null : new StringObjectPropertyType()
+											.withValue(record.get(ACCEPT_LANGUAGE)))
+										.withContentLength((record.get(REQUEST_LEN).isEmpty()) ? null : new IntegerObjectPropertyType()
+											.withValue(record.get(REQUEST_LEN)))
+										.withDate((record.get(LAST_SEEN_TIMET).isEmpty()) ? null : new DateTimeObjectPropertyType()
+											.withValue(record.get(LAST_SEEN_TIMET)))
+										.withFrom((srcIpObservable == null) ? null : new Address() 
+											.withObjectReference(srcIpObservable.getId()))
+										.withHost(new HostFieldType()	
+											.withDomainName((record.get(SERVER_FQDN).isEmpty()) ? null : new URIObjectType()
+												.withObjectReference(domainNameObservable.getId()))
+											.withPort((dstPortObservable == null) ? null : new Port()
+												.withObjectReference(dstPortObservable.getId())))
+										.withReferer((record.get(REFERER).isEmpty()) ? null : new URIObjectType()	
+											.withValue(new AnyURIObjectPropertyType()
+												.withValue(record.get(REFERER))))
+										.withUserAgent((record.get(USER_AGENT).isEmpty()) ? null : new StringObjectPropertyType()
+											.withValue(record.get(USER_AGENT)))))))));
+			observables
+				.withObservables(httpRequestObservable);
+
+		}
+
+		if (!observables.getObservables().isEmpty()) {
+			try {
+				stixPackage = initStixPackage("HTTPRequest", "HTTPRequest")
+					.withObservables(observables);
+			} catch (DatatypeConfigurationException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return stixPackage;		
 	}
 }

@@ -67,130 +67,136 @@ public class MetasploitExtractor extends STIXExtractor {
 	}
 
 	private STIXPackage extract (String metasploitInfo) {
+		List<CSVRecord> records;
 		try {
-			List<CSVRecord> records = getCSVRecordsList(HEADERS, metasploitInfo);
-			
-			if (records.isEmpty()) {
+			records = getCSVRecordsList(HEADERS, metasploitInfo);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		if (records.isEmpty()) {
+			return null;
+		}
+		
+		CSVRecord record = records.get(0);
+		int start;
+		if (record.get(0).equals(ID))	{
+			if (records.size() == 1) {
 				return null;
+			} else {
+				start = 1;
+			}
+		} else {
+			start = 0;
+		}
+		
+		ExploitTargetsType ets = new ExploitTargetsType();
+		TTPsType ttps = new TTPsType();
+
+		for (int i = start; i < records.size(); i++) {
+			record = records.get(i);
+
+			/* exploit */
+			ExploitType exploit = new ExploitType();
+			BehaviorType behavior = new BehaviorType();
+			boolean withExploit = false;
+
+			if (!record.get(FULLNAME).isEmpty()) {
+				exploit
+					.withTitle(record.get(FULLNAME));
+				withExploit = true;
 			}
 			
-			CSVRecord record = records.get(0);
-			int start;
-			if (record.get(0).equals(ID))	{
-				if (records.size() == 1) {
-					return null;
-				} else {
-					start = 1;
+			if (!record.get(MTYPE).isEmpty()) {
+				exploit
+					.withId(new QName("gov.ornl.stucco", record.get(MTYPE) + "-" + UUID.randomUUID().toString(), "stucco"));
+				withExploit = true;
+				
+			}
+			
+			if (!record.get(NAME).isEmpty()) {
+				exploit
+					.withShortDescriptions(new StructuredTextType() 	//list
+						.withValue(record.get(NAME)));
+				withExploit = true;
+			}
+
+			if (!record.get(DESCRIPTION).isEmpty()) {
+				exploit
+					.withDescriptions(new StructuredTextType()	//list
+						.withValue(record.get(DESCRIPTION)));
+				withExploit = true;
+			}
+
+			if (withExploit) {
+				behavior 
+					.withExploits(new ExploitsType()
+						.withExploits(exploit));
+			}
+			
+			/* vulnerability */
+			List<RelatedExploitTargetType> relatedEt = new ArrayList<RelatedExploitTargetType>();
+			Pattern pattern = Pattern.compile("CVE-\\d{4}-\\d{4,7}");
+			Matcher matcher = pattern.matcher(record.get(REF_NAMES));
+
+			while(matcher.find()) {
+				ExploitTarget et = new ExploitTarget()
+					.withId(new QName("gov.ornl.stucco", "vulnerability-" + UUID.randomUUID().toString(), "stucco"))
+					.withTitle("Vulnerability")
+					.withVulnerabilities(new VulnerabilityType()	//list
+						.withCVEID(matcher.group())
+						.withTitle(matcher.group())
+						.withDescriptions(new StructuredTextType()	//list
+							.withValue(matcher.group()))
+						.withSource("Metasploit"));
+				ets
+					.withExploitTargets(et);
+
+				relatedEt.add(
+					new RelatedExploitTargetType()	
+						.withExploitTarget(new ExploitTarget()
+							.withIdref(et.getId()))
+						.withRelationship(new ControlledVocabularyStringType()
+							.withValue("exploit")));
+			}
+			
+			//if malware exists, then packing it and adding references to vulnerabilities
+			if (withExploit) {
+				TTP ttp = initTTP("Exploit", "Metasploit")
+					.withBehavior(behavior);
+				if (!relatedEt.isEmpty()) {
+					ttp 
+						.withExploitTargets(new org.mitre.stix.ttp_1.ExploitTargetsType()
+							.withExploitTargets(relatedEt));
+				}
+
+				ttps
+					.withTTPS(ttp);
+			}
+		}
+
+		if (!ets.getExploitTargets().isEmpty()) {
+			try {
+				stixPackage = initStixPackage("Vulnerability and Malware Description", "Metasploit")
+					.withExploitTargets(ets);
+			} catch (DatatypeConfigurationException e) {
+				e.printStackTrace();
+			}
+		}
+		if (!ttps.getTTPS().isEmpty()) {
+			if (stixPackage == null) {
+				try {
+					stixPackage = initStixPackage("Vulnerability and Malware Description", "Metasploit")
+						.withTTPs(ttps);
+				} catch (DatatypeConfigurationException e) {
+					e.printStackTrace();
 				}
 			} else {
-				start = 0;
-			}
-
-			stixPackage = initStixPackage("Vulnerability and Malware Description", "Metasploit");				
-			ExploitTargetsType ets = new ExploitTargetsType();
-			TTPsType ttps = new TTPsType();
-
-			for (int i = start; i < records.size(); i++) {
-
-				record = records.get(i);
-
-				/* exploit */
-				ExploitType exploit = new ExploitType();
-				AttackPatternsType attackPattern = new AttackPatternsType();
-				BehaviorType behavior = new BehaviorType();
-				boolean withExploit = false;
-
-				if (!record.get(FULLNAME).isEmpty()) {
-					exploit
-						.withTitle(record.get(FULLNAME));
-					withExploit = true;
-				}
-				
-				if (!record.get(MTYPE).isEmpty()) {
-					exploit
-						.withId(new QName("gov.ornl.stucco", record.get(MTYPE) + "-" + UUID.randomUUID().toString(), "stucco"));
-					withExploit = true;
-					
-				}
-				
-				if (!record.get(NAME).isEmpty()) {
-					exploit
-						.withShortDescriptions(new StructuredTextType() 	//list
-							.withValue(record.get(NAME)));
-					withExploit = true;
-				}
-
-				if (!record.get(DESCRIPTION).isEmpty()) {
-					exploit
-						.withDescriptions(new StructuredTextType()	//list
-							.withValue(record.get(DESCRIPTION)));
-					withExploit = true;
-				}
-
-				if (withExploit) {
-					behavior 
-						.withExploits(new ExploitsType()
-							.withExploits(exploit));
-				}
-				
-				/* vulnerability */
-				List<RelatedExploitTargetType> relatedEt = new ArrayList<RelatedExploitTargetType>();
-				Pattern pattern = Pattern.compile("CVE-\\d{4}-\\d{4,7}");
-				Matcher matcher = pattern.matcher(record.get(REF_NAMES));
-
-				while(matcher.find()) {
-					ExploitTarget et = new ExploitTarget()
-						.withId(new QName("gov.ornl.stucco", "vulnerability-" + UUID.randomUUID().toString(), "stucco"))
-						.withTitle("Vulnerability")
-						.withVulnerabilities(new VulnerabilityType()	//list
-							.withCVEID(matcher.group())
-							.withTitle(matcher.group())
-							.withDescriptions(new StructuredTextType()	//list
-								.withValue(matcher.group()))
-							.withSource("Metasploit"));
-					ets
-						.withExploitTargets(et);
-
-					relatedEt.add(
-						new RelatedExploitTargetType()	
-							.withExploitTarget(new ExploitTarget()
-								.withIdref(et.getId()))
-							.withRelationship(new ControlledVocabularyStringType()
-								.withValue("exploit")));
-				}
-				
-				//if malware exists, then packing it and adding references to vulnerabilities
-				if (withExploit) {
-					TTP ttp = initTTP("Exploit", "Metasploit")
-						.withBehavior(behavior);
-					if (!relatedEt.isEmpty()) {
-						ttp 
-							.withExploitTargets(new org.mitre.stix.ttp_1.ExploitTargetsType()
-								.withExploitTargets(relatedEt));
-					}
-
-					ttps
-						.withTTPS(ttp);
-				}
-			}
-
-			if (!ets.getExploitTargets().isEmpty()) {
-				stixPackage
-					.withExploitTargets(ets);
-			}
-			if (!ttps.getTTPS().isEmpty()) {
 				stixPackage
 					.withTTPs(ttps);
 			}
-		
-			return (ets.getExploitTargets().isEmpty() && ttps.getTTPS().isEmpty()) ? null : stixPackage; 
-
-		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
-		} catch (IOException e)	{
-			e.printStackTrace();
 		}
-
-		return null;
+	
+		return stixPackage; 
 	}
 }

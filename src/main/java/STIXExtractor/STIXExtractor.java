@@ -55,6 +55,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.mitre.stix.stix_1.STIXPackage;
 import org.mitre.stix.stix_1.STIXHeaderType;
 import org.mitre.stix.common_1.IdentityType;
@@ -115,6 +118,7 @@ import org.mitre.maec.xmlschema.maec_bundle_4.MalwareActionType;
 import org.xml.sax.SAXException;
 
 public abstract class STIXExtractor extends ExtractorUtils {
+	private static final Logger logger = LoggerFactory.getLogger(ExtractorUtils.class);
 
 	private static Set<String> rirSet = new HashSet<String>(Arrays.asList("AFRINIC", "ARIN", "APNIC", "LACNIC", "RIPE"));
 
@@ -127,7 +131,6 @@ public abstract class STIXExtractor extends ExtractorUtils {
 	}
 
 	public STIXPackage initStixPackage(String title, String id, String source) throws DatatypeConfigurationException {
-		GregorianCalendar calendar = new GregorianCalendar();
 		XMLGregorianCalendar now = DatatypeFactory.newInstance().newXMLGregorianCalendar(				
 			new GregorianCalendar(TimeZone.getTimeZone("UTC")));
 
@@ -514,6 +517,9 @@ public abstract class STIXExtractor extends ExtractorUtils {
 				product
 					.withLanguage(new StringObjectPropertyType()
 						.withValue(cpe[7]));
+				break;
+			default:
+				logger.debug("Check CPE format: " + software);
 				break;
 			}
 		}		
