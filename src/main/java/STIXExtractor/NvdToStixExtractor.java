@@ -51,7 +51,11 @@ public class NvdToStixExtractor extends STIXExtractor {
 	}
 	
 	private long convertTimestamp(String time) { 
-		return convertTimestamp(time, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+		if (time.endsWith("Z")) {
+			return convertTimestamp(time.replaceAll("Z$", "+0000"), "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		} else {
+			return convertTimestamp(time, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+		}
 	}
 
 	private STIXPackage extract (String nvdInfo) {
