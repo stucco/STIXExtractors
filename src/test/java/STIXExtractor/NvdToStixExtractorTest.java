@@ -6,6 +6,10 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import org.jsoup.Jsoup;
 import org.jsoup.parser.Parser;
@@ -31,6 +35,19 @@ import static org.junit.Assert.*;
  */			
 public class NvdToStixExtractorTest {
 	
+	long convertTimestamp(String time, String format)	{ 
+		Date date = new Date();
+		try {
+			SimpleDateFormat df = new SimpleDateFormat(format);
+			date = df.parse(time);
+			return date.getTime();	
+
+		} catch	(ParseException e)	{
+			e.printStackTrace();
+		}
+  		return date.getTime();	
+	}
+
 	/**
 	 * Tests empty doc
 	 */
@@ -74,7 +91,7 @@ public class NvdToStixExtractorTest {
 	 */
 	@Test
 	public void test_one_entry()	{
-
+ 
 		System.out.println("STIXExtractor.NvdToStixExtractorTest.test_one_entry()");
 			
 		String nvdInfo =
@@ -131,7 +148,18 @@ public class NvdToStixExtractorTest {
 				assertTrue(!stixEntry.select("stixCommon|Reference:contains(" + content + ")").first().text().isEmpty());
 			}
 			System.out.println("Testing PublishedDate");
-			assertEquals(stixEntry.select("et|Published_DateTime").text(), entry.select("vuln|published-datetime").text());
+			long timeReceived;
+			long timeExpected;
+			String timeString = stixEntry.select("et|Published_DateTime").text();
+			if (timeString.endsWith("Z")) {
+				timeString = timeString.replaceAll("Z$", "+0000");
+				timeReceived = convertTimestamp(timeString, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+			} else {
+				timeReceived = convertTimestamp(timeString, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+			}
+			timeString = entry.select("vuln|published-datetime").text();
+			timeExpected = convertTimestamp(timeString, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+			assertEquals(timeReceived, timeExpected);
 			System.out.println("Testing CVSSScore");
 			assertEquals(stixEntry.select("et|Base_Score").text(), entry.select("cvss|score").text());
 
@@ -249,7 +277,18 @@ public class NvdToStixExtractorTest {
 				assertTrue(!stixEntry.select("stixCommon|Reference:contains(" + content + ")").first().text().isEmpty());
 			}
 			System.out.println("Testing PublishedDate");
-			assertEquals(stixEntry.select("et|Published_DateTime").text(), entry.select("vuln|published-datetime").text());
+			long timeReceived;
+			long timeExpected;
+			String timeString = stixEntry.select("et|Published_DateTime").text();
+			if (timeString.endsWith("Z")) {
+				timeString = timeString.replaceAll("Z$", "+0000");
+				timeReceived = convertTimestamp(timeString, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+			} else {
+				timeReceived = convertTimestamp(timeString, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+			}
+			timeString = entry.select("vuln|published-datetime").text();
+			timeExpected = convertTimestamp(timeString, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+			assertEquals(timeReceived, timeExpected);
 			System.out.println("Testing CVSSScore");
 			assertEquals(stixEntry.select("et|Base_Score").text(), entry.select("cvss|score").text());
 			
