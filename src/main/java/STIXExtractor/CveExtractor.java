@@ -34,7 +34,6 @@ public class CveExtractor extends STIXExtractor {
 	}
 
 	private STIXPackage extract (String cveInfo) {
-		try {
 			Document doc = Jsoup.parse(cveInfo);
 			Elements entries = doc.select("item");
 			
@@ -42,7 +41,6 @@ public class CveExtractor extends STIXExtractor {
 				return null;
 			}
 
-			stixPackage = initStixPackage("Vulnerability Description", "CVE");				
 			ExploitTargetsType exploitTargets = new ExploitTargetsType();			
 
 			for (Element entry : entries) {	
@@ -94,15 +92,14 @@ public class CveExtractor extends STIXExtractor {
 							.withSource("CVE")));	
 			}				
 			
-			return stixPackage
-				.withExploitTargets(exploitTargets);
-			
-		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			try {
+				stixPackage = initStixPackage("Vulnerability Description", "CVE")
+					.withExploitTargets(exploitTargets);		
+			} catch (DatatypeConfigurationException e) {
+				e.printStackTrace();
+				return null;
+			}
 
-		return null;
+			return stixPackage;
 	}
 }

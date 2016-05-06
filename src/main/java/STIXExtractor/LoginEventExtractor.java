@@ -50,134 +50,135 @@ public class LoginEventExtractor extends STIXExtractor {
 	}
 
 	private STIXPackage extract (String loginEventInfo) {
+		List<CSVRecord> records;
 		try {
-			List<CSVRecord> records = getCSVRecordsList(HEADERS, loginEventInfo);
-			
-			if (records.isEmpty()) {
-				return null;
-			}
- 
-			CSVRecord record = records.get(0);
-			int start;
-			if (record.get(0).equals(DATE_TIME)) {
-				if (records.size() == 1) {
-					return null;
-				} else {
-					start = 1;
-				}
-			}
-			else start = 0;
-			
-			stixPackage = initStixPackage("Login Event", "LoginEvent");				
-			Observables observables = initObservables();
-
-		 	for (int i = start; i < records.size(); i++) {
-				
-				record = records.get(i);
-
-				Observable hostnameObservable = null;
-				Observable accountObservable = null;
-				Observable softwareObservable = null;
-				Observable hostAtIpObservable = null;
-				Observable ipObservable = null;
-				
-				/* hostname */
-				if (!record.get(HOSTNAME).isEmpty()) {
-					hostnameObservable = setHostObservable(record.get(HOSTNAME), "LoginEvent");
-				}
-
-				/* account */
-				if (!record.get(USER).isEmpty()) {
-					accountObservable = setAccountObservable(record.get(USER), "LoginEvent");
-				}
-				
-				/* software */
-				if (!record.get(LOGIN_SOFTWARE).isEmpty()) {
-					softwareObservable = setSoftwareObservable(record.get(LOGIN_SOFTWARE), "LoginEvent");
-					observables
-						.withObservables(softwareObservable);
-				}
-
-				/* IP */
-				if (!record.get(FROM_IP).isEmpty()) {
-					ipObservable = setIpObservable(record.get(FROM_IP), "LoginEvent");
-					observables
-						.withObservables(ipObservable);
-				}
-
-				/* host */
-				if (!record.get(FROM_IP).isEmpty()) {
-					hostAtIpObservable = setHostObservable("host_at_" + record.get(FROM_IP), "LoginEvent");	
-				}
-
-				if (accountObservable != null) {
-					List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
-	
-					/* account -> hostname relation */
-					if (hostnameObservable != null) {
-						relatedObjects.add(
-							setRelatedObject(hostnameObservable.getId(), "Logs_In_To", record.get(USER) + " logs in to " + record.get(HOSTNAME), "LoginEvent")  
-								.withState(new ControlledVocabularyStringType()
-									.withValue(record.get(STATUS)))
-								.withProperties(new UserSession()
-									.withLoginTime(new DateTimeObjectPropertyType()
-										.withValue(record.get(DATE_TIME)))));
-					}
-					
-					/* account -> ip relation */
-					if (ipObservable != null) {
-						relatedObjects.add(
-							setRelatedObject(hostAtIpObservable.getId(), "Logs_In_From", record.get(USER) + " logs in from host at " + record.get(FROM_IP), "LoginEvent") 
-								.withState(new ControlledVocabularyStringType()
-									.withValue(record.get(STATUS)))
-								.withProperties(new UserSession()
-									.withLoginTime(new DateTimeObjectPropertyType()
-										.withValue(record.get(DATE_TIME)))));
-					}
-					
-					accountObservable
-						.getObject()
-							.withRelatedObjects(new RelatedObjectsType()
-								.withRelatedObjects(relatedObjects));
-					observables
-						.withObservables(accountObservable);
-				}
-
-				/* host -> software relation */
-				if (hostnameObservable != null) {
-					if (softwareObservable != null) {
-						hostnameObservable
-							.getObject()
-								.withRelatedObjects(new RelatedObjectsType()
-									.withRelatedObjects(setRelatedObject(softwareObservable.getId(), "Runs", record.get(HOSTNAME) + " runs " + record.get(LOGIN_SOFTWARE), "LoginEvent")));
-					}
-					observables
-						.withObservables(hostnameObservable);
-				}
-
-				/* hostAtIp -> ip */
-				if (hostAtIpObservable != null) {
-					if (ipObservable != null) {
-						hostAtIpObservable
-							.getObject()
-								.withRelatedObjects(new RelatedObjectsType()
-									.withRelatedObjects(
-										setRelatedObject(ipObservable.getId(), "Resolved_To", "host_at_" + record.get(FROM_IP) + " resolved to IP " + record.get(FROM_IP), "LoginEvent")));
-					}
-					observables
-						.withObservables(hostAtIpObservable);
-				}
-			}
-
-			return (observables.getObservables().isEmpty()) ? null : stixPackage.withObservables(observables);
-
-		} catch (DatatypeConfigurationException e) {
+			records = getCSVRecordsList(HEADERS, loginEventInfo);
+		} catch (IOException e) {
 			e.printStackTrace();
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
+			return null;
+		}			
+		if (records.isEmpty()) {
+			return null;
 		}
 
-		return null;
+		CSVRecord record = records.get(0);
+		int start;
+		if (record.get(0).equals(DATE_TIME)) {
+			if (records.size() == 1) {
+				return null;
+			} else {
+				start = 1;
+			}
+		}
+		else start = 0;
+					
+		Observables observables = initObservables();
+
+	 	for (int i = start; i < records.size(); i++) {
+			record = records.get(i);
+
+			Observable hostnameObservable = null;
+			Observable accountObservable = null;
+			Observable softwareObservable = null;
+			Observable hostAtIpObservable = null;
+			Observable ipObservable = null;
+			
+			/* hostname */
+			if (!record.get(HOSTNAME).isEmpty()) {
+				hostnameObservable = setHostObservable(record.get(HOSTNAME), "LoginEvent");
+			}
+
+			/* account */
+			if (!record.get(USER).isEmpty()) {
+				accountObservable = setAccountObservable(record.get(USER), "LoginEvent");
+			}
+			
+			/* software */
+			if (!record.get(LOGIN_SOFTWARE).isEmpty()) {
+				softwareObservable = setSoftwareObservable(record.get(LOGIN_SOFTWARE), "LoginEvent");
+				observables
+					.withObservables(softwareObservable);
+			}
+
+			/* IP */
+			if (!record.get(FROM_IP).isEmpty()) {
+				ipObservable = setIpObservable(record.get(FROM_IP), "LoginEvent");
+				observables
+					.withObservables(ipObservable);
+			}
+
+			/* host */
+			if (!record.get(FROM_IP).isEmpty()) {
+				hostAtIpObservable = setHostObservable("host_at_" + record.get(FROM_IP), "LoginEvent");	
+			}
+
+			if (accountObservable != null) {
+				List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
+
+				/* account -> hostname relation */
+				if (hostnameObservable != null) {
+					relatedObjects.add(
+						setRelatedObject(hostnameObservable.getId(), "Logs_In_To", record.get(USER) + " logs in to " + record.get(HOSTNAME), "LoginEvent")  
+							.withState(new ControlledVocabularyStringType()
+								.withValue(record.get(STATUS)))
+							.withProperties(new UserSession()
+								.withLoginTime(new DateTimeObjectPropertyType()
+									.withValue(record.get(DATE_TIME)))));
+				}
+				
+				/* account -> ip relation */
+				if (ipObservable != null) {
+					relatedObjects.add(
+						setRelatedObject(hostAtIpObservable.getId(), "Logs_In_From", record.get(USER) + " logs in from host at " + record.get(FROM_IP), "LoginEvent") 
+							.withState(new ControlledVocabularyStringType()
+								.withValue(record.get(STATUS)))
+							.withProperties(new UserSession()
+								.withLoginTime(new DateTimeObjectPropertyType()
+									.withValue(record.get(DATE_TIME)))));
+				}
+				
+				accountObservable
+					.getObject()
+						.withRelatedObjects(new RelatedObjectsType()
+							.withRelatedObjects(relatedObjects));
+				observables
+					.withObservables(accountObservable);
+			}
+
+			/* host -> software relation */
+			if (hostnameObservable != null) {
+				if (softwareObservable != null) {
+					hostnameObservable
+						.getObject()
+							.withRelatedObjects(new RelatedObjectsType()
+								.withRelatedObjects(setRelatedObject(softwareObservable.getId(), "Runs", record.get(HOSTNAME) + " runs " + record.get(LOGIN_SOFTWARE), "LoginEvent")));
+				}
+				observables
+					.withObservables(hostnameObservable);
+			}
+
+			/* hostAtIp -> ip */
+			if (hostAtIpObservable != null) {
+				if (ipObservable != null) {
+					hostAtIpObservable
+						.getObject()
+							.withRelatedObjects(new RelatedObjectsType()
+								.withRelatedObjects(
+									setRelatedObject(ipObservable.getId(), "Resolved_To", "host_at_" + record.get(FROM_IP) + " resolved to IP " + record.get(FROM_IP), "LoginEvent")));
+				}
+				observables
+					.withObservables(hostAtIpObservable);
+			}
+		}
+		if (!observables.getObservables().isEmpty()) {
+			try {
+				stixPackage = initStixPackage("Login Event", "LoginEvent")
+					.withObservables(observables);
+			} catch (DatatypeConfigurationException e) {
+				e.printStackTrace();
+			} 
+		}
+
+		return stixPackage;
 	}
 }

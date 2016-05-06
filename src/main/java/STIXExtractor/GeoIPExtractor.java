@@ -50,63 +50,65 @@ public class GeoIPExtractor extends STIXExtractor {
 	}
 
 	private STIXPackage extract (String geoIpInfo)	{
+		List<CSVRecord> records;
 		try {
-			List<CSVRecord> records = getCSVRecordsList (HEADERS, geoIpInfo);
-			
-			if (records.isEmpty()) {
-				return null;
-			}
-			
-			CSVRecord record = records.get(0);
-			int start;
-			if (record.get(0).equals(STARTIP)) {
-				if (records.size() == 1) {
-					return null;
-				} else {
-					start = 1;
-				}
-			} else {
-				start = 0;
-			}
-
-			stixPackage = initStixPackage("IP List", "Maxmind");			
-			Observables observables = initObservables();
-
-		 	for (int i = start; i < records.size(); i++) {
-
-				record = records.get(i);
-
-				/* ip */
-				observables																
-					.withObservables(new Observable()
-						.withId(new QName("gov.ornl.stucco", "addressRange-" + UUID.randomUUID().toString(), "stucco"))
-						.withTitle("AddressRange")
-						.withObservableSources(setMeasureSourceType("Maxmind"))
-						.withObject(new ObjectType()
-							.withId(new QName("gov.ornl.stucco", "addressRange-" + record.get(STARTIPINT) + "-" + record.get(ENDIPINT), "stucco"))
-							.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
-								.withValue(record.get(STARTIP) + " through " + record.get(ENDIP)))
-							.withLocation(new LocationType()
-								.withId(new QName("gov.ornl.stucco", "countryCode-" + record.get(COUNTRYCODE), "stucco"))
-								.withName(record.get(COUNTRYNAME)))
-							.withProperties(new Address()
-								.withAddressValue(new StringObjectPropertyType()
-									.withValue(record.get(STARTIP) + " - " + record.get(ENDIP))
-								.withCondition(ConditionTypeEnum.INCLUSIVE_BETWEEN)
-								.withApplyCondition(ConditionApplicationEnum.ANY)
-								.withDelimiter(" - "))
-								.withCategory(CategoryTypeEnum.IPV_4_ADDR))));
-			}
-				
-			return stixPackage
-				.withObservables(observables);
-
-		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
+			records = getCSVRecordsList (HEADERS, geoIpInfo);
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
+		}	
+		if (records.isEmpty()) {
+			return null;
+		}
+		
+		CSVRecord record = records.get(0);
+		int start;
+		if (record.get(0).equals(STARTIP)) {
+			if (records.size() == 1) {
+				return null;
+			} else {
+				start = 1;
+			}
+		} else {
+			start = 0;
 		}
 
-		return null;
+		Observables observables = initObservables();
+
+	 	for (int i = start; i < records.size(); i++) {
+			record = records.get(i);
+
+			/* ip */
+			observables																
+				.withObservables(new Observable()
+					.withId(new QName("gov.ornl.stucco", "addressRange-" + UUID.randomUUID().toString(), "stucco"))
+					.withTitle("AddressRange")
+					.withObservableSources(setMeasureSourceType("Maxmind"))
+					.withObject(new ObjectType()
+						.withId(new QName("gov.ornl.stucco", "addressRange-" + record.get(STARTIPINT) + "-" + record.get(ENDIPINT), "stucco"))
+						.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+							.withValue(record.get(STARTIP) + " through " + record.get(ENDIP)))
+						.withLocation(new LocationType()
+							.withId(new QName("gov.ornl.stucco", "countryCode-" + record.get(COUNTRYCODE), "stucco"))
+							.withName(record.get(COUNTRYNAME)))
+						.withProperties(new Address()
+							.withAddressValue(new StringObjectPropertyType()
+								.withValue(record.get(STARTIP) + " - " + record.get(ENDIP))
+							.withCondition(ConditionTypeEnum.INCLUSIVE_BETWEEN)
+							.withApplyCondition(ConditionApplicationEnum.ANY)
+							.withDelimiter(" - "))
+							.withCategory(CategoryTypeEnum.IPV_4_ADDR))));
+		}
+
+		if (!observables.getObservables().isEmpty()) {
+			try {
+				stixPackage = initStixPackage("IP List", "Maxmind")
+					.withObservables(observables);
+			} catch (DatatypeConfigurationException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return stixPackage;
 	}
 }
