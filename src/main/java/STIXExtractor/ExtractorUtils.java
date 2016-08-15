@@ -206,7 +206,7 @@ public abstract class ExtractorUtils {
 		return desc;
 	}
 	
-	public long ipToLong(String ipString)	{
+	public static long ipToLong(String ipString)	{
 		long ipLong = 0;
 		long ip;
 		String[] ipArray = ipString.split("\\.");
