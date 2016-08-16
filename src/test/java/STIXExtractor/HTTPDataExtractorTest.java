@@ -14,6 +14,7 @@ import org.jsoup.select.Elements;
 
 import org.mitre.stix.stix_1.STIXPackage;
 
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -30,7 +31,7 @@ public class HTTPDataExtractorTest extends STIXExtractor {
 	 */
 	@Test
 	public void test_empty_doc() {
-			
+			 
 		System.out.println();
 		System.out.println("STIXExtractor.HTTPDataExtractorTest.test_empty_doc()");
 
@@ -106,7 +107,7 @@ public class HTTPDataExtractorTest extends STIXExtractor {
 		
 		HTTPDataExtractor httpExtractor = new HTTPDataExtractor(httpInfo);
 		STIXPackage stixPackage = httpExtractor.getStixPackage();
-		
+		System.out.println(stixPackage.toXMLString(true));
 		System.out.println("Validating STIX_Package");
 		assertTrue(validate(stixPackage));
 
