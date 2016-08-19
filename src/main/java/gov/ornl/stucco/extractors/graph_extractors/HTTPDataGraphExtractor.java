@@ -15,7 +15,7 @@ import java.io.IOException;
 import org.apache.commons.csv.CSVRecord;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory; 
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -168,7 +168,7 @@ public class HTTPDataGraphExtractor {
 				String edgeName = GraphUtils.buildString(dnsNameID, dstIpID);
 				boolean newEdge = !edgeNames.contains(edgeName);
 				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(dnsNameID, dstIpID, "Sub-Observable");
+					JSONObject edge = GraphUtils.setEdgeJson(dnsNameID,  "Observable", dstIpID, "IP", "Sub-Observable");
 					edges.put(edge);
 					edgeNames.add(edgeName);
 				}
@@ -218,7 +218,7 @@ public class HTTPDataGraphExtractor {
 				String edgeName = GraphUtils.buildString(httpSessionID, srcIpID);
 				boolean newEdge = !edgeNames.contains(edgeName);
 				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, srcIpID, "Sub-Observable");
+					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", srcIpID, "IP", "Sub-Observable");
 					edges.put(edge);
 					edgeNames.add(edgeName);
 				}
@@ -226,7 +226,7 @@ public class HTTPDataGraphExtractor {
 				edgeName = GraphUtils.buildString(httpSessionID, dnsNameID);
 				newEdge =  !edgeNames.contains(edgeName);
 				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, dnsNameID, "Sub-Observable");
+					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", dnsNameID, "Observable", "Sub-Observable");
 					edges.put(edge);
 					edgeNames.add(edgeName);
 				}
@@ -234,7 +234,7 @@ public class HTTPDataGraphExtractor {
 				edgeName = GraphUtils.buildString(httpSessionID, dstPortID);
 				newEdge = !edgeNames.contains(edgeName);
 				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, dstPortID, "Sub-Observable");
+					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", dstPortID, "Observable", "Sub-Observable");
 					edges.put(edge);
 					edgeNames.add(edgeName);
 				}
@@ -242,7 +242,7 @@ public class HTTPDataGraphExtractor {
 				edgeName = GraphUtils.buildString(httpSessionID, uriID);
 				newEdge =  !edgeNames.contains(edgeName);
 				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, uriID, "Sub-Observable");
+					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", uriID, "Observable", "Sub-Observable");
 					edges.put(edge);
 					edgeNames.add(edgeName);
 				}

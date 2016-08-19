@@ -130,10 +130,12 @@ public abstract class GraphUtils {
 		return httpSessionJson;
 	}
 
-	public static JSONObject setEdgeJson(String outVertID, String inVertID, String relation) {
+	public static JSONObject setEdgeJson(String outVertID, String outVertTable, String inVertID, String inVertTable, String relation) {
 		JSONObject edge = new JSONObject();
 		edge.put("outVertID", outVertID);
+		edge.put("outVertTable", outVertTable);
 		edge.put("inVertID", inVertID);
+		edge.put("inVertTable", inVertTable);
 		edge.put("relation", relation);
 
 		return edge;

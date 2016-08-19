@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
-
+ 
 /**
  * Situ data to graph extractor.
  *
@@ -139,10 +139,10 @@ public class SituGraphExtractor {
 						vertices.put(srcAddressID, srcAddressJson);
 						vertNames.put(address, srcAddressID);
 						/* address -> ip edge */
-						JSONObject edge = GraphUtils.setEdgeJson(srcAddressID, srcIpID, "Sub-Observable");
+						JSONObject edge = GraphUtils.setEdgeJson(srcAddressID, "Observable", srcIpID, "IP", "Sub-Observable");
 						edges.put(edge);
 						/* address -> port edge */
-						edge = GraphUtils.setEdgeJson(srcAddressID, srcPortID, "Sub-Observable");
+						edge = GraphUtils.setEdgeJson(srcAddressID, "Observable", srcPortID, "Observable", "Sub-Observable");
 						edges.put(edge);
 					}
 				}
@@ -158,10 +158,10 @@ public class SituGraphExtractor {
 						vertices.put(dstAddressID, dstAddressJson);
 						vertNames.put(address, dstAddressID);
 						/* address -> ip edge */
-						JSONObject edge = GraphUtils.setEdgeJson(dstAddressID, dstIpID, "Sub-Observable");
+						JSONObject edge = GraphUtils.setEdgeJson(dstAddressID, "Observable", dstIpID, "IP", "Sub-Observable");
 						edges.put(edge);                      
 						/* address -> port edge */                                                                                                    
-						edge = GraphUtils.setEdgeJson(dstAddressID, dstPortID, "Sub-Observable");
+						edge = GraphUtils.setEdgeJson(dstAddressID, "Observable", dstPortID, "Observable", "Sub-Observable");
 						edges.put(edge);
 					}
 				}
@@ -178,10 +178,10 @@ public class SituGraphExtractor {
 						vertices.put(flowID, flowJson);
 						vertNames.put(flowJson.getString("name"), flowID);
 						/* flow -> src address edge */
-						JSONObject edge = GraphUtils.setEdgeJson(flowID, srcAddressID, "Sub-Observable");
+						JSONObject edge = GraphUtils.setEdgeJson(flowID, "Observable", srcAddressID, "Observable", "Sub-Observable");
 						edges.put(edge);
 						/* flow -> dst address edge */
-						edge = GraphUtils.setEdgeJson(flowID, dstAddressID, "Sub-Observable");
+						edge = GraphUtils.setEdgeJson(flowID, "Observable", dstAddressID, "Observable", "Sub-Observable");
 						edges.put(edge);
 					}
 				}

@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.io.IOException;
  
 import org.apache.commons.csv.CSVRecord;
-
+ 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,10 +177,10 @@ public class ArgusGraphExtractor {
 					vertices.put(srcAddressID, srcAddressJson);
 					vertNames.put(address, srcAddressID);
 					/* source address -> ip edge */
-					JSONObject edge = GraphUtils.setEdgeJson(srcAddressID, srcIpID, "Sub-Observable");
+					JSONObject edge = GraphUtils.setEdgeJson(srcAddressID,  "Observable", srcIpID, "IP", "Sub-Observable");
 					edges.put(edge);
 					/* source address -> port edge */
-					edge = GraphUtils.setEdgeJson(srcAddressID, srcPortID, "Sub-Observable");
+					edge = GraphUtils.setEdgeJson(srcAddressID, "Observable", srcPortID, "Observable", "Sub-Observable");
 					edges.put(edge);
 				}
 			}
@@ -196,10 +196,10 @@ public class ArgusGraphExtractor {
 					vertices.put(dstAddressID, dstAddressJson);
 					vertNames.put(address, dstAddressID);
 					/* destination address -> ip edge */
-					JSONObject edge = GraphUtils.setEdgeJson(dstAddressID, dstIpID, "Sub-Observable");
+					JSONObject edge = GraphUtils.setEdgeJson(dstAddressID, "Observable", dstIpID, "IP", "Sub-Observable");
 					edges.put(edge);                        
 					/* destination address -> port edge */                                                                                                  
-					edge = GraphUtils.setEdgeJson(dstAddressID, dstPortID, "Sub-Observable");
+					edge = GraphUtils.setEdgeJson(dstAddressID, "Observable", dstPortID, "Observable", "Sub-Observable");
 					edges.put(edge);
 				}
 			}
@@ -216,10 +216,10 @@ public class ArgusGraphExtractor {
 					vertices.put(flowID, flowJson);
 					vertNames.put(flowJson.getString("name"), flowID);
 					/* flow -> source address edge */
-					JSONObject edge = GraphUtils.setEdgeJson(flowID, srcAddressID, "Sub-Observable");
+					JSONObject edge = GraphUtils.setEdgeJson(flowID, "Observable", srcAddressID, "Observable", "Sub-Observable");
 					edges.put(edge);
 					/* flow -> destination address edge */
-					edge = GraphUtils.setEdgeJson(flowID, dstAddressID, "Sub-Observable");
+					edge = GraphUtils.setEdgeJson(flowID, "Observable", dstAddressID, "Observable", "Sub-Observable");
 					edges.put(edge);
 				}
 			}
