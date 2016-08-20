@@ -10,15 +10,15 @@ import org.apache.commons.csv.CSVRecord;
 
 public abstract class GraphUtils {
 
-	public static JSONObject setIpJson(String ip, String ipID, Set sourceSet, String sourceString) {
+	public static JSONObject setIpJson(String ip, String ipID, Object sourceSet, String sourceString) {
 	  JSONObject ipJson = new JSONObject();
 		ipJson.put("vertexType", "IP");
 		ipJson.put("name", ip);
 		Set<String> description = new HashSet<String>();
 		description.add(ip);
-		ipJson.put("description", description);
+		ipJson.put("description", (Object)description);
 		ipJson.put("ipInt", ExtractorUtils.ipToLong(ip));
-		ipJson.put("source", sourceSet);
+		ipJson.put("source", (Object)sourceSet);
 		ipJson.put("observableType", "Address");
 		String ipObservable = TemplatesUtils.setIPObservable(ip, ipID, sourceString);
 		ipJson.put("sourceDocument", ipObservable);
@@ -26,14 +26,14 @@ public abstract class GraphUtils {
 		return ipJson;
 	}
 
-	public static JSONObject setPortJson(String port, Set sourceSet, String sourceString) {
+	public static JSONObject setPortJson(String port, Object sourceSet, String sourceString) {
 		JSONObject portJson = new JSONObject();
 		portJson.put("vertexType", "Observable");
 		portJson.put("name", port);
 		Set<String> description = new HashSet<String>();
 		description.add(port);
-		portJson.put("description", description);
-		portJson.put("source", sourceSet);
+		portJson.put("description", (Object)description);
+		portJson.put("source", (Object)sourceSet);
 		portJson.put("observableType", "Port");
 		String uuid = UUID.randomUUID().toString();
 		String portObservable = TemplatesUtils.setPortObservable(port, uuid, sourceString);
@@ -48,8 +48,8 @@ public abstract class GraphUtils {
 		addressJson.put("name", buildString(ip, ":", port));
 		Set<String> description = new HashSet<String>();
 		description.add(buildString(ip, ", port ", port));
-		addressJson.put("description", description);
-		addressJson.put("source", sourceSet);
+		addressJson.put("description", (Object)description);
+		addressJson.put("source", (Object)sourceSet);
 		addressJson.put("observableType", "Socket Address");
 		String uuid = UUID.randomUUID().toString();
 		String addressObservable = TemplatesUtils.setAddressObservable(uuid, ip, ipID, port, portID, sourceString);
@@ -76,8 +76,8 @@ public abstract class GraphUtils {
 		flowJson.put("name", buildString(srcIp, ":", srcPort, "_through_", dstIp, ":", dstPort));
 		Set<String> description = new HashSet<String>();
 		description.add(buildString(srcIp, ", port ", srcPort, " to ", dstIp, ", port ", dstPort));
-		flowJson.put("description", description);
-		flowJson.put("source", sourceSet);
+		flowJson.put("description", (Object)description);
+		flowJson.put("source", (Object)sourceSet);
 		flowJson.put("observableType", "Network Flow");
 		flowJson.put("sourceDocument", sourceDocument);
 
@@ -90,8 +90,8 @@ public abstract class GraphUtils {
 		dnsNameJson.put("name", dnsName);
 		Set<String> description = new HashSet<String>();
 		description.add(buildString(dnsName));
-		dnsNameJson.put("description", description);
-		dnsNameJson.put("source", sourceSet);
+		dnsNameJson.put("description", (Object)description);
+		dnsNameJson.put("source", (Object)sourceSet);
 		dnsNameJson.put("observableType", "Domain Name");
 		String dnsNameObservable = TemplatesUtils.setDNSNameObservable(dnsID, dnsName, dnsIpID, sourceString);
 		dnsNameJson.put("sourceDocument", dnsNameObservable);
@@ -105,8 +105,8 @@ public abstract class GraphUtils {
 		uriJson.put("name", uri);
 		Set<String> description = new HashSet<String>();
 		description.add(buildString(uri));
-		uriJson.put("description", description);
-		uriJson.put("source", sourceSet);
+		uriJson.put("description", (Object)description);
+		uriJson.put("source", (Object)sourceSet);
 		uriJson.put("observableType", "URI");
 		String uriObservable = TemplatesUtils.setURIObservable(uriID, uri);
 		uriJson.put("sourceDocument", uriObservable);
@@ -120,8 +120,8 @@ public abstract class GraphUtils {
 		httpSessionJson.put("name", requestedURL);
 		Set<String> description = new HashSet<String>();
 		description.add(buildString("HTTP request of ", requestedURL));
-		httpSessionJson.put("description", description);
-		httpSessionJson.put("source", sourceSet);
+		httpSessionJson.put("description", (Object)description);
+		httpSessionJson.put("source", (Object)sourceSet);
 		httpSessionJson.put("observableType", "HTTP Session");
 		// httpSessionID, sourceString, requestedURL, method, ampVersion, rawHeader, language, length, date, ipID, dnsNameID, portID, uriID, agent
 		String httpSessionObservable = TemplatesUtils.setHTTPSessionObservable(httpID, sourceString, requestedURL, props);
