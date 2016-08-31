@@ -82,8 +82,8 @@ public class SituGraphExtractor {
 					if (vertNames.containsKey(srcIp)) {
 						srcIpID = vertNames.get(srcIp);
 					} else {
-						srcIpID = UUID.randomUUID().toString();
-						JSONObject srcIpJson = GraphUtils.setIpJson(srcIp, srcIpID, source, "Situ");
+						srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "Situ");
 						vertices.put(srcIpID, srcIpJson);
 						vertNames.put(srcIp, srcIpID);
 					}
@@ -95,8 +95,8 @@ public class SituGraphExtractor {
 					if (vertNames.containsKey(srcPort)) {
 						srcPortID = vertNames.get(srcPort);
 					} else {
-						srcPortID = UUID.randomUUID().toString();
-						JSONObject srcPortJson = GraphUtils.setPortJson(srcPort, source, "Situ");
+						srcPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject srcPortJson = GraphUtils.setPortJson(srcPortID, srcPort, source, "Situ");
 						vertices.put(srcPortID, srcPortJson);
 						vertNames.put(srcPort, srcPortID);
 					}
@@ -108,8 +108,8 @@ public class SituGraphExtractor {
 					if (vertNames.containsKey(dstIp)) {
 						dstIpID = vertNames.get(dstIp);
 					} else {
-						dstIpID = UUID.randomUUID().toString();
-						JSONObject dstIpJson = GraphUtils.setIpJson(dstIp, dstIpID, source, "Situ");
+						dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "Situ");
 						vertices.put(dstIpID, dstIpJson);
 						vertNames.put(dstIpID, dstIp);
 					}
@@ -121,8 +121,8 @@ public class SituGraphExtractor {
 					if (vertNames.containsKey(dstPort)) {
 						dstPortID = vertNames.get(dstPort);
 					} else {
-						dstPortID = UUID.randomUUID().toString();
-						JSONObject dstPortJson = GraphUtils.setPortJson(dstPort, source, "Situ");
+						dstPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "Situ");
 						vertices.put(dstPortID, dstPortJson);
 						vertNames.put(dstPort, dstPortID);
 					}
@@ -134,8 +134,8 @@ public class SituGraphExtractor {
 					if (vertNames.containsKey(address)) {
 						srcAddressID = vertNames.get(address);
 					} else {
-						srcAddressID = UUID.randomUUID().toString();
-						JSONObject srcAddressJson = GraphUtils.setAddressJson(srcIp, srcIpID, srcPort, srcPortID, source, "Situ");
+						srcAddressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject srcAddressJson = GraphUtils.setAddressJson(srcAddressID, srcIp, srcIpID, srcPort, srcPortID, source, "Situ");
 						vertices.put(srcAddressID, srcAddressJson);
 						vertNames.put(address, srcAddressID);
 						/* address -> ip edge */
@@ -143,7 +143,7 @@ public class SituGraphExtractor {
 						edges.put(edge);
 						/* address -> port edge */
 						edge = GraphUtils.setEdgeJson(srcAddressID, "Observable", srcPortID, "Observable", "Sub-Observable");
-						edges.put(edge);
+						edges.put(edge); 
 					}
 				}
 
@@ -153,8 +153,8 @@ public class SituGraphExtractor {
 					if (vertNames.containsKey(address)) {
 						dstAddressID = vertNames.get(address);
 					} else {
-						dstAddressID = UUID.randomUUID().toString();
-						JSONObject dstAddressJson = GraphUtils.setAddressJson(dstIp, dstIpID, dstPort, dstPortID, source, "Situ");
+						dstAddressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dstAddressJson = GraphUtils.setAddressJson(dstAddressID, dstIp, dstIpID, dstPort, dstPortID, source, "Situ");
 						vertices.put(dstAddressID, dstAddressJson);
 						vertNames.put(address, dstAddressID);
 						/* address -> ip edge */
@@ -172,7 +172,7 @@ public class SituGraphExtractor {
 					if (vertNames.containsKey(flow)) {
 						flowID = vertNames.get(flow);
 					} else {
-						flowID = UUID.randomUUID().toString();
+						flowID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
 						String protocol = entry.opt(PROTO).toString();
 						JSONObject flowJson = GraphUtils.setFlowJson(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, source, "Situ", entry);
 						vertices.put(flowID, flowJson);

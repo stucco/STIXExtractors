@@ -36,7 +36,7 @@ import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.datatype.XMLGregorianCalendar; 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -106,7 +106,7 @@ public abstract class ExtractorUtils {
 		private String topIpAddress = null;
 		private String buttomIpAddress = null;
 
-		private BigInteger computeIpToBigInt(String ipString) {
+		public BigInteger computeIpToBigInt(String ipString) {
 			try {
 				InetAddress address = InetAddress.getByName(ipString);
 
@@ -217,6 +217,20 @@ public abstract class ExtractorUtils {
 		}
 		
 		return ipLong;
+	}
+
+	public static BigInteger computeIpToBigInt(String ipString) {
+		try {
+			System.out.println("ipString = " + ipString);
+			InetAddress address = InetAddress.getByName(ipString);
+			System.out.println("address = " + address);
+			return new BigInteger(1, address.getAddress());
+
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 	
 	public static List getCSVRecordsList (String[] HEADERS, String info)	throws IOException	{

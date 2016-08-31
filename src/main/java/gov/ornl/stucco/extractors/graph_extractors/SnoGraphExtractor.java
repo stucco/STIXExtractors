@@ -9,10 +9,17 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List; 
 import java.util.UUID;
-  
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+ 
+import javax.xml.bind.DatatypeConverter;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.XMLGregorianCalendar;
+ 
 import java.io.IOException;
  
-import org.apache.commons.csv.CSVRecord; 
+import org.apache.commons.csv.CSVRecord;
  
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,53 +28,57 @@ import org.json.JSONObject;
 import org.json.JSONArray;
  
 /**
- * Argus data to STIX format extractor.
+ * Sno data to STIX format extractor.
  *
  * @author Maria Vincent
  */
-public class ArgusGraphExtractor {
+public class SnoGraphExtractor {
+	
+ 
 						
-	private static final Logger logger = LoggerFactory.getLogger(ArgusGraphExtractor.class);
-	private static final String PROTOCOL ="Proto";
-	private static final String SOURCE_ADDRESS ="SrcAddr";
-	private static final String SOURCE_PORT = "Sport";
-	private static final String DESTINATION_ADDRESS ="DstAddr";
-	private static final String DESTINATION_PORT ="Dport";
-	private static final String STATE ="State";
+	private static final Logger logger = LoggerFactory.getLogger(SnoGraphExtractor.class);
+	private static final String[] HEADERS = {"file_name", "rec_num", "timet", "site", "proto", "saddr", "daddr", "sport", "dport", "alert_id", "alert_rev", "alert_msg", "icmp_type", 
+																		"icmp_code", "gen_id", "scountrycode", "sorganization", "slat", "slong", "dcountrycode", "dorganization", "dlat", "dlong", "distance"};
+	private static final String[] CUSTOM_FIELDS = {"timet", "site", "alert_id", "alert_rev", "alert_msg", "icmp_type", "icmp_code", "gen_id"};
+	private static final String FILE_NAME = "file_name";
+	private static final String REC_NUM = "rec_num";
+	private static final String TIMET = "timet";
+	private static final String SITE = "site";
+	private static final String PROTO = "proto";
+	private static final String SADDR = "saddr";
+	private static final String DADDR = "daddr";
+	private static final String SPORT = "sport";
+	private static final String DPORT = "dport";
+	private static final String ALERT_ID = "alert_id";
+	private static final String ALERT_REV = "alert_rev";
+	private static final String ALERT_MSG = "alert_msg";												
+	private static final String ICMP_TYPE = "icmp_type";
+	private static final String ICMP_CODE = "icmp_code";
+	private static final String GEN_ID = "gen_id";
+	private static final String SCOUNTRYCODE = "scountrycode";
+	private static final String SORGANIZATION = "sorganization";
+	private static final String SLAT = "slat";
+	private static final String SLONG = "slong";
+	private static final String DCOUNTRYCODE = "dcountrycode";
+	private static final String DORGANIZATION = "dorganization";
+	private static final String DLAT = "dlat";
+	private static final String DLONG = "dlong";
+	private static final String DISTANCE = "distance";
 
-	private String[] HEADERS = null;
-	private HashSet<String> headersSet;
 	private JSONObject graph = null;
 	
-	public ArgusGraphExtractor(final String[] HEADERS, String argusInfo) {
-		this.HEADERS = HEADERS.clone();
-		initHeadersSet();
-		graph = extract(argusInfo);
+	public SnoGraphExtractor(String snoInfo) { 
+		graph = extract(snoInfo);
 	}
 					
 	public JSONObject getGraph() {
 		return graph;
 	}
 
-	/* making a set of headers that would go into custom fields */
-	private void initHeadersSet() {
-		headersSet = new HashSet<String>();		
-		
-		for (int i = 0; i < HEADERS.length; i++) {
-			headersSet.add(HEADERS[i]);
-		}
-		
-		headersSet.remove(PROTOCOL);
-		headersSet.remove(SOURCE_ADDRESS);
-		headersSet.remove(SOURCE_PORT);
-		headersSet.remove(DESTINATION_ADDRESS);
-		headersSet.remove(DESTINATION_PORT);
-	}
-
-	private JSONObject extract (String argusInfo) {
+	private JSONObject extract (String snoInfo) {
 		List<CSVRecord> records;
 		try {
-			records = ExtractorUtils.getCSVRecordsList(HEADERS, argusInfo);
+			records = ExtractorUtils.getCSVRecordsList(HEADERS, snoInfo);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
@@ -95,7 +106,7 @@ public class ArgusGraphExtractor {
 		graph.put("edges", edges);
 		Map<String, String> vertNames = new HashMap<String, String>();
 		Set<String> source = new HashSet<String>();
-		source.add("Argus");
+		source.add("Sno");
 						
 	 	for (int i = start; i < records.size(); i++) {
 
@@ -112,55 +123,61 @@ public class ArgusGraphExtractor {
 			String dstPortID = null;
 			String srcAddressID = null;
 			String dstAddressID = null;
-			String flowID = null;
+			String flowID = null; 
+			String indicatorID = null;
+
+			/* dropping ipv6 for now */
+			if (record.get(SADDR).contains(":") || record.get(DADDR).contains(":")) {
+				continue;
+			}
 						
 			/* source ip */			
-			if (!record.get(SOURCE_ADDRESS).isEmpty()) {
-				srcIp = record.get(SOURCE_ADDRESS);
+			if (!record.get(SADDR).isEmpty()) {
+				srcIp = record.get(SADDR);
 				if (vertNames.containsKey(srcIp)) {
 					srcIpID = vertNames.get(srcIp);
 				} else {
 					srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "Argus");
+					JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "Sno4");
 					vertices.put(srcIpID, srcIpJson);
 					vertNames.put(srcIp, srcIpID);
 				}
 			}
 
 			/* source port */
-				if (!record.get(SOURCE_PORT).isEmpty()) {
-				srcPort = record.get(SOURCE_PORT);
+				if (!record.get(SPORT).isEmpty()) {
+				srcPort = record.get(SPORT);
 				if (vertNames.containsKey(srcPort)) {
 					srcPortID = vertNames.get(srcPort);
 				} else {
 					srcPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject srcPortJson = GraphUtils.setPortJson(srcPortID, srcPort, source, "Argus");
+					JSONObject srcPortJson = GraphUtils.setPortJson(srcPortID, srcPort, source, "Sno4");
 					vertices.put(srcPortID, srcPortJson);
 					vertNames.put(srcPort, srcPortID);
 				}
 			}
 
 			/* destination ip */
-			if (!record.get(DESTINATION_ADDRESS).isEmpty()) {
-				dstIp = record.get(DESTINATION_ADDRESS);
+			if (!record.get(DADDR).isEmpty()) {
+				dstIp = record.get(DADDR);
 				if (vertNames.containsKey(dstIp)) {
 					dstIpID = vertNames.get(dstIp);
 				} else {
 					dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "Argus");
+					JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "Sno4");
 					vertices.put(dstIpID, dstIpJson);
 					vertNames.put(dstIpID, dstIp);
 				}
 			}
 
 			/* destination port */
-			if (!record.get(DESTINATION_PORT).isEmpty()) {
-				dstPort = record.get(DESTINATION_PORT);
+			if (!record.get(DPORT).isEmpty()) {
+				dstPort = record.get(DPORT);
 				if (vertNames.containsKey(dstPort)) {
 					dstPortID = vertNames.get(dstPort);
 				} else {
 					dstPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "Argus");
+					JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "Sno4");
 					vertices.put(dstPortID, dstPortJson);
 					vertNames.put(dstPort, dstPortID);
 				}
@@ -173,7 +190,7 @@ public class ArgusGraphExtractor {
 					srcAddressID = vertNames.get(address);
 				} else {
 					srcAddressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject srcAddressJson = GraphUtils.setAddressJson(srcAddressID, srcIp, srcIpID, srcPort, srcPortID, source, "Argus");
+					JSONObject srcAddressJson = GraphUtils.setAddressJson(srcAddressID, srcIp, srcIpID, srcPort, srcPortID, source, "Sno4");
 					vertices.put(srcAddressID, srcAddressJson);
 					vertNames.put(address, srcAddressID);
 					/* source address -> ip edge */
@@ -192,7 +209,7 @@ public class ArgusGraphExtractor {
 					dstAddressID = vertNames.get(address);
 				} else {
 					dstAddressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstAddressJson = GraphUtils.setAddressJson(dstAddressID, dstIp, dstIpID, dstPort, dstPortID, source, "Argus");
+					JSONObject dstAddressJson = GraphUtils.setAddressJson(dstAddressID, dstIp, dstIpID, dstPort, dstPortID, source, "Sno4");
 					vertices.put(dstAddressID, dstAddressJson);
 					vertNames.put(address, dstAddressID);
 					/* destination address -> ip edge */
@@ -211,8 +228,8 @@ public class ArgusGraphExtractor {
 					flowID = vertNames.get(flow);
 				} else {
 					flowID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					String protocol = (record.get(PROTOCOL).isEmpty()) ? null : record.get(PROTOCOL);
-					JSONObject flowJson = GraphUtils.setFlowJson(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, source, "Argus", record, headersSet);
+					String protocol = (record.get(PROTO).isEmpty()) ? null : record.get(PROTO);
+					JSONObject flowJson = GraphUtils.setFlowJson(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, source, "Sno4", record, CUSTOM_FIELDS);
 					vertices.put(flowID, flowJson);
 					vertNames.put(flowJson.getString("name"), flowID);
 					/* flow -> source address edge */
@@ -223,8 +240,41 @@ public class ArgusGraphExtractor {
 					edges.put(edge);
 				}
 			}
+			
+			/* indicator */
+			if (flowID != null) {
+				/* we do not compare indicators for now */
+				indicatorID = GraphUtils.buildString("stucco:Indicator-", UUID.randomUUID());
+				String alternativeID = record.get(ALERT_ID);
+				XMLGregorianCalendar timestamp = (record.get(TIMET).isEmpty()) ? null : convertTimestamp(record.get(TIMET));
+				String description = record.get(ALERT_MSG);
+				Set<String> alias = new HashSet<String>();
+				alias.add(vertices.getJSONObject(flowID).getString("name"));
+				if (!record.get(ALERT_ID).isEmpty()) {
+					alias.add(record.get(ALERT_ID));
+				}
+				JSONObject indicatorJson = GraphUtils.setIndicatorJson(indicatorID, alternativeID, timestamp, description, alias, flowID, source, "Sno4");
+				vertices.put(indicatorID, indicatorJson);
+				/* indicator -> flow observable edge */
+				JSONObject edge = GraphUtils.setEdgeJson(indicatorID, "Indicator", flowID, "Observable", "Observable");
+				edges.put(edge);
+			}
 		}
 
 		return (vertices.length() == 0 && edges.length() == 0) ? null : graph;
+	}
+
+	public XMLGregorianCalendar convertTimestamp(String time)	{
+		try {
+			Calendar calendar = javax.xml.bind.DatatypeConverter.parseDateTime(time);
+			GregorianCalendar gcalendar = new GregorianCalendar();
+ 			gcalendar.setTimeInMillis(calendar.getTimeInMillis());
+	
+			return DatatypeFactory.newInstance().newXMLGregorianCalendar(gcalendar);
+		} catch (DatatypeConfigurationException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 }

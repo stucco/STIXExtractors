@@ -8,25 +8,27 @@ import org.json.JSONObject;
  
 import org.apache.commons.csv.CSVRecord;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 public abstract class GraphUtils {
 
-	public static JSONObject setIpJson(String ip, String ipID, Object sourceSet, String sourceString) {
+	public static JSONObject setIpJson(String ipID, String ip, Object sourceSet, String sourceString) {
 	  JSONObject ipJson = new JSONObject();
-		ipJson.put("vertexType", "IP");
+		ipJson.put("vertexType", "IP"); 
 		ipJson.put("name", ip);
 		Set<String> description = new HashSet<String>();
 		description.add(ip);
-		ipJson.put("description", (Object)description);
+		ipJson.put("description", (Object)description); 
 		ipJson.put("ipInt", ExtractorUtils.ipToLong(ip));
 		ipJson.put("source", (Object)sourceSet);
 		ipJson.put("observableType", "Address");
-		String ipObservable = TemplatesUtils.setIPObservable(ip, ipID, sourceString);
+		String ipObservable = TemplatesUtils.setIPObservable(ipID, ip, sourceString);
 		ipJson.put("sourceDocument", ipObservable);
 
 		return ipJson;
 	}
 
-	public static JSONObject setPortJson(String port, Object sourceSet, String sourceString) {
+	public static JSONObject setPortJson(String portID, String port, Object sourceSet, String sourceString) {
 		JSONObject portJson = new JSONObject();
 		portJson.put("vertexType", "Observable");
 		portJson.put("name", port);
@@ -35,14 +37,13 @@ public abstract class GraphUtils {
 		portJson.put("description", (Object)description);
 		portJson.put("source", (Object)sourceSet);
 		portJson.put("observableType", "Port");
-		String uuid = UUID.randomUUID().toString();
-		String portObservable = TemplatesUtils.setPortObservable(port, uuid, sourceString);
+		String portObservable = TemplatesUtils.setPortObservable(portID, port, sourceString);
 		portJson.put("sourceDocument", portObservable);
-
+ 
 		return portJson;
 	}
 
-	public static JSONObject setAddressJson(String ip, String ipID, String port, String portID, Set sourceSet, String sourceString) {
+	public static JSONObject setAddressJson(String addressID, String ip, String ipID, String port, String portID, Set sourceSet, String sourceString) {
 		JSONObject addressJson = new JSONObject();
 		addressJson.put("vertexType", "Observable");
 		addressJson.put("name", buildString(ip, ":", port));
@@ -51,15 +52,35 @@ public abstract class GraphUtils {
 		addressJson.put("description", (Object)description);
 		addressJson.put("source", (Object)sourceSet);
 		addressJson.put("observableType", "Socket Address");
-		String uuid = UUID.randomUUID().toString();
-		String addressObservable = TemplatesUtils.setAddressObservable(uuid, ip, ipID, port, portID, sourceString);
+		String addressObservable = TemplatesUtils.setAddressObservable(addressID, ip, ipID, port, portID, sourceString);
 		addressJson.put("sourceDocument", addressObservable);
 
-    return addressJson;
+    return addressJson; 
 	}
 
-	public static JSONObject setFlowJson(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, Set sourceSet, String sourceString, Set<String> headersSet, CSVRecord record) {
-		String flowObservable = TemplatesUtils.setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceString, headersSet, record);
+	public static JSONObject setIndicatorJson(String indicatorID, String alternativeID, XMLGregorianCalendar timestamp, String description, Set alias, String flowID, Set sourceSet, String sourceString) {
+		JSONObject indicatorJson = new JSONObject();
+		indicatorJson.put("vertexType", "Indicator");
+		indicatorJson.put("name", indicatorID);
+		Set<String> descriptionSet = new HashSet<String>();
+		descriptionSet.add(description);
+		indicatorJson.put("description", (Object)descriptionSet);
+		indicatorJson.put("source", (Object)sourceSet);
+		indicatorJson.put("alias", (Object)alias);
+		String indicator = TemplatesUtils.setIndicator(indicatorID, alternativeID, timestamp, description, flowID, sourceString);
+		indicatorJson.put("sourceDocument", indicator);
+
+    return indicatorJson; 
+	}
+
+	public static JSONObject setFlowJson(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, Set sourceSet, String sourceString, CSVRecord record, Set<String> headersSet) {
+		String flowObservable = TemplatesUtils.setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceString, record, headersSet);
+
+		return setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceSet, sourceString, flowObservable);
+	}
+
+	public static JSONObject setFlowJson(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, Set sourceSet, String sourceString, CSVRecord record, String... customFields) {
+		String flowObservable = TemplatesUtils.setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceString, record, customFields);
 
 		return setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceSet, sourceString, flowObservable);
 	}
@@ -123,7 +144,6 @@ public abstract class GraphUtils {
 		httpSessionJson.put("description", (Object)description);
 		httpSessionJson.put("source", (Object)sourceSet);
 		httpSessionJson.put("observableType", "HTTP Session");
-		// httpSessionID, sourceString, requestedURL, method, ampVersion, rawHeader, language, length, date, ipID, dnsNameID, portID, uriID, agent
 		String httpSessionObservable = TemplatesUtils.setHTTPSessionObservable(httpID, sourceString, requestedURL, props);
 		httpSessionJson.put("sourceDocument", httpSessionObservable);
 

@@ -11,6 +11,8 @@ import org.json.JSONObject;
 
 import org.apache.commons.csv.CSVRecord;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 public abstract class TemplatesUtils {
 	private static final Map<String, String> situCustomProperties;
 
@@ -23,7 +25,7 @@ public abstract class TemplatesUtils {
 		map.put("duration", "CPP_Duration"); 
 		map.put("sappbytes", "CPP_SrcAppBytes"); 
 		map.put("dappbytes", "CPP_DstAppBytes");
-		map.put("appbytes", "CPP_AppBytes");
+		map.put("appbytes", "CPP_AppBytes"); 
 		map.put("sbytes", "CPP_SrcBytes");
 		map.put("dbytes", "CPP_DstBytes");
 		map.put("bytes", "CPP_Bytes");
@@ -33,9 +35,9 @@ public abstract class TemplatesUtils {
 		map.put("flgs", "CPP_Flags");
 		situCustomProperties = Collections.unmodifiableMap(map);
 	}
-	
-	protected static String setIPObservable(String ip, String ipID, String source) {
-		String ipObservable = buildString("<cybox:Observable id=\"stucco:ip-", 
+
+	protected static String setIPObservable(String ipID, String ip, String source) {
+		String ipObservable = buildString("<cybox:Observable id=\"", 
 			ipID, 
 			"\" xmlns:AddressObj=\"http://cybox.mitre.org/objects#AddressObject-2\" xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\" xmlns:stucco=\"gov.ornl.stucco\"><cybox:Title>IP</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type>",
 			source,
@@ -45,12 +47,12 @@ public abstract class TemplatesUtils {
     	ip,
     	"</AddressObj:Address_Value></cybox:Properties></cybox:Object></cybox:Observable>"
     );
-	
+	 
 		return ipObservable;
 	}
 
-	protected static String setPortObservable(String port, String portID, String source) {
-		String portObservable = buildString("<cybox:Observable id=\"stucco:port-",
+	protected static String setPortObservable(String portID, String port, String source) {
+		String portObservable = buildString("<cybox:Observable id=\"",
 			portID,
 			"\" xmlns:PortObj=\"http://cybox.mitre.org/objects#PortObject-2\" xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\" xmlns:stucco=\"gov.ornl.stucco\"><cybox:Title>Port</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type>",
 			source, 
@@ -65,7 +67,7 @@ public abstract class TemplatesUtils {
 	}
 
 	protected static String setAddressObservable(String addressID, String ip, String ipID, String port, String portID, String source) {
-		String addressObservable = buildString("<cybox:Observable id=\"stucco:address-",
+		String addressObservable = buildString("<cybox:Observable id=\"",
 			addressID, 
 			"\" xmlns:SocketAddressObj=\"http://cybox.mitre.org/objects#SocketAddressObject-1\" xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\" xmlns:stucco=\"gov.ornl.stucco\"><cybox:Title>Address</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type>",
 			source,
@@ -75,12 +77,12 @@ public abstract class TemplatesUtils {
 			port,
 			"</cybox:Description><cybox:Properties xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"SocketAddressObj:SocketAddressObjectType\">",
 			(ipID == null) ? null : buildString(
-				"<SocketAddressObj:IP_Address object_reference=\"stucco:ip-",
+				"<SocketAddressObj:IP_Address object_reference=\"",
 				ipID,
 				"\"/>"
 			),
 			(portID == null) ? null : buildString(
-				"<SocketAddressObj:Port object_reference=\"stucco:port-",
+				"<SocketAddressObj:Port object_reference=\"",
 				portID,
 				"\"/>"
 			),
@@ -90,13 +92,32 @@ public abstract class TemplatesUtils {
 		return addressObservable;
 	}
 
-	protected static String setFlowObservable(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, String sourceString, Set<String> headersSet, CSVRecord record) {
-		String customProperties = buildCustomProperties(headersSet, record);
+	protected static String setFlowObservable(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, String sourceString, CSVRecord record, Set<String> headersSet) {
+		String customProperties = buildCustomProperties(record, headersSet);
 
 		return setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceString, customProperties);
 	}
 
-	private static String buildCustomProperties(Set<String> headersSet, CSVRecord record) {
+	protected static String setFlowObservable(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, String sourceString, CSVRecord record, String... customFields) {
+		String customProperties = buildCustomProperties(record, customFields);
+
+		return setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceString, customProperties);
+	}
+
+	// private static String buildCustomProperties(Set<String> headersSet, CSVRecord record) {
+	private static String buildCustomProperties(CSVRecord record, Set<String> headersSet) {
+		String customProperties = "";
+		for (String header : headersSet) {
+			if (!record.get(header).isEmpty()) {
+				customProperties = buildString(customProperties, "<cyboxCommon:Property name=\"", header, "\">", record.get(header), "</cyboxCommon:Property>");
+			}
+		}
+
+		return customProperties;
+	}
+
+	// private static String buildCustomProperties(Set<String> headersSet, CSVRecord record) {
+	private static String buildCustomProperties(CSVRecord record, String... headersSet) {
 		String customProperties = "";
 		for (String header : headersSet) {
 			if (!record.get(header).isEmpty()) {
@@ -123,16 +144,15 @@ public abstract class TemplatesUtils {
 		
 		return customProperties;
 	}
-
 	private static String setFlowObservable(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, String sourceString, String customProperties) {
 		String networkFlow = buildString(
 			(srcAddressID == null) ? "" : buildString(
-				"<NetFlowObj:Src_Socket_Address object_reference=\"stucco:address-",
+				"<NetFlowObj:Src_Socket_Address object_reference=\"",
 				srcAddressID,
 				"\"/>"
 			),
 			(dstAddressID == null) ? "" : buildString(
-				"<NetFlowObj:Dest_Socket_Address object_reference=\"stucco:address-",
+				"<NetFlowObj:Dest_Socket_Address object_reference=\"",
 				dstAddressID,
 				"\"/>"
 			),
@@ -151,7 +171,7 @@ public abstract class TemplatesUtils {
 			)
 		);
 		
-		String flowObservable = buildString("<cybox:Observable id=\"stucco:flow-",
+		String flowObservable = buildString("<cybox:Observable id=\"",
 			flowID, 
 			"\" xmlns:NetFlowObj=\"http://cybox.mitre.org/objects#NetworkFlowObject-2\" xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\" xmlns:stucco=\"gov.ornl.stucco\"><cybox:Title>Flow</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type>",
 			sourceString,
@@ -178,11 +198,11 @@ public abstract class TemplatesUtils {
 
 	protected static String setDNSNameObservable(String dnsID, String dnsName, String dnsIpID, String sourceString) {
 		String relatedObject = (dnsIpID == null) ? null : buildString(
-			"<cybox:Related_Objects><cybox:Related_Object idref=\"stucco:ip-",
+			"<cybox:Related_Objects><cybox:Related_Object idref=\"",
 			dnsIpID,
 			"\"><cybox:Relationship>Resolved_To</cybox:Relationship></cybox:Related_Object></cybox:Related_Objects>"
 		);
-		String dnsObservable = buildString("<cybox:Observable xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:stucco=\"gov.ornl.stucco\" id=\"stucco:dnsName-",
+		String dnsObservable = buildString("<cybox:Observable xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:stucco=\"gov.ornl.stucco\" id=\"",
 			dnsID,
 			"\"><cybox:Title>DNSName</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\">",
 			sourceString,
@@ -201,8 +221,8 @@ public abstract class TemplatesUtils {
 	//private static String setHTTPSessionObservable(String httpSessionID, String sourceString, String requestedURL, String method, String ampVersion, String rawHeader, String language, String length, String date, String ipID, String dnsNameID, String portID, String uriID, String agent) {
 	protected static String setHTTPSessionObservable(String httpSessionID, String sourceString, String requestedURL, String... props) {
 		String host = buildString(
-			(props[7] == null) ? null : buildString("<HTTPSessionObj:Domain_Name object_reference=\"stucco:dnsName-", props[7], "\" />"),
-			(props[8] == null) ? null : buildString("<HTTPSessionObj:Port object_reference=\"stucco:port-", props[8], "\" />")
+			(props[7] == null) ? null : buildString("<HTTPSessionObj:Domain_Name object_reference=\"", props[7], "\" />"),
+			(props[8] == null) ? null : buildString("<HTTPSessionObj:Port object_reference=\"", props[8], "\" />")
 		);
 		String rawHeader = buildString(
 			"<HTTPSessionObj:Raw_Header>", props[2], "</HTTPSessionObj:Raw_Header>"
@@ -212,9 +232,9 @@ public abstract class TemplatesUtils {
 			(props[3] == null) ? null : buildString("<HTTPSessionObj:Accept_Language>", props[3], "</HTTPSessionObj:Accept_Language>"),
 			(props[4] == null) ? null : buildString("<HTTPSessionObj:Content_Length>", props[4], "</HTTPSessionObj:Content_Length>"),
 			(props[5] == null) ? null : buildString("<HTTPSessionObj:Date>", props[5], "</HTTPSessionObj:Date>"),
-			(props[6] == null) ? null : buildString("<HTTPSessionObj:From object_reference=\"stucco:ip-", props[6],"\" />"),
+			(props[6] == null) ? null : buildString("<HTTPSessionObj:From object_reference=\"", props[6],"\" />"),
 			(host == null) ? null : buildString("<HTTPSessionObj:Host>", host, "</HTTPSessionObj:Host>"),
-			(props[9] == null) ? null : buildString("<HTTPSessionObj:Referer object_reference=\"stucco:Observable-", props[9], "\" />"),
+			(props[9] == null) ? null : buildString("<HTTPSessionObj:Referer object_reference=\"", props[9], "\" />"),
 			(props[10] == null) ? null : buildString("<HTTPSessionObj:User_Agent>", props[10], "</HTTPSessionObj:User_Agent>"),
 			"</HTTPSessionObj:Parsed_Header>"
 		);
@@ -227,7 +247,7 @@ public abstract class TemplatesUtils {
 			)
 		);
 
-		String httpSessionObservable = buildString("<cybox:Observable xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:stucco=\"gov.ornl.stucco\" id=\"stucco:httpRequest-",
+		String httpSessionObservable = buildString("<cybox:Observable xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:stucco=\"gov.ornl.stucco\" id=\"",
 			httpSessionID,
 			"\"><cybox:Title>HTTPRequest</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\">",
 			sourceString,
@@ -248,7 +268,7 @@ public abstract class TemplatesUtils {
 	}
 
 	protected static String setURIObservable(String uriID, String uri) {
-		String uriObservable = buildString("<cybox:Observable xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:stucco=\"gov.ornl.stucco\" id=\"stucco:Observable-",
+		String uriObservable = buildString("<cybox:Observable xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:stucco=\"gov.ornl.stucco\" id=\"",
 			uriID,
 			"\"><cybox:Object><cybox:Properties xmlns:URIObj=\"http://cybox.mitre.org/objects#URIObject-2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"URIObj:URIObjectType\"><URIObj:Value>",
 			uri,
@@ -256,6 +276,23 @@ public abstract class TemplatesUtils {
 		);
 
 		return uriObservable;
+	}
+
+	protected static String setIndicator(String indicatorID, String alternativeID, XMLGregorianCalendar timestamp, String description, String flowID, String source) {
+		String indicator = buildString(
+			"<indicator:Indicator xmlns:indicator=\"http://stix.mitre.org/Indicator-2\" xmlns:stixCommon=\"http://stix.mitre.org/common-1\" xmlns:stucco=\"gov.ornl.stucco\" id=\"",
+			indicatorID,
+			"\" ",
+			(timestamp == null) ? "" : buildString(" timestamp=\"", timestamp, "\" "),
+			">",
+			(alternativeID == null) ? "" : buildString("<indicator:Alternative_ID>", alternativeID, "</indicator:Alternative_ID>"),
+			(description == null) ? "" : buildString("<indicator:Description>", description, "</indicator:Description>"),
+			(flowID == null) ? "" : buildString("<indicator:Observable idref=\"", flowID, "\"/>"),
+			(source == null) ? "" : buildString("<indicator:Producer><stixCommon:Identity><stixCommon:Name>", source, "</stixCommon:Name></stixCommon:Identity></indicator:Producer>"),
+			"</indicator:Indicator>"
+		);
+
+		return indicator.toString();
 	}
 
 	/**

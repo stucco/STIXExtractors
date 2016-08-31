@@ -120,8 +120,8 @@ public class HTTPDataGraphExtractor {
 				if (vertNames.containsKey(srcIp)) {
 					srcIpID = vertNames.get(srcIp);
 				} else {
-					srcIpID = UUID.randomUUID().toString();
-					JSONObject srcIpJson = GraphUtils.setIpJson(srcIp, srcIpID, source, "HTTPRequest");
+					srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "HTTPRequest");
 					vertices.put(srcIpID, srcIpJson);
 					vertNames.put(srcIp, srcIpID);
 				}
@@ -133,8 +133,8 @@ public class HTTPDataGraphExtractor {
 				if (vertNames.containsKey(dstIp)) {
 					dstIpID = vertNames.get(dstIp);
 				} else {
-					dstIpID = UUID.randomUUID().toString();
-					JSONObject dstIpJson = GraphUtils.setIpJson(dstIp, dstIpID, source, "HTTPRequest");
+					dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "HTTPRequest");
 					vertices.put(dstIpID, dstIpJson);
 					vertNames.put(dstIpID, dstIp);
 				}
@@ -146,8 +146,8 @@ public class HTTPDataGraphExtractor {
 				if (vertNames.containsKey(dstPort)) {
 					dstPortID = vertNames.get(dstPort);
 				} else {
-					dstPortID = UUID.randomUUID().toString();
-					JSONObject dstPortJson = GraphUtils.setPortJson(dstPort, source, "HTTPRequest");
+					dstPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "HTTPRequest");
 					vertices.put(dstPortID, dstPortJson);
 					vertNames.put(dstPort, dstPortID);
 				}
@@ -159,7 +159,7 @@ public class HTTPDataGraphExtractor {
 				if (vertNames.containsKey(dnsName)) {
 					dnsNameID = vertNames.get(dnsName);
 				} else {
-					dnsNameID = UUID.randomUUID().toString();
+					dnsNameID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
 					JSONObject dnsNameJson = GraphUtils.setDNSNameJson(dnsNameID, dnsName, dstIpID, source, "HTTPRequest");
 					vertices.put(dnsNameID, dnsNameJson);
 					vertNames.put(dnsName, dnsNameID);
@@ -180,7 +180,7 @@ public class HTTPDataGraphExtractor {
 				if (vertNames.containsKey(uri)) {
 					uriID = vertNames.get(uri);
 				} else {
-					uriID =  UUID.randomUUID().toString();
+					uriID =  GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
 					JSONObject uriJson = GraphUtils.setURIJson(uriID, uri, source);
 					vertices.put(uriID, uriJson);
 					vertNames.put(uri, uriID);
@@ -193,7 +193,7 @@ public class HTTPDataGraphExtractor {
 				if (vertNames.containsKey(request)) {
 					httpSessionID = vertNames.get(request);
 				} else {
-					httpSessionID = UUID.randomUUID().toString();
+					httpSessionID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
 					JSONObject httpSessionJson = GraphUtils.setHTTPSessionJson(
 						httpSessionID,
 						source, 
