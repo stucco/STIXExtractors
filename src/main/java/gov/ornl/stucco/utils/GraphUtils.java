@@ -140,7 +140,7 @@ public abstract class GraphUtils {
 		httpSessionJson.put("vertexType", "Observable");
 		httpSessionJson.put("name", fullData);
 		Set<String> description = new HashSet<String>();
-		description.add(buildString("HTTP request of ", fullData));
+		description.add(buildString("HTTP request: ", fullData));
 		httpSessionJson.put("description", (Object)description);
 		httpSessionJson.put("source", (Object)sourceSet);
 		httpSessionJson.put("observableType", "HTTP Session");
