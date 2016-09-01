@@ -26,7 +26,7 @@ public class HTTPDataGraphExtractorTest extends STIXUtils {
 			if (name.equals(vert.getString("name"))) {
 				return vert;
 			}
-		}
+		} 
 
 		return null;
 	}

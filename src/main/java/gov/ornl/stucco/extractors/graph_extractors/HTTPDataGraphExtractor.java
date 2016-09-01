@@ -105,6 +105,7 @@ public class HTTPDataGraphExtractor {
 			String dnsName = null;
 			String uri = null;
 			String fullData = null;
+			String referer = null;
 
 			String srcIpID = null;
 			String dstIpID = null;
@@ -112,6 +113,7 @@ public class HTTPDataGraphExtractor {
 			String dnsNameID = null;
 			String uriID = null;
 			String httpSessionID = null;
+			String refererID = null;
 		
 			/* source ip vert */
 			if (!record.get(SADDR).isEmpty()) {
@@ -186,6 +188,19 @@ public class HTTPDataGraphExtractor {
 				}
 			}
 
+			/* requested uri vertex */
+			if (!record.get(REFERER).isEmpty()) {
+				referer = record.get(REFERER);
+				if (vertNames.containsKey(referer)) {
+					refererID = vertNames.get(referer);
+				} else {
+					refererID =  GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					JSONObject uriJson = GraphUtils.setURIJson(refererID, referer, source);
+					vertices.put(refererID, uriJson);
+					vertNames.put(referer, refererID);
+				}
+			}
+
 			/* http session vertex */
 			if (!record.get(FULL_DATA).isEmpty()) {
 				fullData = record.get(FULL_DATA);
@@ -193,7 +208,7 @@ public class HTTPDataGraphExtractor {
 					httpSessionID = vertNames.get(fullData);
 				} else {
 					httpSessionID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					String sourceDocument = setHTTPSessionObservable(httpSessionID, record, srcIpID, dnsNameID, dstPortID, uriID);
+					String sourceDocument = setHTTPSessionObservable(httpSessionID, record, srcIpID, dnsNameID, dstPortID, uriID, refererID);
 					JSONObject httpSessionJson = GraphUtils.setHTTPSessionJson(httpSessionID, source, "HTTPRequest", fullData, sourceDocument);
 
 
@@ -233,13 +248,22 @@ public class HTTPDataGraphExtractor {
 					edges.put(edge);
 					edgeNames.add(edgeName);
 				}
+
+				/* http session -> referer uri edge */
+				edgeName = GraphUtils.buildString(httpSessionID, refererID);
+				newEdge =  !edgeNames.contains(edgeName);
+				if (newEdge) {
+					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", refererID, "Observable", "Sub-Observable");
+					edges.put(edge);
+					edgeNames.add(edgeName);
+				}
 			}
 		}
 
 		return (edges.length() == 0 && vertices.length() == 0) ? null : graph;		
 	}
 
-	private static String setHTTPSessionObservable(String httpSessionID, CSVRecord record, String srcIpID, String dnsNameID, String dstPortID, String uriID) {
+	private static String setHTTPSessionObservable(String httpSessionID, CSVRecord record, String srcIpID, String dnsNameID, String dstPortID, String uriID, String refererID) {
 		String host = GraphUtils.buildString(
 			(dnsNameID == null) ? "" : GraphUtils.buildString("<HTTPSessionObj:Domain_Name object_reference=\"", dnsNameID, "\" />"),
 			(dstPortID == null) ? "" : GraphUtils.buildString("<HTTPSessionObj:Port object_reference=\"", dstPortID, "\" />")
@@ -254,7 +278,7 @@ public class HTTPDataGraphExtractor {
 			(record.get(LAST_SEEN_TIMET).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Date>", record.get(LAST_SEEN_TIMET), "</HTTPSessionObj:Date>"),
 			(srcIpID == null) ? "" : GraphUtils.buildString("<HTTPSessionObj:From object_reference=\"", srcIpID,"\" />"),
 			(host.isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Host>", host, "</HTTPSessionObj:Host>"),
-		//	(record.get(REFERER).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Referer object_reference=\"", record.get(REFERER), "\" />"),
+			(refererID == null) ? "" : GraphUtils.buildString("<HTTPSessionObj:Referer idref=\"", refererID, "\" />"),
 			(record.get(USER_AGENT).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:User_Agent>", record.get(USER_AGENT), "</HTTPSessionObj:User_Agent>"),
 			"</HTTPSessionObj:Parsed_Header>"
 		);
@@ -269,14 +293,14 @@ public class HTTPDataGraphExtractor {
 			httpSessionID,
 			"\"><cybox:Title>HTTPRequest</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\">",
 			"HTTPRequest",
-			"</cyboxCommon:Information_Source_Type></cybox:Observable_Source><cybox:Object><cybox:Description>HTTP request of ",
+			"</cyboxCommon:Information_Source_Type></cybox:Observable_Source><cybox:Object><cybox:Description>HTTP request: ",
 			record.get(REQUEST),
 			"</cybox:Description><cybox:Properties xmlns:HTTPSessionObj=\"http://cybox.mitre.org/objects#HTTPSessionObject-2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"HTTPSessionObj:HTTPSessionObjectType\"><HTTPSessionObj:HTTP_Request_Response><HTTPSessionObj:HTTP_Client_Request><HTTPSessionObj:HTTP_Request_Line>",
 			(record.get(METHOD).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:HTTP_Method>", record.get(METHOD), "</HTTPSessionObj:HTTP_Method>"),
-			"<HTTPSessionObj:Value>",
-			record.get(REQUEST),
-			"</HTTPSessionObj:Value>",
-			(record.get(AMP_VERSION).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Version>", record.get(AMP_VERSION).isEmpty(),"</HTTPSessionObj:Version>"),
+			"<HTTPSessionObj:Value idref=\"",
+			uriID,
+			"\" >",
+			(record.get(AMP_VERSION).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Version>", record.get(AMP_VERSION),"</HTTPSessionObj:Version>"),
 			"</HTTPSessionObj:HTTP_Request_Line>",
 			httpRequestHeader,
 			"</HTTPSessionObj:HTTP_Client_Request></HTTPSessionObj:HTTP_Request_Response></cybox:Properties></cybox:Object></cybox:Observable>"
