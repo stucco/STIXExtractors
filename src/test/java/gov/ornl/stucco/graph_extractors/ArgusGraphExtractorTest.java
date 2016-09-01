@@ -26,7 +26,7 @@ public class ArgusGraphExtractorTest	{
 
 		return null;
 	}
-
+  
 	private String getVertIDByName(String name, JSONObject vertices) {
 		for (Object key : vertices.keySet()) {
 			JSONObject vert = vertices.getJSONObject(key.toString());
@@ -68,7 +68,7 @@ public class ArgusGraphExtractorTest	{
 	public void test_empty_document()	{
 
 		System.out.println();
-		System.out.println("STIXExtractor.ArgusExtractorTest.test_empty_document()");
+		System.out.println("STIXExtractor.ArgusGraphGraphExtractorTest.test_empty_document()");
 
 		String[] headers = "StartTime,Flgs,Proto,SrcAddr,Sport,Dir,DstAddr,Dport,TotPkts,TotBytes,State".split(",");
 		String argusInfo = "";
@@ -86,7 +86,7 @@ public class ArgusGraphExtractorTest	{
 	@Test
 	public void test_one_element_with_header_to_graph()	throws SAXException {
 		System.out.println();
-		System.out.println("STIXExtractor.ArgusExtractorTest.test_one_element_with_header()");
+		System.out.println("STIXExtractor.ArgusGraphExtractorTest.test_one_element_with_header()");
 
 		String[] headers = "StartTime,Flgs,Proto,SrcAddr,Sport,Dir,DstAddr,Dport,TotPkts,TotBytes,State".split(",");
 		String argusInfo = "1373553586.136399, e s,6,10.10.10.1,56867,->,10.10.10.100,22,8,585,";

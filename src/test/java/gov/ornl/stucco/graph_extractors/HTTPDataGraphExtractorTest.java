@@ -166,7 +166,7 @@ public class HTTPDataGraphExtractorTest extends STIXUtils {
 		"      \"observableType\": \"HTTP Session\" " +
 		"    }, " +
 		"    \"stucco:Observable-306731ac-f1a3-4ca4-988b-c5e65016d238\": { " +
-		"      \"sourceDocument\": \"<cybox:Observable xmlns:cybox=\\\"http://cybox.mitre.org/cybox-2\\\" xmlns:stucco=\\\"gov.ornl.stucco\\\" id=\\\"stucco:Observable-306731ac-f1a3-4ca4-988b-c5e65016d238\\\"><cybox:Object><cybox:Properties xmlns:URIObj=\\\"http://cybox.mitre.org/objects#URIObject-2\\\" xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\" xsi:type=\\\"URIObj:URIObjectType\\\"><URIObj:Value>http://portal.tds.net/?inc=4</URIObj:Value></cybox:Properties></cybox:Object></cybox:Observable>\", " +
+		"      \"sourceDocument\": \"<cybox:Observable xmlns:cybox=\\\"http://cybox.mitre.org/cybox-2\\\" xmlns:stucco=\\\"gov.ornl.stucco\\\" id=\\\"stucco:Observable-306731ac-f1a3-4ca4-988b-c5e65016d238\\\"><cybox:Object><cybox:Properties xmlns:URIObj=\\\"http://cybox.mitre.org/objects#URIObject-2\\\" xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\" xsi:type=\\\"URIObj:URIObjectType\\\"><URIObj:Value>/tv2n/vpaid/8bc5b7b</URIObj:Value></cybox:Properties></cybox:Object></cybox:Observable>\", " +
 		"      \"vertexType\": \"Observable\", " +
 		"      \"name\": \"http://portal.tds.net/?inc=4\", " +
 		"      \"observableType\": \"URI\" " +
@@ -269,7 +269,7 @@ public class HTTPDataGraphExtractorTest extends STIXUtils {
 		assertTrue(sourceObservable.validate());
 
 		System.out.println("Testing URI ... ");
-		JSONObject receivedUri = getVertByName("http://portal.tds.net/?inc=4", receivedVertices);
+		JSONObject receivedUri = getVertByName("/tv2n/vpaid/8bc5b7b", receivedVertices);
 		JSONObject expectedUri = expectedVertices.getJSONObject("stucco:Observable-306731ac-f1a3-4ca4-988b-c5e65016d238");
 		equals = compareVertProperties(receivedUri, expectedUri);
 		assertTrue(equals);	
@@ -278,7 +278,7 @@ public class HTTPDataGraphExtractorTest extends STIXUtils {
 		assertTrue(sourceObservable.validate());
 
 		System.out.println("Testing HTTP Session ... ");
-		JSONObject receivedHttp = getVertByName("/tv2n/vpaid/8bc5b7b", receivedVertices);
+		JSONObject receivedHttp = getVertByName("GET /tv2n/vpaid/8bc5b7b", receivedVertices);
 		JSONObject expectedHttp = expectedVertices.getJSONObject("stucco:httpRequest-70114697-9ea6-4bd3-a0ff-4f578df1313b");
 		equals = compareVertProperties(receivedHttp, expectedHttp);
 		assertTrue(equals);	
@@ -290,26 +290,26 @@ public class HTTPDataGraphExtractorTest extends STIXUtils {
 		JSONArray receivedEdges = receivedGraph.getJSONArray("edges");
 
 		System.out.println("Testing HTTP Session -> IP ... ");
-		String httpID = getVertIDByName("/tv2n/vpaid/8bc5b7b", receivedVertices);
+		String httpID = getVertIDByName("GET /tv2n/vpaid/8bc5b7b", receivedVertices);
 		String addressID = getVertIDByName("128.219.49.13", receivedVertices);
 		JSONObject expectedEdge = getEdgeByProps(httpID, addressID, "Sub-Observable", receivedEdges);
 		assertNotNull(expectedEdge); 
 
 		System.out.println("Testing HTTP Session -> Domain Name ... ");
-		httpID = getVertIDByName("/tv2n/vpaid/8bc5b7b", receivedVertices);
+		httpID = getVertIDByName("GET /tv2n/vpaid/8bc5b7b", receivedVertices);
 		String dnsID = getVertIDByName("cdn455.telemetryverification.net", receivedVertices);
 		expectedEdge = getEdgeByProps(httpID, dnsID, "Sub-Observable", receivedEdges);
 		assertNotNull(expectedEdge); 
 
 		System.out.println("Testing HTTP Session -> Port ... ");
-		httpID = getVertIDByName("/tv2n/vpaid/8bc5b7b", receivedVertices);
+		httpID = getVertIDByName("GET /tv2n/vpaid/8bc5b7b", receivedVertices);
 		String portID = getVertIDByName("80", receivedVertices);
 		expectedEdge = getEdgeByProps(httpID, portID, "Sub-Observable", receivedEdges);
 		assertNotNull(expectedEdge); 
 
 		System.out.println("Testing HTTP Session -> URI ... ");
-		httpID = getVertIDByName("/tv2n/vpaid/8bc5b7b", receivedVertices);
-		String uriID = getVertIDByName("http://portal.tds.net/?inc=4", receivedVertices);
+		httpID = getVertIDByName("GET /tv2n/vpaid/8bc5b7b", receivedVertices);
+		String uriID = getVertIDByName("/tv2n/vpaid/8bc5b7b", receivedVertices);
 		expectedEdge = getEdgeByProps(httpID, uriID, "Sub-Observable", receivedEdges);
 		assertNotNull(expectedEdge); 
 

@@ -21,34 +21,46 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 /**
- * CPP HTTP data to Graph format extractor. 
+ * CPP HTTP REQUEST data to Graph format extractor. 
  *
  * @author Maria Vincent
  */
-public class HTTPDataGraphExtractor {
+public class HTTPRDataGraphExtractor {
 						
-	private static final Logger logger = LoggerFactory.getLogger(HTTPDataGraphExtractor.class);
-	private static String[] HEADERS = {"filename", "recnum", "file_type", "amp_version", "site", "saddr", "daddr", "request_len", "dport", "times_seen", "first_seen_timet",	
-					"last_seen_timet", "method", "request", "query_terms", "accept_language", "user_agent", "server_fqdn", "referer", "uri", "clean_data", 
-					"full_data", "scountrycode", "sorganization", "slat", "slong", "dcountrycode", "dorganization", "dlat", "dlong", "distance"}; 
-	static final String FILENAME = "filename";
-	static final String AMP_VERSION = "amp_version";
-	static final String SADDR = "saddr";
-	static final String REQUEST_LEN = "request_len";
-	static final String DPORT = "dport";
-	static final String LAST_SEEN_TIMET = "last_seen_timet";
-	static final String METHOD = "method";
-	static final String REQUEST = "request";
-	static final String ACCEPT_LANGUAGE = "accept_language";
-	static final String USER_AGENT = "user_agent";
-	static final String SERVER_FQDN = "server_fqdn";
-	static final String REFERER = "referer";
-	static final String FULL_DATA = "full_data";
-	static final String DADDR = "daddr";		
+	private static final Logger logger = LoggerFactory.getLogger(HTTPRDataGraphExtractor.class);
+	private static String[] HEADERS = {"filename", "recnum", "file_type", "amp_version", "site", "saddr", "daddr", "request_len", "dport",
+				"times_seen", "first_seen", "last_seen", "raw_header", "method", "uri", "proto", "terms", "bad", "headers", "accept_language",
+				"accept_encoding", "accept_charset", "user_agent", "host", "referer", "scc", "sorg", "slat", "slon", "dcc", "dorg", "dlat", "dlon", "distance"};
+
+	static final String	FILENAME = "filename";
+	static final String RECNUM = "recnum";
+	static final String	FILE_TYPE = "file_type";
+	static final String	AMP_VERSION = "amp_version";
+	static final String	SITE = "site";
+	static final String	SADDR = "saddr";
+	static final String	DADDR = "daddr";
+	static final String	REQUEST_LEN = "request_len";
+	static final String	DPORT = "dport";
+	static final String	TIMES_SEEN = "times_seen";
+	static final String	FIRST_SEEN = "first_seen";
+	static final String	LAST_SEEN = "last_seen";
+	static final String	RAW_HEADER = "raw_header";
+	static final String	METHOD = "method";
+	static final String	URI = "uri";
+	static final String	PROTO = "proto";
+	static final String	TERMS = "terms";
+	static final String	BAD = "bad";
+	static final String	ACCEPT_LANGUAGE = "accept_language";
+	static final String	ACCEPT_ENCODING = "accept_encoding";
+	static final String	ACCEPT_CHARSET = "accept_charset";
+	static final String	USER_AGENT = "user_agent";
+	static final String	HOST = "host";
+	static final String	REFERER = "referer";
+
 	
-	private JSONObject graph;
+		private JSONObject graph;
 	
-	public HTTPDataGraphExtractor(String httpInfo) {
+	public HTTPRDataGraphExtractor(String httpInfo) {
 		graph = extract(httpInfo);
 	}
 					
@@ -95,7 +107,7 @@ public class HTTPDataGraphExtractor {
 		for (int i = start; i < records.size(); i++) {
 			record = records.get(i);
 
-			if (record.get(SADDR).isEmpty() && record.get(DADDR).isEmpty() && record.get(SERVER_FQDN).isEmpty() && record.get(REQUEST).isEmpty()) {
+			if (record.get(SADDR).isEmpty() && record.get(DADDR).isEmpty() && record.get(URI).isEmpty()) {
 				continue;
 			}
 
@@ -120,7 +132,7 @@ public class HTTPDataGraphExtractor {
 					srcIpID = vertNames.get(srcIp);
 				} else {
 					srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "HTTPRequest");
+					JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "HTTPRRequest");
 					vertices.put(srcIpID, srcIpJson);
 					vertNames.put(srcIp, srcIpID);
 				}
@@ -133,7 +145,7 @@ public class HTTPDataGraphExtractor {
 					dstIpID = vertNames.get(dstIp);
 				} else {
 					dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "HTTPRequest");
+					JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "HTTPRRequest");
 					vertices.put(dstIpID, dstIpJson);
 					vertNames.put(dstIpID, dstIp);
 				}
@@ -146,20 +158,20 @@ public class HTTPDataGraphExtractor {
 					dstPortID = vertNames.get(dstPort);
 				} else {
 					dstPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "HTTPRequest");
+					JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "HTTPRRequest");
 					vertices.put(dstPortID, dstPortJson);
 					vertNames.put(dstPort, dstPortID);
 				}
 			}
 
 			/* server domain name vert */
-			if (!record.get(SERVER_FQDN).isEmpty()) {
-				dnsName = record.get(SERVER_FQDN);
+			if (!record.get(HOST).isEmpty()) {
+				dnsName = record.get(HOST);
 				if (vertNames.containsKey(dnsName)) {
 					dnsNameID = vertNames.get(dnsName);
 				} else {
 					dnsNameID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dnsNameJson = GraphUtils.setDNSNameJson(dnsNameID, dnsName, dstIpID, source, "HTTPRequest");
+					JSONObject dnsNameJson = GraphUtils.setDNSNameJson(dnsNameID, dnsName, dstIpID, source, "HTTPRRequest");
 					vertices.put(dnsNameID, dnsNameJson);
 					vertNames.put(dnsName, dnsNameID);
 				}
@@ -174,8 +186,8 @@ public class HTTPDataGraphExtractor {
 			}
 
 			/* requested uri vertex */
-			if (!record.get(REQUEST).isEmpty()) {
-				uri = record.get(REQUEST);
+			if (!record.get(URI).isEmpty()) {
+				uri = record.get(URI);
 				if (vertNames.containsKey(uri)) {
 					uriID = vertNames.get(uri);
 				} else {
@@ -187,14 +199,14 @@ public class HTTPDataGraphExtractor {
 			}
 
 			/* http session vertex */
-			if (!record.get(FULL_DATA).isEmpty()) {
-				fullData = record.get(FULL_DATA);
+			if (!record.get(RAW_HEADER).isEmpty()) {
+				fullData = record.get(RAW_HEADER);
 				if (vertNames.containsKey(fullData)) {
 					httpSessionID = vertNames.get(fullData);
 				} else {
 					httpSessionID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
 					String sourceDocument = setHTTPSessionObservable(httpSessionID, record, srcIpID, dnsNameID, dstPortID, uriID);
-					JSONObject httpSessionJson = GraphUtils.setHTTPSessionJson(httpSessionID, source, "HTTPRequest", fullData, sourceDocument);
+					JSONObject httpSessionJson = GraphUtils.setHTTPSessionJson(httpSessionID, source, "HTTPRRequest", fullData, sourceDocument);
 
 
 
@@ -245,13 +257,15 @@ public class HTTPDataGraphExtractor {
 			(dstPortID == null) ? "" : GraphUtils.buildString("<HTTPSessionObj:Port object_reference=\"", dstPortID, "\" />")
 		);
 		String rawHeader = GraphUtils.buildString(
-			"<HTTPSessionObj:Raw_Header>", record.get(FULL_DATA), "</HTTPSessionObj:Raw_Header>"
+			"<HTTPSessionObj:Raw_Header>", record.get(RAW_HEADER), "</HTTPSessionObj:Raw_Header>"
 		);
 		String parsedHeader = GraphUtils.buildString(
 			"<HTTPSessionObj:Parsed_Header>",
+			(record.get(ACCEPT_CHARSET).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Accept_Language>", record.get(ACCEPT_CHARSET), "</HTTPSessionObj:Accept_Language>"),
 			(record.get(ACCEPT_LANGUAGE).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Accept_Language>", record.get(ACCEPT_LANGUAGE), "</HTTPSessionObj:Accept_Language>"),
+			(record.get(ACCEPT_ENCODING).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Accept_Language>", record.get(ACCEPT_ENCODING), "</HTTPSessionObj:Accept_Language>"),
 			(record.get(REQUEST_LEN).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Content_Length>", record.get(REQUEST_LEN), "</HTTPSessionObj:Content_Length>"),
-			(record.get(LAST_SEEN_TIMET).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Date>", record.get(LAST_SEEN_TIMET), "</HTTPSessionObj:Date>"),
+			(record.get(LAST_SEEN).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Date>", record.get(LAST_SEEN), "</HTTPSessionObj:Date>"),
 			(srcIpID == null) ? "" : GraphUtils.buildString("<HTTPSessionObj:From object_reference=\"", srcIpID,"\" />"),
 			(host.isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Host>", host, "</HTTPSessionObj:Host>"),
 		//	(record.get(REFERER).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Referer object_reference=\"", record.get(REFERER), "\" />"),
@@ -270,11 +284,11 @@ public class HTTPDataGraphExtractor {
 			"\"><cybox:Title>HTTPRequest</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\">",
 			"HTTPRequest",
 			"</cyboxCommon:Information_Source_Type></cybox:Observable_Source><cybox:Object><cybox:Description>HTTP request of ",
-			record.get(REQUEST),
+			record.get(RAW_HEADER),
 			"</cybox:Description><cybox:Properties xmlns:HTTPSessionObj=\"http://cybox.mitre.org/objects#HTTPSessionObject-2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"HTTPSessionObj:HTTPSessionObjectType\"><HTTPSessionObj:HTTP_Request_Response><HTTPSessionObj:HTTP_Client_Request><HTTPSessionObj:HTTP_Request_Line>",
 			(record.get(METHOD).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:HTTP_Method>", record.get(METHOD), "</HTTPSessionObj:HTTP_Method>"),
 			"<HTTPSessionObj:Value>",
-			record.get(REQUEST),
+			record.get(URI),
 			"</HTTPSessionObj:Value>",
 			(record.get(AMP_VERSION).isEmpty()) ? "" : GraphUtils.buildString("<HTTPSessionObj:Version>", record.get(AMP_VERSION).isEmpty(),"</HTTPSessionObj:Version>"),
 			"</HTTPSessionObj:HTTP_Request_Line>",

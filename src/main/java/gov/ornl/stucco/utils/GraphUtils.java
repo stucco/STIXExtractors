@@ -135,6 +135,21 @@ public abstract class GraphUtils {
 		return uriJson;
 	}
 
+	public static JSONObject setHTTPSessionJson(String httpID, Set sourceSet, String sourceString, String fullData, String sourceDocument) {
+		JSONObject httpSessionJson = new JSONObject();
+		httpSessionJson.put("vertexType", "Observable");
+		httpSessionJson.put("name", fullData);
+		Set<String> description = new HashSet<String>();
+		description.add(buildString("HTTP request of ", fullData));
+		httpSessionJson.put("description", (Object)description);
+		httpSessionJson.put("source", (Object)sourceSet);
+		httpSessionJson.put("observableType", "HTTP Session");
+		httpSessionJson.put("sourceDocument", sourceDocument);
+
+		return httpSessionJson;
+	}
+
+/*
 	public static JSONObject setHTTPSessionJson(String httpID, Set sourceSet, String sourceString, String requestedURL, String ... props) {
 		JSONObject httpSessionJson = new JSONObject();
 		httpSessionJson.put("vertexType", "Observable");
@@ -149,7 +164,7 @@ public abstract class GraphUtils {
 
 		return httpSessionJson;
 	}
-
+*/
 	public static JSONObject setEdgeJson(String outVertID, String outVertTable, String inVertID, String inVertTable, String relation) {
 		JSONObject edge = new JSONObject();
 		edge.put("outVertID", outVertID);
