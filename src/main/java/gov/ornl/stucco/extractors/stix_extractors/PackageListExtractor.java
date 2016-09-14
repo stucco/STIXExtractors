@@ -110,8 +110,7 @@ public class PackageListExtractor extends STIXUtils {
 				hostObservable
 					.getObject()
 						.withRelatedObjects(new RelatedObjectsType()
-							.withRelatedObjects(setRelatedObject(softwareObservable.getId(), "Runs", 
-								record.get(HOSTNAME) + " runs " + record.get(PACKAGE) + "_" + record.get(VERSION), "PackageList")));
+							.withRelatedObjects(setRelatedObject(softwareObservable.getId())));
 			}
 
 			if (hostObservable != null) {

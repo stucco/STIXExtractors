@@ -122,7 +122,7 @@ public class LoginEventExtractor extends STIXUtils {
 				/* account -> hostname relation */
 				if (hostnameObservable != null) {
 					relatedObjects.add(
-						setRelatedObject(hostnameObservable.getId(), "Logs_In_To", record.get(USER) + " logs in to " + record.get(HOSTNAME), "LoginEvent")  
+						setRelatedObject(hostnameObservable.getId())  
 							.withState(new ControlledVocabularyStringType()
 								.withValue(record.get(STATUS)))
 							.withProperties(new UserSession()
@@ -133,7 +133,7 @@ public class LoginEventExtractor extends STIXUtils {
 				/* account -> ip relation */
 				if (ipObservable != null) {
 					relatedObjects.add(
-						setRelatedObject(hostAtIpObservable.getId(), "Logs_In_From", record.get(USER) + " logs in from host at " + record.get(FROM_IP), "LoginEvent") 
+						setRelatedObject(hostAtIpObservable.getId()) 
 							.withState(new ControlledVocabularyStringType()
 								.withValue(record.get(STATUS)))
 							.withProperties(new UserSession()
@@ -155,7 +155,7 @@ public class LoginEventExtractor extends STIXUtils {
 					hostnameObservable
 						.getObject()
 							.withRelatedObjects(new RelatedObjectsType()
-								.withRelatedObjects(setRelatedObject(softwareObservable.getId(), "Runs", record.get(HOSTNAME) + " runs " + record.get(LOGIN_SOFTWARE), "LoginEvent")));
+								.withRelatedObjects(setRelatedObject(softwareObservable.getId())));
 				}
 				observables
 					.withObservables(hostnameObservable);
@@ -168,7 +168,7 @@ public class LoginEventExtractor extends STIXUtils {
 						.getObject()
 							.withRelatedObjects(new RelatedObjectsType()
 								.withRelatedObjects(
-									setRelatedObject(ipObservable.getId(), "Resolved_To", "host_at_" + record.get(FROM_IP) + " resolved to IP " + record.get(FROM_IP), "LoginEvent")));
+									setRelatedObject(ipObservable.getId())));
 				}
 				observables
 					.withObservables(hostAtIpObservable);

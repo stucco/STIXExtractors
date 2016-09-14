@@ -24,7 +24,7 @@ import org.mitre.cybox.common_2.DateTimeObjectPropertyType;
 import org.mitre.cybox.common_2.StructuredTextType;
 import org.mitre.cybox.common_2.HexBinaryObjectPropertyType;
 import org.mitre.cybox.common_2.IntegerObjectPropertyType;
-import org.mitre.cybox.cybox_2.Observables;
+import org.mitre.cybox.cybox_2.Observables; 
 import org.mitre.cybox.cybox_2.Observable;
 import org.mitre.cybox.cybox_2.ObjectType;
 import org.mitre.cybox.cybox_2.RelatedObjectsType;
@@ -37,7 +37,7 @@ import org.mitre.cybox.cybox_2.RelatedObjectType;
 import org.mitre.cybox.objects.DNSRecordType;
 import org.mitre.cybox.objects.DNSQuestionType;
 import org.mitre.cybox.objects.DNSQuery;
-import org.mitre.cybox.objects.WhoisContactType;
+import org.mitre.cybox.objects.WhoisContactType; 
 import org.mitre.cybox.objects.WhoisEntry;
 import org.mitre.cybox.objects.DNSRecord;
 import org.mitre.cybox.objects.DNSResourceRecordsType;
@@ -172,8 +172,8 @@ public class DNSRecordExtractor extends STIXUtils {
 					.withObject(new ObjectType()
 						.withProperties(dnsRecord)
 						.withRelatedObjects(new RelatedObjectsType()
-							.withRelatedObjects((dstIpObservable == null) ? null : setRelatedObject(dstIpObservable.getId(), "Requested_By", "Requested IP." ,"DNSRequest"))
-							.withRelatedObjects(setRelatedObject((srcIpObservable == null) ? null : srcIpObservable.getId(), "Served_By", "Served IP request." ,"DNSRequest")))));
+							.withRelatedObjects((dstIpObservable == null) ? null : setRelatedObject(dstIpObservable.getId()))
+							.withRelatedObjects((srcIpObservable == null) ? null : setRelatedObject(srcIpObservable.getId())))));
 		}
 
 		if (!observables.getObservables().isEmpty()) {

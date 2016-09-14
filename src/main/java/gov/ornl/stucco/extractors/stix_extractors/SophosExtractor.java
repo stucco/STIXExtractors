@@ -499,10 +499,7 @@ public class SophosExtractor extends STIXUtils {
 							addressObservable
 								.getObject()
 								.withRelatedObjects(new RelatedObjectsType()
-										.withRelatedObjects(setRelatedObject(dnsObservable.getId(),
-												"Has_DNSName",
-												dnsString + ", port unknown has DNS name " + dnsString,
-												"Sophos")));
+										.withRelatedObjects(setRelatedObject(dnsObservable.getId())));
 						}
 						observables
 							.withObservables(addressObservable);

@@ -190,8 +190,7 @@ public class CleanMxVirusExtractor extends STIXUtils {
 				ipObservable
 					.getObject()
 						.withRelatedObjects(new RelatedObjectsType()
-							.withRelatedObjects(setRelatedObject(addressRangeObservable.getId(), "Contained_Within",
-								ip + " is in address range " + ips[0] + " through " + ips[1], "CleanMx(virus)")));
+							.withRelatedObjects(setRelatedObject(addressRangeObservable.getId())));
 			}
 			
 			/* address -> DNSName */
@@ -199,8 +198,7 @@ public class CleanMxVirusExtractor extends STIXUtils {
 				addressObservable
 					.getObject()
 						.withRelatedObjects(new RelatedObjectsType()
-							.withRelatedObjects(setRelatedObject(dnsObservable.getId(), "hasDNSName",
-								ip + ", port 80 has DNS name " + dns, "CleanMx(virus)"))); 
+							.withRelatedObjects(setRelatedObject(dnsObservable.getId()))); 
 			}				
 			
 			/* malware -> address relation */

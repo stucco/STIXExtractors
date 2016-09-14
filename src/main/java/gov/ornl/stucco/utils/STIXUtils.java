@@ -190,11 +190,9 @@ public abstract class STIXUtils extends ExtractorUtils {
 				.withValue(hash));
 	}
 
-	public RelatedObjectType setRelatedObjectType(QName idref, String relationship) {
+	public RelatedObjectType setRelatedObject(QName idref) {
    		return new RelatedObjectType()
-                   		.withIdref(idref)
-                     		.withRelationship(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
-                           	.withValue(relationship));
+                   		.withIdref(idref);
 	}
 
 	public Observable setHostObservable(String hostname, String source) {
@@ -221,10 +219,7 @@ public abstract class STIXUtils extends ExtractorUtils {
 					.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
 						.withValue(dns + ", port unknown"))
 					.withRelatedObjects(new RelatedObjectsType()
-                                       		.withRelatedObjects(setRelatedObject(dnsId,
-                                                                        	     "hasDNSName",
-                                                                                      dns + ", port unknown has DNSName " + dns,
-                                                                                      "Sophos"))));
+            .withRelatedObjects(setRelatedObject(dnsId))));
 	}
  
 	public Observable setDNSAddressObservable(String port, QName portId, String dns, QName dnsId, String source) {
@@ -240,10 +235,7 @@ public abstract class STIXUtils extends ExtractorUtils {
 						.withPort(new Port()
 							.withObjectReference(portId)))
 					.withRelatedObjects(new RelatedObjectsType()
-                                       		.withRelatedObjects(setRelatedObject(dnsId,
-                                                                        	     "hasDNSName",
-                                                                                      dns + ", port " + port + " has DNSName " + dns,
-                                                                                      "Sophos"))));
+            .withRelatedObjects(setRelatedObject(dnsId))));
 	}
 
 	public Observable setAddressObservable(String port, QName portId, String description, String source) {
@@ -591,16 +583,6 @@ public abstract class STIXUtils extends ExtractorUtils {
 				.withValue(source + " entry " + id));
 	}
 */
-
-	public RelatedObjectType setRelatedObject(QName idref, String relationship, String description, String source) {
-		return new RelatedObjectType() 
-			.withIdref(idref)
-			.withRelationship(new org.mitre.cybox.common_2.ControlledVocabularyStringType()
-				.withValue(relationship))
-			.withDescription(new StructuredTextType()
-				.withValue(description))
-			.withDiscoveryMethod(setMeasureSourceType(source));
-	}
 
 	public CourseOfAction setCourseOfAction(String title, String description, String source) {
 		return new CourseOfAction()
