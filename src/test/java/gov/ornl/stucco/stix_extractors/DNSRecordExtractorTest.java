@@ -50,7 +50,6 @@ public class DNSRecordExtractorTest extends STIXUtils {
 		
 			DNSRecordExtractor dnsExtractor = new DNSRecordExtractor(dnsInfo);
 			STIXPackage stixPackage = dnsExtractor.getStixPackage();
-			System.out.println(stixPackage.toXMLString(true));
 
 			System.out.println("Validating DNS stixPackage");
 			assertTrue(stixPackage.validate());

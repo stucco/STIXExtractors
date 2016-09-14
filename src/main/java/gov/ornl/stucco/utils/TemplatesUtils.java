@@ -118,7 +118,7 @@ public abstract class TemplatesUtils {
 
 	// private static String buildCustomProperties(Set<String> headersSet, CSVRecord record) {
 	private static String buildCustomProperties(CSVRecord record, String... headersSet) {
-		String customProperties = "";
+		String customProperties = null;
 		for (String header : headersSet) {
 			if (!record.get(header).isEmpty()) {
 				customProperties = buildString(customProperties, "<cyboxCommon:Property name=\"", header, "\">", record.get(header), "</cyboxCommon:Property>");
@@ -135,7 +135,7 @@ public abstract class TemplatesUtils {
 	}
 
 	private static String buildCustomProperties(JSONObject json) {
-		String customProperties = "";
+		String customProperties = null;
 		for (String key : situCustomProperties.keySet()) {
 			if (json.has(key)) {
 				customProperties = buildString(customProperties, "<cyboxCommon:Property name=\"", situCustomProperties.get(key), "\">", json.get(key), "</cyboxCommon:Property>");	
@@ -146,32 +146,17 @@ public abstract class TemplatesUtils {
 	}
 	private static String setFlowObservable(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, String sourceString, String customProperties) {
 		String networkFlow = buildString(
-			(srcAddressID == null) ? "" : buildString(
-				"<NetFlowObj:Src_Socket_Address object_reference=\"",
-				srcAddressID,
-				"\"/>"
-			),
-			(dstAddressID == null) ? "" : buildString(
-				"<NetFlowObj:Dest_Socket_Address object_reference=\"",
-				dstAddressID,
-				"\"/>"
-			),
-			(protocol == null) ? "" : buildString(
-				"<NetFlowObj:IP_Protocol>",
-				protocol,
-				"</NetFlowObj:IP_Protocol>"
-			)
+			(srcAddressID == null) ? null : buildString("<NetFlowObj:Src_Socket_Address object_reference=\"", srcAddressID, "\"/>"),
+			(dstAddressID == null) ? null : buildString("<NetFlowObj:Dest_Socket_Address object_reference=\"", dstAddressID, "\"/>"),
+			(protocol == null) ? null : buildString("<NetFlowObj:IP_Protocol>", protocol, "</NetFlowObj:IP_Protocol>")
 		);
 
 		String networkFlowLabel = buildString(
-			(networkFlow.isEmpty()) ? "" : buildString(
-				"<NetFlowObj:Network_Flow_Label>",
-				networkFlow,
-				"</NetFlowObj:Network_Flow_Label>"
-			)
+			(networkFlow.isEmpty()) ? null : buildString("<NetFlowObj:Network_Flow_Label>", networkFlow, "</NetFlowObj:Network_Flow_Label>")
 		);
 		
-		String flowObservable = buildString("<cybox:Observable id=\"",
+		String flowObservable = buildString(
+			"<cybox:Observable id=\"",
 			flowID, 
 			"\" xmlns:NetFlowObj=\"http://cybox.mitre.org/objects#NetworkFlowObject-2\" xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\" xmlns:stucco=\"gov.ornl.stucco\"><cybox:Title>Flow</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type>",
 			sourceString,
@@ -184,11 +169,7 @@ public abstract class TemplatesUtils {
 			", port ",
 			dstPort,
 			"</cybox:Description><cybox:Properties xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"NetFlowObj:NetworkFlowObjectType\">",
-			(customProperties.isEmpty()) ? "" : buildString(
-				"<cyboxCommon:Custom_Properties>", 
-				customProperties, 
-				"</cyboxCommon:Custom_Properties>"
-			),
+			(customProperties.isEmpty()) ? null : buildString("<cyboxCommon:Custom_Properties>", customProperties, "</cyboxCommon:Custom_Properties>"),
 			networkFlowLabel,
 			"</cybox:Properties></cybox:Object></cybox:Observable>"
 		);
@@ -198,9 +179,7 @@ public abstract class TemplatesUtils {
 
 	protected static String setDNSNameObservable(String dnsID, String dnsName, String dnsIpID, String sourceString) {
 		String relatedObject = (dnsIpID == null) ? null : buildString(
-			"<cybox:Related_Objects><cybox:Related_Object idref=\"",
-			dnsIpID,
-			"\"></cybox:Related_Object></cybox:Related_Objects>"
+			"<cybox:Related_Objects><cybox:Related_Object idref=\"", dnsIpID, "\"></cybox:Related_Object></cybox:Related_Objects>"
 		);
 		String dnsObservable = buildString("<cybox:Observable xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:stucco=\"gov.ornl.stucco\" id=\"",
 			dnsID,
@@ -278,17 +257,60 @@ public abstract class TemplatesUtils {
 		return uriObservable;
 	}
 
+	/* 
+	 * props[0] - dns record id
+	 * props[1] - source
+	 * props[2] - description
+	 * props[3] - queried time
+	 * props[4] - queried dns name id 
+	 * props[5] - resolved ip name id
+	 * props[6] - entry/request type
+	 * props[7] - ttl
+	 * props[8] - flags
+	 * props[9] - id of src ip
+	 * props[10] - id of dst ip
+	 */
+	public static String setDNSRecordObservable(String... props) { //(String dnsID, String source, String description, String dnsNameID, String reqIpID, String... props) {
+		String relatedObjects = buildString(
+			(props[9].isEmpty()) ? null : buildString("<cybox:Related_Object idref=\"", props[9], "\"/>"),
+			(props[10].isEmpty()) ? null : buildString("<cybox:Related_Object idref=\"", props[10], "\"/>")
+		);
+		String dnsRecord = buildString(
+			"<cybox:Observable xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:stucco=\"gov.ornl.stucco\" xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\" xmlns:DNSRecordObj=\"http://cybox.mitre.org/objects#DNSRecordObject-2\" id=\"", 
+			props[0], 
+			"\"><cybox:Title>DNSRecord</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type>",
+			props[1], 
+			"</cyboxCommon:Information_Source_Type></cybox:Observable_Source><cybox:Object><cybox:Properties xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"DNSRecordObj:DNSRecordObjectType\"><DNSRecordObj:Description>",
+			props[2],
+			"</DNSRecordObj:Description> ", 
+			(props[3].isEmpty()) ? "" : buildString("<DNSRecordObj:Queried_Date>", props[3], "</DNSRecordObj:Queried_Date>"),
+			"<DNSRecordObj:Domain_Name object_reference=\"", 
+			props[4], 
+			"\"/><DNSRecordObj:IP_Address object_reference=\"", 
+			props[5], 
+			"\"/> ",
+			(props[6].isEmpty()) ? null : buildString("<DNSRecordObj:Entry_Type>", props[6], "</DNSRecordObj:Entry_Type>"),
+			(props[7].isEmpty()) ? null : buildString("<DNSRecordObj:TTL>", props[7], "</DNSRecordObj:TTL>"),
+			(props[8].isEmpty()) ? null : buildString("<DNSRecordObj:Flags>", props[8], "</DNSRecordObj:Flags>"),
+			"</cybox:Properties> ",
+			(relatedObjects.isEmpty()) ? null : buildString("<cybox:Related_Objects>", relatedObjects, "</cybox:Related_Objects>"),
+			"</cybox:Object></cybox:Observable> "
+		);
+
+		return dnsRecord.toString();
+	}
+
 	protected static String setIndicator(String indicatorID, String alternativeID, XMLGregorianCalendar timestamp, String description, String flowID, String source) {
 		String indicator = buildString(
 			"<indicator:Indicator xmlns:indicator=\"http://stix.mitre.org/Indicator-2\" xmlns:stixCommon=\"http://stix.mitre.org/common-1\" xmlns:stucco=\"gov.ornl.stucco\" id=\"",
 			indicatorID,
 			"\" ",
-			(timestamp == null) ? "" : buildString(" timestamp=\"", timestamp, "\" "),
+			(timestamp == null) ? null : buildString(" timestamp=\"", timestamp, "\" "),
 			">",
-			(alternativeID == null) ? "" : buildString("<indicator:Alternative_ID>", alternativeID, "</indicator:Alternative_ID>"),
-			(description == null) ? "" : buildString("<indicator:Description>", description, "</indicator:Description>"),
-			(flowID == null) ? "" : buildString("<indicator:Observable idref=\"", flowID, "\"/>"),
-			(source == null) ? "" : buildString("<indicator:Producer><stixCommon:Identity><stixCommon:Name>", source, "</stixCommon:Name></stixCommon:Identity></indicator:Producer>"),
+			(alternativeID == null) ? null : buildString("<indicator:Alternative_ID>", alternativeID, "</indicator:Alternative_ID>"),
+			(description == null) ? null : buildString("<indicator:Description>", description, "</indicator:Description>"),
+			(flowID == null) ? null : buildString("<indicator:Observable idref=\"", flowID, "\"/>"),
+			(source == null) ? null : buildString("<indicator:Producer><stixCommon:Identity><stixCommon:Name>", source, "</stixCommon:Name></stixCommon:Identity></indicator:Producer>"),
 			"</indicator:Indicator>"
 		);
 
@@ -301,7 +323,9 @@ public abstract class TemplatesUtils {
   protected static String buildString(Object... substrings) {
       StringBuilder str = new StringBuilder();
       for (Object substring : substrings) {
+      	if (substring != null) {
           str.append(substring);
+        }
       }
 
       return str.toString();

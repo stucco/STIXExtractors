@@ -149,6 +149,18 @@ public abstract class GraphUtils {
 		return httpSessionJson;
 	}
 
+	public static JSONObject setObservableJson(String name, String observableType, String sourceDocument, Set<Object> description, Set<Object>source) {
+		JSONObject observableJson = new JSONObject();
+		observableJson.put("vertexType", "Observable");
+		observableJson.put("name", name);
+		observableJson.put("observableType", observableType);
+		observableJson.put("sourceDocument", sourceDocument);
+		observableJson.put("description", (Object)description);
+		observableJson.put("source", (Object)source);
+
+		return observableJson;
+	}
+
 /*
 	public static JSONObject setHTTPSessionJson(String httpID, Set sourceSet, String sourceString, String requestedURL, String ... props) {
 		JSONObject httpSessionJson = new JSONObject();
