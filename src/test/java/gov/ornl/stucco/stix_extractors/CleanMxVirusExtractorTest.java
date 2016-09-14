@@ -238,10 +238,6 @@ public class CleanMxVirusExtractorTest extends STIXUtils {
 
 		assertEquals(addressToDnsIdref, dnsId);
 
-		String description = relatedObjects.select("cybox|Related_Object > cybox|Description").text();
-
-		assertEquals(description, "115.47.55.160, port 80 has DNS name idba.cc");
-
 		/* IP -> AddressRange */
 		System.out.println("Testing IP -> AddressRange relation");
 		
@@ -250,10 +246,6 @@ public class CleanMxVirusExtractorTest extends STIXUtils {
 		String addressRangeId = doc.select("cybox|Observable:has(cybox|Title:contains(AddressRange))").attr("id");
 
 		assertEquals(ipToAddressRangeIdref, addressRangeId);
-
-		description = ip.select("cybox|Related_Object > cybox|Description").text();
-
-		assertEquals(description, "115.47.55.160 is in address range 115.47.0.0 through 115.47.255.255");
 			
 	}
 	

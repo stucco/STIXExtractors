@@ -72,85 +72,85 @@ public class LoginEventExtractorTest	{
 		assertTrue(stixPackage.validate());
 
 		Document doc = Jsoup.parse(stixPackage.toXMLString(), "", Parser.xmlParser());
-		Element element = doc.select("cybox|Observable:has(HostnameObj|Hostname_Value:matches(^StuccoHost\\Z))").first();
 
 		System.out.println();
 		System.out.println("Testing Hostname:");
+		Element hostOne = doc.select("cybox|Observable:has(HostnameObj|Hostname_Value:matches(^StuccoHost\\Z))").first();
+		String hostOneID = hostOne.attr("id");
 		System.out.println("Testing Name");
-		assertEquals(element.select("HostnameObj|Hostname_Value").text(), "StuccoHost");
+		assertEquals(hostOne.select("HostnameObj|Hostname_Value").text(), "StuccoHost");
 		System.out.println("Testing Description");
-		assertEquals(element.select("cybox|Object > cybox|Description").text(), "StuccoHost");
+		assertEquals(hostOne.select("cybox|Object > cybox|Description").text(), "StuccoHost");
 		System.out.println("Testing Source");
-		assertEquals(element.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "LoginEvent");
+		assertEquals(hostOne.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "LoginEvent");
 		System.out.println("Testing Title");
-		assertEquals(element.select("cybox|Title").text(), "Host");
-		System.out.println("Testing Hostname -> Software relation");
-		String softwareId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Runs\\Z))").attr("idref");
-		Element software = doc.select("[id=" + softwareId + "]").first();
-		assertEquals(software.select("ProductObj|Product").text(), "sshd");
-		
-		element = doc.select("cybox|Observable:has(HostnameObj|Hostname_Value:matches(^host_at_192.168.10.11\\Z))").first();
+		assertEquals(hostOne.select("cybox|Title").text(), "Host");		
 
 		System.out.println();
 		System.out.println("Testing Hostname:");
+		Element hostTwo = doc.select("cybox|Observable:has(HostnameObj|Hostname_Value:matches(^host_at_192.168.10.11\\Z))").first();
+		String hostTwoID = hostTwo.attr("id");
 		System.out.println("Testing Name");
-		assertEquals(element.select("HostnameObj|Hostname_Value").text(), "host_at_192.168.10.11");
+		assertEquals(hostTwo.select("HostnameObj|Hostname_Value").text(), "host_at_192.168.10.11");
 		System.out.println("Testing Description");
-		assertEquals(element.select("cybox|Object > cybox|Description").text(), "host_at_192.168.10.11");
+		assertEquals(hostTwo.select("cybox|Object > cybox|Description").text(), "host_at_192.168.10.11");
 		System.out.println("Testing Source");
-		assertEquals(element.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "LoginEvent");
+		assertEquals(hostTwo.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "LoginEvent");
 		System.out.println("Testing Title");
-		assertEquals(element.select("cybox|Title").text(), "Host");
-		System.out.println("Testing Hostname_at_IP -> IP relation");
-		String ipId = element.select("cybox|Related_Object:has(cybox|Relationship:matches(^Resolved_To\\Z))").attr("idref");
-		Element ip = doc.select("[id=" + ipId + "]").first();
-		assertEquals(ip.select("AddressObj|Address_Value").text(), "192.168.10.11");
-		
-		element = doc.select("cybox|Observable:has(cybox|Title:matches(^Account\\Z))").first();
-
-		System.out.println();
-		System.out.println("Testing Account:");
-		System.out.println("Testing Name");
-		assertEquals(element.select("UserAccountObj|Username").text(), "StuccoUser");
-		System.out.println("Testing Description");
-		assertEquals(element.select("AccountObj|Description").text(), "StuccoUser");
-		System.out.println("Testing Source");
-		assertEquals(element.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "LoginEvent");
-		System.out.println("Testing Title");
-		assertEquals(element.select("cybox|Title").text(), "Account");
-		System.out.println("Testing Account -> Hostname relation");
-		String hostnameId = element.select("cybox|Related_Object:has(cybox|Description:matches(^StuccoUser logs in to StuccoHost\\Z))").attr("idref");
-		Element host = doc.select("[id=" + hostnameId + "]").first();
-		assertEquals(host.select("HostnameObj|Hostname_Value").text(), "StuccoHost");
-		System.out.println("Testing Account -> Hostname_at_IP relation");
-		hostnameId = element.select("cybox|Related_Object:has(cybox|Description:matches(^StuccoUser logs in from host at 192.168.10.11\\Z))").attr("idref");
-		host = doc.select("[id=" + hostnameId + "]").first();
-		assertEquals(host.select("HostnameObj|Hostname_Value").text(), "host_at_192.168.10.11");
-		
-		element = doc.select("cybox|Observable:has(cybox|Title:matches(^Software\\Z))").first();
+		assertEquals(hostTwo.select("cybox|Title").text(), "Host");
 
 		System.out.println();
 		System.out.println("Testing Software:");
+		Element sshSoftware = doc.select("cybox|Observable:has(cybox|Title:matches(^Software\\Z))").first();
+		String sshSoftwareID = sshSoftware.attr("id");
 		System.out.println("Testing Name");
-		assertEquals(element.select("ProductObj|Product").text(), "sshd");
+		assertEquals(sshSoftware.select("ProductObj|Product").text(), "sshd");
 		System.out.println("Testing Description");
-		assertEquals(element.select("cybox|Description").text(), "sshd");
+		assertEquals(sshSoftware.select("cybox|Description").text(), "sshd");
 		System.out.println("Testing Source");
-		assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "LoginEvent");
+		assertEquals(sshSoftware.select("cyboxCommon|Information_Source_Type").text(), "LoginEvent");
 		System.out.println("Testing Title");
-		assertEquals(element.select("cybox|Title").text(), "Software");
-		
-		element = doc.select("cybox|Observable:has(cybox|Title:matches(^IP\\Z))").first();
+		assertEquals(sshSoftware.select("cybox|Title").text(), "Software");
 
 		System.out.println();
 		System.out.println("Testing IP:");
+		Element ip = doc.select("cybox|Observable:has(cybox|Title:matches(^IP\\Z))").first();
+		String ipID = ip.attr("id");
 		System.out.println("Testing Name");
-		assertEquals(element.select("AddressObj|Address_Value").text(), "192.168.10.11");
+		assertEquals(ip.select("AddressObj|Address_Value").text(), "192.168.10.11");
 		System.out.println("Testing Description");
-		assertEquals(element.select("cybox|Description").text(), "192.168.10.11");
+		assertEquals(ip.select("cybox|Description").text(), "192.168.10.11");
 		System.out.println("Testing Source");
-		assertEquals(element.select("cyboxCommon|Information_Source_Type").text(), "LoginEvent");
+		assertEquals(ip.select("cyboxCommon|Information_Source_Type").text(), "LoginEvent");
 		System.out.println("Testing Title");
-		assertEquals(element.select("cybox|Title").text(), "IP");
+		assertEquals(ip.select("cybox|Title").text(), "IP");
+
+		System.out.println("Testing Hostname -> Software relation");
+		Element softwareReference = hostOne.select("cybox|Object > cybox|Related_Objects > cybox|Related_Object[idref = " + sshSoftwareID + "]").first();
+		assertNotNull(softwareReference);
+
+		System.out.println("Testing Hostname_at_IP -> IP relation");
+		Element ipReference = hostTwo.select("cybox|Object > cybox|Related_Objects > cybox|Related_Object[idref = " + ipID + "]").first();
+		assertNotNull(ipReference);
+
+		System.out.println();
+		System.out.println("Testing Account:");
+		Element account = doc.select("cybox|Observable:has(cybox|Title:matches(^Account\\Z))").first();
+		System.out.println("Testing Name");
+		assertEquals(account.select("UserAccountObj|Username").text(), "StuccoUser");
+		System.out.println("Testing Description");
+		assertEquals(account.select("AccountObj|Description").text(), "StuccoUser");
+		System.out.println("Testing Source");
+		assertEquals(account.select("cybox|Observable_Source > cyboxCommon|Information_Source_Type").text(), "LoginEvent");
+		System.out.println("Testing Title");
+		assertEquals(account.select("cybox|Title").text(), "Account");
+
+		System.out.println("Testing Account -> Hostname relation");
+		Element hostReference = account.select("cybox|Object > cybox|Related_Objects > cybox|Related_Object[idref = " + hostOneID + "]").first();
+		assertNotNull(hostReference);
+
+		System.out.println("Testing Account -> Hostname_at_IP relation");
+		hostReference = account.select("cybox|Object > cybox|Related_Objects > cybox|Related_Object[idref = " + hostTwoID + "]").first();
+		assertNotNull(hostReference);
 	}
 }

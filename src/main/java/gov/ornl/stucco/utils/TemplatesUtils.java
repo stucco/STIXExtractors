@@ -200,7 +200,7 @@ public abstract class TemplatesUtils {
 		String relatedObject = (dnsIpID == null) ? null : buildString(
 			"<cybox:Related_Objects><cybox:Related_Object idref=\"",
 			dnsIpID,
-			"\"><cybox:Relationship>Resolved_To</cybox:Relationship></cybox:Related_Object></cybox:Related_Objects>"
+			"\"></cybox:Related_Object></cybox:Related_Objects>"
 		);
 		String dnsObservable = buildString("<cybox:Observable xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:stucco=\"gov.ornl.stucco\" id=\"",
 			dnsID,

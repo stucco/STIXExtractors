@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
  */
 public class DNSRecordExtractorTest extends STIXUtils {
 	
-	/**
+	/** 
 	 * Test one element
 	 */
 	@Test
@@ -44,12 +44,13 @@ public class DNSRecordExtractorTest extends STIXUtils {
 				"filename,recnum,file_type,amp_version,site,saddr,daddr,ttl,rqtype,flags,rqfqdn,refqdn,raddr,preference," +	
 				"answer_ns,authoritative_ns,times_seen,first_seen_timet,last_seen_timet,scountrycode,sorganization,slat,slong," +
 				"dcountrycode,dorganization,dlat,dlong,rcountrycode,rorganization,rlat,rlong\n" +
-				"20150712000033-ornl-ampDnsN4-1,42513,3,258,ornl,128.219.177.244,68.87.73.245,0,1,17,DALE-PC.ORNL.GOV,,89.79.77.77,,,5n6unsmlboh476,2," +
+				"20150712000033-ornl-ampDnsN4-1,42513,3,258,ornl,128.219.177.244,68.87.73.245,0,1,17,DALE-PC.ORNL.GOV,haha,89.79.77.77,haha,haha,5n6unsmlboh476,2," +
 				"2015-07-12 00:00:27+00,2015-07-12 00:00:27+00,US,oak ridge national laboratory,36.02103,84,US,comcast cable communications inc.," +	
-				"38.6741,-77.4243,..,..,-91,-181";
+				"38.6741,-77.4243,haha,haha,-91,-181";
 		
 			DNSRecordExtractor dnsExtractor = new DNSRecordExtractor(dnsInfo);
 			STIXPackage stixPackage = dnsExtractor.getStixPackage();
+			System.out.println(stixPackage.toXMLString(true));
 
 			System.out.println("Validating DNS stixPackage");
 			assertTrue(stixPackage.validate());
@@ -104,34 +105,34 @@ public class DNSRecordExtractorTest extends STIXUtils {
 				assertEquals(ipElement.select("cybox|Description").text(), csvRecord.get("raddr"));
 
 				System.out.println();
-                  		System.out.println("Testing Source IP content:");
-				String sId = stixRecord.select("cybox|Related_Object:has(cybox|Relationship:matches(^Served_By))").first().attr("idref");
-				Element saddress = stixDoc.select("cybox|Observable[id=" + sId +"]").first();
-                  		System.out.println("Testing Title");
-                  		assertEquals(saddress.select("cybox|Title").text(), "IP");
-                  		System.out.println("Testing Source");
-                  		assertEquals(saddress.select("cyboxCommon|Information_Source_Type").text(), "DNSRecord");
-                  		System.out.println("Testing IP Long (ID)");
-                  		assertEquals(saddress.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong(csvRecord.get("saddr")));
-                  		System.out.println("Testing IP String");
-                  		assertEquals(saddress.select("AddressObj|Address_Value").text(), csvRecord.get("saddr"));
-                  		System.out.println("Testing Description");
-                  		assertEquals(saddress.select("cybox|Description").text(), csvRecord.get("saddr"));
+        System.out.println("Testing Source IP content:");
+				// String sId = stixRecord.select("cybox|Related_Object").last().attr("idref");
+				Element saddress = stixDoc.select("cybox|Observable:has(cybox|Object > cybox|Properties > AddressObj|Address_Value:contains(128.219.177.244)").first();
+    		System.out.println("Testing Title");
+    		assertEquals(saddress.select("cybox|Title").text(), "IP");
+    		System.out.println("Testing Source");
+    		assertEquals(saddress.select("cyboxCommon|Information_Source_Type").text(), "DNSRecord");
+    		System.out.println("Testing IP Long (ID)");
+    		assertEquals(saddress.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong(csvRecord.get("saddr")));
+    		System.out.println("Testing IP String");
+    		assertEquals(saddress.select("AddressObj|Address_Value").text(), csvRecord.get("saddr"));
+    		System.out.println("Testing Description");
+    		assertEquals(saddress.select("cybox|Description").text(), csvRecord.get("saddr"));
 
 				System.out.println();
-                  		System.out.println("Testing Destination IP content:");
-				String dId = stixRecord.select("cybox|Related_Object:has(cybox|Relationship:matches(^Requested_By))").first().attr("idref");
-				Element daddress = stixDoc.select("cybox|Observable[id=" + dId +"]").first();
-                  		System.out.println("Testing Title");
-                  		assertEquals(daddress.select("cybox|Title").text(), "IP");
-                  		System.out.println("Testing Source");
-                  		assertEquals(daddress.select("cyboxCommon|Information_Source_Type").text(), "DNSRecord");
-                  		System.out.println("Testing IP Long (ID)");
-                  		assertEquals(daddress.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong(csvRecord.get("daddr")));
-                  		System.out.println("Testing IP String");
-                  		assertEquals(daddress.select("AddressObj|Address_Value").text(), csvRecord.get("daddr"));
-                  		System.out.println("Testing Description");
-                  		assertEquals(daddress.select("cybox|Description").text(), csvRecord.get("daddr"));
+        System.out.println("Testing Destination IP content:");
+				//String dId = stixRecord.select("cybox|Related_Object").first().attr("idref");
+				Element daddress = stixDoc.select("cybox|Observable:has(cybox|Object > cybox|Properties > AddressObj|Address_Value:contains(68.87.73.245)").first();
+    		System.out.println("Testing Title");
+    		assertEquals(daddress.select("cybox|Title").text(), "IP");
+    		System.out.println("Testing Source");
+    		assertEquals(daddress.select("cyboxCommon|Information_Source_Type").text(), "DNSRecord");
+    		System.out.println("Testing IP Long (ID)");
+    		assertEquals(daddress.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong(csvRecord.get("daddr")));
+    		System.out.println("Testing IP String");
+    		assertEquals(daddress.select("AddressObj|Address_Value").text(), csvRecord.get("daddr"));
+    		System.out.println("Testing Description");
+    		assertEquals(daddress.select("cybox|Description").text(), csvRecord.get("daddr"));
 			}
 				
 		} catch (IOException e) {
@@ -216,34 +217,34 @@ public class DNSRecordExtractorTest extends STIXUtils {
 				assertEquals(ipElement.select("cybox|Description").text(), csvRecord.get("raddr"));
 
 				System.out.println();
-                  		System.out.println("Testing Source IP content:");
-				String sId = stixRecord.select("cybox|Related_Object:has(cybox|Relationship:matches(^Served_By))").first().attr("idref");
-				Element saddress = stixDoc.select("cybox|Observable[id=" + sId +"]").first();
-                  		System.out.println("Testing Title");
-                  		assertEquals(saddress.select("cybox|Title").text(), "IP");
-                  		System.out.println("Testing Source");
-                  		assertEquals(saddress.select("cyboxCommon|Information_Source_Type").text(), "DNSRecord");
-                  		System.out.println("Testing IP Long (ID)");
-                  		assertEquals(saddress.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong(csvRecord.get("saddr")));
-                  		System.out.println("Testing IP String");
-                  		assertEquals(saddress.select("AddressObj|Address_Value").text(), csvRecord.get("saddr"));
-                  		System.out.println("Testing Description");
-                  		assertEquals(saddress.select("cybox|Description").text(), csvRecord.get("saddr"));
+        System.out.println("Testing Source IP content:");
+				String sId = stixRecord.select("cybox|Related_Object").last().attr("idref");
+				Element saddress = stixDoc.select("cybox|Observable:has(cybox|Object > cybox|Properties > AddressObj|Address_Value:contains(199.7.83.42)").first();
+    		System.out.println("Testing Title");
+    		assertEquals(saddress.select("cybox|Title").text(), "IP");
+    		System.out.println("Testing Source");
+    		assertEquals(saddress.select("cyboxCommon|Information_Source_Type").text(), "DNSRecord");
+    		System.out.println("Testing IP Long (ID)");
+    		assertEquals(saddress.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong(csvRecord.get("saddr")));
+    		System.out.println("Testing IP String");
+    		assertEquals(saddress.select("AddressObj|Address_Value").text(), csvRecord.get("saddr"));
+    		System.out.println("Testing Description");
+    		assertEquals(saddress.select("cybox|Description").text(), csvRecord.get("saddr"));
 
 				System.out.println();
-                  		System.out.println("Testing Destination IP content:");
-				String dId = stixRecord.select("cybox|Related_Object:has(cybox|Relationship:matches(^Requested_By))").first().attr("idref");
-				Element daddress = stixDoc.select("cybox|Observable[id=" + dId +"]").first();
-                  		System.out.println("Testing Title");
-                  		assertEquals(daddress.select("cybox|Title").text(), "IP");
-                  		System.out.println("Testing Source");
-                  		assertEquals(daddress.select("cyboxCommon|Information_Source_Type").text(), "DNSRecord");
-                  		System.out.println("Testing IP Long (ID)");
-                  		assertEquals(daddress.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong(csvRecord.get("daddr")));
-                  		System.out.println("Testing IP String");
-                  		assertEquals(daddress.select("AddressObj|Address_Value").text(), csvRecord.get("daddr"));
-                  		System.out.println("Testing Description");
-                  		assertEquals(daddress.select("cybox|Description").text(), csvRecord.get("daddr"));
+        System.out.println("Testing Destination IP content:");
+				String dId = stixRecord.select("cybox|Related_Object").first().attr("idref");
+				Element daddress = stixDoc.select("cybox|Observable:has(cybox|Object > cybox|Properties > AddressObj|Address_Value:contains(160.91.86.22)").first();
+    		System.out.println("Testing Title");
+    		assertEquals(daddress.select("cybox|Title").text(), "IP");
+    		System.out.println("Testing Source");
+    		assertEquals(daddress.select("cyboxCommon|Information_Source_Type").text(), "DNSRecord");
+    		System.out.println("Testing IP Long (ID)");
+    		assertEquals(daddress.select("cybox|Object").attr("id"), "stucco:ip-" + ipToLong(csvRecord.get("daddr")));
+    		System.out.println("Testing IP String");
+    		assertEquals(daddress.select("AddressObj|Address_Value").text(), csvRecord.get("daddr"));
+    		System.out.println("Testing Description");
+    		assertEquals(daddress.select("cybox|Description").text(), csvRecord.get("daddr"));
 			}
 				
 		} catch (IOException e) {
