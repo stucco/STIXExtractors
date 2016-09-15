@@ -30,7 +30,7 @@ public abstract class TemplatesUtils {
 		map.put("dbytes", "CPP_DstBytes");
 		map.put("bytes", "CPP_Bytes");
 		map.put("spkts", "CPP_SrcPackets"); 
-		map.put("dpkts", "CPP_DstPackets");
+		map.put("dpkts", "CPP_DstPackets"); 
 		map.put("pkts", "CPP_Packets");
 		map.put("flgs", "CPP_Flags");
 		situCustomProperties = Collections.unmodifiableMap(map);
@@ -86,6 +86,31 @@ public abstract class TemplatesUtils {
 				portID,
 				"\"/>"
 			),
+			"</cybox:Properties></cybox:Object></cybox:Observable>"
+		);
+
+		return addressObservable;
+	}
+
+	/* 
+	 * props[0] - address id
+	 * props[1] - source
+	 * props[2] - description
+	 * props[3] - banner
+	 * props[4] - ipID
+	 * props[5] - portID
+	 */
+	public static String setBannerAddressObservable(String... props) {
+		String addressObservable = buildString("<cybox:Observable id=\"",
+			props[0], 
+			"\" xmlns:SocketAddressObj=\"http://cybox.mitre.org/objects#SocketAddressObject-1\" xmlns:cybox=\"http://cybox.mitre.org/cybox-2\" xmlns:cyboxCommon=\"http://cybox.mitre.org/common-2\" xmlns:stucco=\"gov.ornl.stucco\"><cybox:Title>Address</cybox:Title><cybox:Observable_Source><cyboxCommon:Information_Source_Type>",
+			props[1],
+			"</cyboxCommon:Information_Source_Type></cybox:Observable_Source><cybox:Object><cybox:Description>",
+			props[2],
+			"</cybox:Description><cybox:Properties xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"SocketAddressObj:SocketAddressObjectType\">",
+			(props[3].isEmpty()) ? null : buildString("<cyboxCommon:Custom_Properties><cyboxCommon:Property name=\"Banner\">", props[3], "</cyboxCommon:Property></cyboxCommon:Custom_Properties>"),
+			(props[4] == null) ? null : buildString("<SocketAddressObj:IP_Address object_reference=\"", props[4],"\"/>"),
+			(props[5] == null) ? null : buildString("<SocketAddressObj:Port object_reference=\"", props[5], "\"/>"),
 			"</cybox:Properties></cybox:Object></cybox:Observable>"
 		);
 
