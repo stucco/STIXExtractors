@@ -78,28 +78,32 @@ public class GeoIPExtractor extends STIXUtils {
 		Observables observables = initObservables();
 
 	 	for (int i = start; i < records.size(); i++) {
-			record = records.get(i);
+	 		try {
+				record = records.get(i);
 
-			/* ip */
-			observables																
-				.withObservables(new Observable()
-					.withId(new QName("gov.ornl.stucco", "addressRange-" + UUID.randomUUID().toString(), "stucco"))
-					.withTitle("AddressRange")
-					.withObservableSources(setMeasureSourceType("Maxmind"))
-					.withObject(new ObjectType()
-						.withId(new QName("gov.ornl.stucco", "addressRange-" + record.get(STARTIPINT) + "-" + record.get(ENDIPINT), "stucco"))
-						.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
-							.withValue(record.get(STARTIP) + " through " + record.get(ENDIP)))
-						.withLocation(new LocationType()
-							.withId(new QName("gov.ornl.stucco", "countryCode-" + record.get(COUNTRYCODE), "stucco"))
-							.withName(record.get(COUNTRYNAME)))
-						.withProperties(new Address()
-							.withAddressValue(new StringObjectPropertyType()
-								.withValue(record.get(STARTIP) + " - " + record.get(ENDIP))
-							.withCondition(ConditionTypeEnum.INCLUSIVE_BETWEEN)
-							.withApplyCondition(ConditionApplicationEnum.ANY)
-							.withDelimiter(" - "))
-							.withCategory(CategoryTypeEnum.IPV_4_ADDR))));
+				/* ip */
+				observables																
+					.withObservables(new Observable()
+						.withId(new QName("gov.ornl.stucco", "addressRange-" + UUID.randomUUID().toString(), "stucco"))
+						.withTitle("AddressRange")
+						.withObservableSources(setMeasureSourceType("Maxmind"))
+						.withObject(new ObjectType()
+							.withId(new QName("gov.ornl.stucco", "addressRange-" + record.get(STARTIPINT) + "-" + record.get(ENDIPINT), "stucco"))
+							.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+								.withValue(record.get(STARTIP) + " through " + record.get(ENDIP)))
+							.withLocation(new LocationType()
+								.withId(new QName("gov.ornl.stucco", "countryCode-" + record.get(COUNTRYCODE), "stucco"))
+								.withName(record.get(COUNTRYNAME)))
+							.withProperties(new Address()
+								.withAddressValue(new StringObjectPropertyType()
+									.withValue(record.get(STARTIP) + " - " + record.get(ENDIP))
+								.withCondition(ConditionTypeEnum.INCLUSIVE_BETWEEN)
+								.withApplyCondition(ConditionApplicationEnum.ANY)
+								.withDelimiter(" - "))
+								.withCategory(CategoryTypeEnum.IPV_4_ADDR))));
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+			}
 		}
 
 		if (!observables.getObservables().isEmpty()) {

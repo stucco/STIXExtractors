@@ -74,40 +74,43 @@ public class ClientBannerExtractor extends STIXUtils {
 		observables = initObservables();
 
 		for (int i = start; i < records.size(); i++) {
+			try {
+				record = records.get(i);
+				
+				Observable ipObservable = null;
+				Observable portObservable = null;
+				Observable addressObservable = null;
 
-			record = records.get(i);
-			
-			Observable ipObservable = null;
-			Observable portObservable = null;
-			Observable addressObservable = null;
-
-			/* IP */
-			if (!record.get(ADDR).isEmpty()) {
-				ipObservable = setIpObservable(record.get(ADDR), "client_banner");
-				observables
-					.withObservables(ipObservable);
-			}
-
-			/* Port */
-			if (!record.get(APP_PROTOCOL).isEmpty()) {
-				portObservable = setPortObservable(record.get(APP_PROTOCOL), "client_banner");
-				observables
-					.withObservables(portObservable);
-			}
-
-			/* Address */
-			if (ipObservable != null && portObservable != null) {
-				addressObservable = setAddressObservable(record.get(ADDR), ipToLong(record.get(ADDR)), ipObservable.getId(), 
-					record.get(APP_PROTOCOL), portObservable.getId(), "client_banner");
-				if (!record.get(BANNER).isEmpty()) {
-					addressObservable
-							.getObject()			
-								.getProperties()
-									.withCustomProperties(new CustomPropertiesType()
-										.withProperties(setCustomProperty("Banner", record.get(BANNER))));
+				/* IP */
+				if (!record.get(ADDR).isEmpty()) {
+					ipObservable = setIpObservable(record.get(ADDR), "client_banner");
+					observables
+						.withObservables(ipObservable);
 				}
-				observables
-					.withObservables(addressObservable);
+
+				/* Port */
+				if (!record.get(APP_PROTOCOL).isEmpty()) {
+					portObservable = setPortObservable(record.get(APP_PROTOCOL), "client_banner");
+					observables
+						.withObservables(portObservable);
+				}
+
+				/* Address */
+				if (ipObservable != null && portObservable != null) {
+					addressObservable = setAddressObservable(record.get(ADDR), ipToLong(record.get(ADDR)), ipObservable.getId(), 
+						record.get(APP_PROTOCOL), portObservable.getId(), "client_banner");
+					if (!record.get(BANNER).isEmpty()) {
+						addressObservable
+								.getObject()			
+									.getProperties()
+										.withCustomProperties(new CustomPropertiesType()
+											.withProperties(setCustomProperty("Banner", record.get(BANNER))));
+					}
+					observables
+						.withObservables(addressObservable);
+				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 

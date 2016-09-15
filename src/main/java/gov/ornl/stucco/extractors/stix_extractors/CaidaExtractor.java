@@ -81,6 +81,7 @@ public class CaidaExtractor extends STIXUtils {
 		boolean marked = false;
 		try {
 			while ((line = br.readLine()) != null) {
+				try {
 					/* organization map */
 					if (line.equals("# format:org_id|changed|org_name|country|source")) {
 						if (marked) {
@@ -115,6 +116,9 @@ public class CaidaExtractor extends STIXUtils {
 							asnSet.add(as2org[0]);
 						}
 					}
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+				}
 			}
 		} catch (IOException e)	{
 				e.printStackTrace();
@@ -125,22 +129,26 @@ public class CaidaExtractor extends STIXUtils {
 		Map<String, List<String>> prefixMap = new HashMap<String, List<String>>();
 		try {
 			while ((line = br.readLine()) != null) {
-				String[] prefixArray = line.split("\\t| ");
-				if (prefixArray[2].contains(",") || prefixArray[2].contains("_")) {
-					String[] asnNumbers = prefixArray[2].split(",|_");
-					for (int i = 0; i < asnNumbers.length; i++) {
-						if (asnSet.contains(asnNumbers[i])) {
-							List<String> prefixList = (prefixMap.containsKey(asnNumbers[i])) ? prefixMap.get(asnNumbers[i]) : new ArrayList<String>();
+				try {
+					String[] prefixArray = line.split("\\t| ");
+					if (prefixArray[2].contains(",") || prefixArray[2].contains("_")) {
+						String[] asnNumbers = prefixArray[2].split(",|_");
+						for (int i = 0; i < asnNumbers.length; i++) {
+							if (asnSet.contains(asnNumbers[i])) {
+								List<String> prefixList = (prefixMap.containsKey(asnNumbers[i])) ? prefixMap.get(asnNumbers[i]) : new ArrayList<String>();
+								prefixList.add(prefixArray[0] + "/" + prefixArray[1]);								
+								prefixMap.put(asnNumbers[i], prefixList);
+							}	
+						}
+					} else {
+						if (asnSet.contains(prefixArray[2])) {
+							List<String> prefixList = (prefixMap.containsKey(prefixArray[2])) ? prefixMap.get(prefixArray[2]) : new ArrayList<String>();
 							prefixList.add(prefixArray[0] + "/" + prefixArray[1]);								
-							prefixMap.put(asnNumbers[i], prefixList);
+							prefixMap.put(prefixArray[2], prefixList);
 						}	
 					}
-				} else {
-					if (asnSet.contains(prefixArray[2])) {
-						List<String> prefixList = (prefixMap.containsKey(prefixArray[2])) ? prefixMap.get(prefixArray[2]) : new ArrayList<String>();
-						prefixList.add(prefixArray[0] + "/" + prefixArray[1]);								
-						prefixMap.put(prefixArray[2], prefixList);
-					}	
+				} catch (RuntimeException e) {
+					e.printStackTrace();
 				}		
 			}
 		} catch (IOException e)	{

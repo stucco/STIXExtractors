@@ -100,99 +100,103 @@ public class ArgusExtractor extends STIXUtils {
 						
 	 	for (int i = start; i < records.size(); i++) {
 
-			record = records.get(i);
+	 		try {
+				record = records.get(i);
 
-			Observable srcIpObservable = null;
-			Observable dstIpObservable = null;
-			Observable srcPortObservable = null;
-			Observable dstPortObservable = null;
-			Observable srcAddressObservable = null;
-			Observable dstAddressObservable = null;
-			String srcIp = null;
-			String srcPort = null;
-			String dstIp = null;
-			String dstPort = null;
-			long srcIpInt = 0;
-			long dstIpInt = 0;
-						
-			/* source ip */			
-			if (!record.get(SOURCE_ADDRESS).isEmpty()) {
-				srcIp = record.get(SOURCE_ADDRESS);
-				srcIpInt = ipToLong(srcIp);
-				srcIpObservable = setIpObservable(srcIp, srcIpInt, "Argus");
-				observables
-					.withObservables(srcIpObservable);
-			}
-
-			/* source port */
-				if (!record.get(SOURCE_PORT).isEmpty()) {
-				srcPort = record.get(SOURCE_PORT);
-				srcPortObservable = setPortObservable(srcPort, "Argus");
-				observables
-					.withObservables(srcPortObservable);
-			}
-
-			/* destination ip */
-			if (!record.get(DESTINATION_ADDRESS).isEmpty()) {
-				dstIp = record.get(DESTINATION_ADDRESS);
-				dstIpInt = ipToLong(dstIp);
-				dstIpObservable = setIpObservable(dstIp, dstIpInt, "Argus");
-				observables
-					.withObservables(dstIpObservable);
-			}
-
-			/* destination port */
-			if (!record.get(DESTINATION_PORT).isEmpty()) {
-				dstPort = record.get(DESTINATION_PORT);
-				dstPortObservable = setPortObservable(dstPort, "Argus");
-				observables
-					.withObservables(dstPortObservable);
-			}
-
-			/* source address */
-			if (srcIp != null && srcPort != null) {
-				srcAddressObservable = setAddressObservable(srcIp, srcIpInt, srcIpObservable.getId(), srcPort, srcPortObservable.getId(), "Argus");
-				observables
-					.withObservables(srcAddressObservable);
-			}
-
-			/* destination address */
-			if (dstIp != null && dstPort != null) {
-				dstAddressObservable = setAddressObservable(dstIp, dstIpInt, dstIpObservable.getId(), dstPort, dstPortObservable.getId(), "Argus");
-				observables
-					.withObservables(dstAddressObservable);
-			}
-
-			/* flow */
-			if (srcAddressObservable != null && dstAddressObservable != null) {
-				CustomPropertiesType properties = new CustomPropertiesType();
-
-				//adding custom fields
-				for (String property : headersSet) {
-					properties
-						.withProperties((record.get(property).isEmpty()) ? null : setCustomProperty(property, record.get(property)));
+				Observable srcIpObservable = null;
+				Observable dstIpObservable = null;
+				Observable srcPortObservable = null;
+				Observable dstPortObservable = null;
+				Observable srcAddressObservable = null;
+				Observable dstAddressObservable = null;
+				String srcIp = null;
+				String srcPort = null;
+				String dstIp = null;
+				String dstPort = null;
+				long srcIpInt = 0;
+				long dstIpInt = 0;
+							
+				/* source ip */			
+				if (!record.get(SOURCE_ADDRESS).isEmpty()) {
+					srcIp = record.get(SOURCE_ADDRESS);
+					srcIpInt = ipToLong(srcIp);
+					srcIpObservable = setIpObservable(srcIp, srcIpInt, "Argus");
+					observables
+						.withObservables(srcIpObservable);
 				}
 
-				observables
-					.withObservables(new Observable()
-						.withId(new QName("gov.ornl.stucco", "flow-" + UUID.randomUUID().toString(), "stucco"))
-						.withTitle("Flow")
-						.withObservableSources(setMeasureSourceType("Argus"))
-						.withObject(new ObjectType()
-							.withId(new QName("gov.ornl.stucco", "flow-" + srcIpInt + "_" + srcPort + "-" + dstIpInt + "_" + dstPort, "stucco"))
-						//	.withState((record.get(STATE).isEmpty()) ? null : new ControlledVocabularyStringType()
-						//		.withValue(record.get(STATE)))
-							.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
-								.withValue(srcIp + ", port " + srcPort + " to " + dstIp + ", port " + dstPort))
-							.withProperties(new NetworkFlowObject()
-								.withCustomProperties((properties.getProperties().isEmpty()) ? null : properties)
-								.withNetworkFlowLabel(new NetworkFlowLabelType()
-									.withIPProtocol((record.get(PROTOCOL).isEmpty()) ? null : new IANAAssignedIPNumbersType()
-										.withValue(record.get(PROTOCOL)))
-									.withSrcSocketAddress(new SocketAddress()
-										.withObjectReference(srcAddressObservable.getId()))
-									.withDestSocketAddress(new SocketAddress()
-										.withObjectReference(dstAddressObservable.getId()))))));
+				/* source port */
+					if (!record.get(SOURCE_PORT).isEmpty()) {
+					srcPort = record.get(SOURCE_PORT);
+					srcPortObservable = setPortObservable(srcPort, "Argus");
+					observables
+						.withObservables(srcPortObservable);
+				}
+
+				/* destination ip */
+				if (!record.get(DESTINATION_ADDRESS).isEmpty()) {
+					dstIp = record.get(DESTINATION_ADDRESS);
+					dstIpInt = ipToLong(dstIp);
+					dstIpObservable = setIpObservable(dstIp, dstIpInt, "Argus");
+					observables
+						.withObservables(dstIpObservable);
+				}
+
+				/* destination port */
+				if (!record.get(DESTINATION_PORT).isEmpty()) {
+					dstPort = record.get(DESTINATION_PORT);
+					dstPortObservable = setPortObservable(dstPort, "Argus");
+					observables
+						.withObservables(dstPortObservable);
+				}
+
+				/* source address */
+				if (srcIp != null && srcPort != null) {
+					srcAddressObservable = setAddressObservable(srcIp, srcIpInt, srcIpObservable.getId(), srcPort, srcPortObservable.getId(), "Argus");
+					observables
+						.withObservables(srcAddressObservable);
+				}
+
+				/* destination address */
+				if (dstIp != null && dstPort != null) {
+					dstAddressObservable = setAddressObservable(dstIp, dstIpInt, dstIpObservable.getId(), dstPort, dstPortObservable.getId(), "Argus");
+					observables
+						.withObservables(dstAddressObservable);
+				}
+
+				/* flow */
+				if (srcAddressObservable != null && dstAddressObservable != null) {
+					CustomPropertiesType properties = new CustomPropertiesType();
+
+					//adding custom fields
+					for (String property : headersSet) {
+						properties
+							.withProperties((record.get(property).isEmpty()) ? null : setCustomProperty(property, record.get(property)));
+					}
+
+					observables
+						.withObservables(new Observable()
+							.withId(new QName("gov.ornl.stucco", "flow-" + UUID.randomUUID().toString(), "stucco"))
+							.withTitle("Flow")
+							.withObservableSources(setMeasureSourceType("Argus"))
+							.withObject(new ObjectType()
+								.withId(new QName("gov.ornl.stucco", "flow-" + srcIpInt + "_" + srcPort + "-" + dstIpInt + "_" + dstPort, "stucco"))
+							//	.withState((record.get(STATE).isEmpty()) ? null : new ControlledVocabularyStringType()
+							//		.withValue(record.get(STATE)))
+								.withDescription(new org.mitre.cybox.common_2.StructuredTextType()
+									.withValue(srcIp + ", port " + srcPort + " to " + dstIp + ", port " + dstPort))
+								.withProperties(new NetworkFlowObject()
+									.withCustomProperties((properties.getProperties().isEmpty()) ? null : properties)
+									.withNetworkFlowLabel(new NetworkFlowLabelType()
+										.withIPProtocol((record.get(PROTOCOL).isEmpty()) ? null : new IANAAssignedIPNumbersType()
+											.withValue(record.get(PROTOCOL)))
+										.withSrcSocketAddress(new SocketAddress()
+											.withObjectReference(srcAddressObservable.getId()))
+										.withDestSocketAddress(new SocketAddress()
+											.withObjectReference(dstAddressObservable.getId()))))));
+				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 		if (!observables.getObservables().isEmpty()) {

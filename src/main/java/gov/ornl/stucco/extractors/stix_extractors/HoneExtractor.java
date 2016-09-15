@@ -111,194 +111,198 @@ public class HoneExtractor extends STIXUtils {
 
 		Observables observables = initObservables();
 
-	 	for (int i = start; i < records.size(); i++) {			
-			record = records.get(i);
+	 	for (int i = start; i < records.size(); i++) {		
+	 		try {	
+				record = records.get(i);
 
-			Observable hostnameObservable = null;
-			Observable softwareObservable = null;
-			Observable srcAddressObservable = null;
-			Observable dstAddressObservable = null;
-			Observable srcIpObservable = null;
-			Observable dstIpObservable = null;
-			Observable srcPortObservable = null;
-			Observable dstPortObservable = null;
-			Observable accountObservable = null;
-			Observable flowObservable = null;
+				Observable hostnameObservable = null;
+				Observable softwareObservable = null;
+				Observable srcAddressObservable = null;
+				Observable dstAddressObservable = null;
+				Observable srcIpObservable = null;
+				Observable dstIpObservable = null;
+				Observable srcPortObservable = null;
+				Observable dstPortObservable = null;
+				Observable accountObservable = null;
+				Observable flowObservable = null;
 
-			/* host */
-			if (HOSTNAME != null) {	
-				hostnameObservable = setHostObservable(HOSTNAME, "Hone");
-			}
-			
-			/* software */
-			if (!record.get(PATH).isEmpty()) {
-
-				ArgumentListType argvs = null;
-				if (!record.get(ARGV).isEmpty()) {
-					argvs = new ArgumentListType();
-					String[] argvArray = record.get(ARGV).split(" ");
-
-					for (int j = 0; j < argvArray.length; j++) {
-						argvs
-							.withArguments(new StringObjectPropertyType()
-								.withValue(argvArray[j]));
-					}	
-				}
-
-				softwareObservable = setSoftwareObservable(record.get(PATH), "Hone");
-				softwareObservable
-					.getObject()
-						.withRelatedObjects(new RelatedObjectsType()
-							.withRelatedObjects(new RelatedObjectType()
-								.withRelationship(new ControlledVocabularyStringType()
-									.withValue("Initialized_To"))
-								.withProperties(new ProcessObjectType()
-									.withName(new StringObjectPropertyType()	//path as process name
-										.withValue(record.get(PATH)))
-									.withPID((record.get(PROC_PID).isEmpty()) ? null : new UnsignedIntegerObjectPropertyType()	
-										.withValue(record.get(PROC_PID)))
-									.withParentPID((record.get(PROC_PPID).isEmpty()) ? null : new UnsignedIntegerObjectPropertyType() 
-										.withValue(record.get(PROC_PPID)))
-									.withArgumentList((argvs == null) ? null : argvs))));
-			}
-
-			/* source IP */
-			if (!record.get(SOURCE_IP).isEmpty()) {
-				observables
-					.withObservables(srcIpObservable = setIpObservable(record.get(SOURCE_IP), "Hone"));
-			}
-
-			/* destination IP */
-			if (!record.get(DEST_IP).isEmpty()) {
-				observables
-					.withObservables(dstIpObservable = setIpObservable(record.get(DEST_IP), "Hone"));
-			}
-
-			/* source Port */
-			if (!record.get(SOURCE_PORT).isEmpty()) {
-				observables
-					.withObservables(srcPortObservable = setPortObservable(record.get(SOURCE_PORT), "Hone"));
-			}
-			
-			/* destination Port */
-			if (!record.get(DEST_PORT).isEmpty()) {
-				observables
-					.withObservables(dstPortObservable = setPortObservable(record.get(DEST_PORT), "Hone"));
-			}
-
-			/* source address -> source IP, source address -> source Port */
-			if (srcIpObservable != null && srcPortObservable != null) {
-				observables
-					.withObservables(srcAddressObservable = setAddressObservable(record.get(SOURCE_IP), ipToLong(record.get(SOURCE_IP)), srcIpObservable.getId(), 
-								record.get(SOURCE_PORT), srcPortObservable.getId(), "Hone"));
-			}
-
-			/* destination address -> destination IP, destination address -> destination Port */
-			if (dstIpObservable != null && dstPortObservable != null) {
-				observables
-					.withObservables(dstAddressObservable = setAddressObservable(record.get(DEST_IP), ipToLong(record.get(DEST_IP)), dstIpObservable.getId(), 
-								record.get(DEST_PORT), dstPortObservable.getId(), "Hone"));
-			}
-			
-			//flow, flow -> dstAddress, flow -> srdAddress
-			if (srcAddressObservable != null && dstAddressObservable != null) {
-				flowObservable =  setFlowObservable(record.get(SOURCE_IP), record.get(SOURCE_PORT), srcAddressObservable.getId(), 
-					record.get(DEST_IP), record.get(DEST_PORT), dstAddressObservable.getId(), "Hone");
-
-				CustomPropertiesType properties = new CustomPropertiesType();
-				if (!record.get(TIMESTAMP_EPOCH_MS).isEmpty())	{
-					properties
-						.withProperties(setCustomProperty("Start_Time", record.get(TIMESTAMP_EPOCH_MS)));
-				}
-				if (!record.get(BYTE_CNT).isEmpty()) {
-					properties
-						.withProperties(setCustomProperty("Total_Bytes", record.get(BYTE_CNT)));
-				}	
-				if (!record.get(PACKET_CNT).isEmpty()) {
-					properties
-						.withProperties(setCustomProperty("Total_Packets", record.get(PACKET_CNT)));
-				}
-
-				if (!properties.getProperties().isEmpty()) {
-					flowObservable
-						.getObject()
-							.getProperties()
-								.withCustomProperties(properties);
-				}
-
-				observables
-					.withObservables(flowObservable);
-			}
-			
-			/* account */
-			if (HOSTNAME != null && !record.get(UID).isEmpty()) {	
-				observables	
-					.withObservables(accountObservable = new Observable()	
-						.withId(new QName("gov.ornl.stucco", "account-" + UUID.randomUUID().toString(), "stucco"))
-						.withTitle("Account")
-						.withObservableSources(setMeasureSourceType("Hone"))
-						.withObject(new ObjectType()
-							.withId(new QName("gov.ornl.stucco", "account-" + makeId(HOSTNAME + "_" + record.get(UID)), "stucco"))
-							.withProperties(new UserAccountObjectType()
-								.withUsername(new StringObjectPropertyType()
-									.withValue(record.get(UID)))
-								.withFullName(new StringObjectPropertyType()
-									.withValue(record.get(USER)))
-								.withDescription(new StringObjectPropertyType()
-									.withValue("uid " + record.get(UID) + " on host " + HOSTNAME)))));
-			}
-			
-			if (hostnameObservable != null)	{
-
-				/* host -> software relation */	
-				List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
-				if (softwareObservable != null)	{
-					relatedObjects.add(
-						setRelatedObject(softwareObservable.getId()));
-				}
-
-				/* host -> source address relation */
-				if (srcAddressObservable != null) {
-					relatedObjects.add(	
-						setRelatedObject(srcAddressObservable.getId()));
-				}
-
-				//if relations exist, adding them to the hostname observable
-				if (!relatedObjects.isEmpty()) {
-					hostnameObservable
-						.getObject()
-							.withRelatedObjects(new RelatedObjectsType()
-								.withRelatedObjects(relatedObjects));
-				}
-				observables
-					.withObservables(hostnameObservable);
-			}
-
-			if (softwareObservable != null)	{
-
-				/* software -> flow relation */
-				List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
-				if (flowObservable != null) {
-					relatedObjects.add(
-						setRelatedObject(flowObservable.getId()));
-				}
-
-				/* software -> account relation */
-				if (accountObservable != null) {
-					relatedObjects.add(
-						setRelatedObject(accountObservable.getId()));	
-				}
-
-				//if relations exist, adding them to the software observable
-				if (!relatedObjects.isEmpty()) {
-					softwareObservable
-						.getObject()
-							.getRelatedObjects()
-								.withRelatedObjects(relatedObjects);
+				/* host */
+				if (HOSTNAME != null) {	
+					hostnameObservable = setHostObservable(HOSTNAME, "Hone");
 				}
 				
-				observables
-					.withObservables(softwareObservable);
+				/* software */
+				if (!record.get(PATH).isEmpty()) {
+
+					ArgumentListType argvs = null;
+					if (!record.get(ARGV).isEmpty()) {
+						argvs = new ArgumentListType();
+						String[] argvArray = record.get(ARGV).split(" ");
+
+						for (int j = 0; j < argvArray.length; j++) {
+							argvs
+								.withArguments(new StringObjectPropertyType()
+									.withValue(argvArray[j]));
+						}	
+					}
+
+					softwareObservable = setSoftwareObservable(record.get(PATH), "Hone");
+					softwareObservable
+						.getObject()
+							.withRelatedObjects(new RelatedObjectsType()
+								.withRelatedObjects(new RelatedObjectType()
+									.withRelationship(new ControlledVocabularyStringType()
+										.withValue("Initialized_To"))
+									.withProperties(new ProcessObjectType()
+										.withName(new StringObjectPropertyType()	//path as process name
+											.withValue(record.get(PATH)))
+										.withPID((record.get(PROC_PID).isEmpty()) ? null : new UnsignedIntegerObjectPropertyType()	
+											.withValue(record.get(PROC_PID)))
+										.withParentPID((record.get(PROC_PPID).isEmpty()) ? null : new UnsignedIntegerObjectPropertyType() 
+											.withValue(record.get(PROC_PPID)))
+										.withArgumentList((argvs == null) ? null : argvs))));
+				}
+
+				/* source IP */
+				if (!record.get(SOURCE_IP).isEmpty()) {
+					observables
+						.withObservables(srcIpObservable = setIpObservable(record.get(SOURCE_IP), "Hone"));
+				}
+
+				/* destination IP */
+				if (!record.get(DEST_IP).isEmpty()) {
+					observables
+						.withObservables(dstIpObservable = setIpObservable(record.get(DEST_IP), "Hone"));
+				}
+
+				/* source Port */
+				if (!record.get(SOURCE_PORT).isEmpty()) {
+					observables
+						.withObservables(srcPortObservable = setPortObservable(record.get(SOURCE_PORT), "Hone"));
+				}
+				
+				/* destination Port */
+				if (!record.get(DEST_PORT).isEmpty()) {
+					observables
+						.withObservables(dstPortObservable = setPortObservable(record.get(DEST_PORT), "Hone"));
+				}
+
+				/* source address -> source IP, source address -> source Port */
+				if (srcIpObservable != null && srcPortObservable != null) {
+					observables
+						.withObservables(srcAddressObservable = setAddressObservable(record.get(SOURCE_IP), ipToLong(record.get(SOURCE_IP)), srcIpObservable.getId(), 
+									record.get(SOURCE_PORT), srcPortObservable.getId(), "Hone"));
+				}
+
+				/* destination address -> destination IP, destination address -> destination Port */
+				if (dstIpObservable != null && dstPortObservable != null) {
+					observables
+						.withObservables(dstAddressObservable = setAddressObservable(record.get(DEST_IP), ipToLong(record.get(DEST_IP)), dstIpObservable.getId(), 
+									record.get(DEST_PORT), dstPortObservable.getId(), "Hone"));
+				}
+				
+				//flow, flow -> dstAddress, flow -> srdAddress
+				if (srcAddressObservable != null && dstAddressObservable != null) {
+					flowObservable =  setFlowObservable(record.get(SOURCE_IP), record.get(SOURCE_PORT), srcAddressObservable.getId(), 
+						record.get(DEST_IP), record.get(DEST_PORT), dstAddressObservable.getId(), "Hone");
+
+					CustomPropertiesType properties = new CustomPropertiesType();
+					if (!record.get(TIMESTAMP_EPOCH_MS).isEmpty())	{
+						properties
+							.withProperties(setCustomProperty("Start_Time", record.get(TIMESTAMP_EPOCH_MS)));
+					}
+					if (!record.get(BYTE_CNT).isEmpty()) {
+						properties
+							.withProperties(setCustomProperty("Total_Bytes", record.get(BYTE_CNT)));
+					}	
+					if (!record.get(PACKET_CNT).isEmpty()) {
+						properties
+							.withProperties(setCustomProperty("Total_Packets", record.get(PACKET_CNT)));
+					}
+
+					if (!properties.getProperties().isEmpty()) {
+						flowObservable
+							.getObject()
+								.getProperties()
+									.withCustomProperties(properties);
+					}
+
+					observables
+						.withObservables(flowObservable);
+				}
+				
+				/* account */
+				if (HOSTNAME != null && !record.get(UID).isEmpty()) {	
+					observables	
+						.withObservables(accountObservable = new Observable()	
+							.withId(new QName("gov.ornl.stucco", "account-" + UUID.randomUUID().toString(), "stucco"))
+							.withTitle("Account")
+							.withObservableSources(setMeasureSourceType("Hone"))
+							.withObject(new ObjectType()
+								.withId(new QName("gov.ornl.stucco", "account-" + makeId(HOSTNAME + "_" + record.get(UID)), "stucco"))
+								.withProperties(new UserAccountObjectType()
+									.withUsername(new StringObjectPropertyType()
+										.withValue(record.get(UID)))
+									.withFullName(new StringObjectPropertyType()
+										.withValue(record.get(USER)))
+									.withDescription(new StringObjectPropertyType()
+										.withValue("uid " + record.get(UID) + " on host " + HOSTNAME)))));
+				}
+				
+				if (hostnameObservable != null)	{
+
+					/* host -> software relation */	
+					List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
+					if (softwareObservable != null)	{
+						relatedObjects.add(
+							setRelatedObject(softwareObservable.getId()));
+					}
+
+					/* host -> source address relation */
+					if (srcAddressObservable != null) {
+						relatedObjects.add(	
+							setRelatedObject(srcAddressObservable.getId()));
+					}
+
+					//if relations exist, adding them to the hostname observable
+					if (!relatedObjects.isEmpty()) {
+						hostnameObservable
+							.getObject()
+								.withRelatedObjects(new RelatedObjectsType()
+									.withRelatedObjects(relatedObjects));
+					}
+					observables
+						.withObservables(hostnameObservable);
+				}
+
+				if (softwareObservable != null)	{
+
+					/* software -> flow relation */
+					List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
+					if (flowObservable != null) {
+						relatedObjects.add(
+							setRelatedObject(flowObservable.getId()));
+					}
+
+					/* software -> account relation */
+					if (accountObservable != null) {
+						relatedObjects.add(
+							setRelatedObject(accountObservable.getId()));	
+					}
+
+					//if relations exist, adding them to the software observable
+					if (!relatedObjects.isEmpty()) {
+						softwareObservable
+							.getObject()
+								.getRelatedObjects()
+									.withRelatedObjects(relatedObjects);
+					}
+					
+					observables
+						.withObservables(softwareObservable);
+				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 

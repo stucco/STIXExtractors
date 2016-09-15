@@ -76,46 +76,50 @@ public class PackageListExtractor extends STIXUtils {
 		Observables observables = initObservables();
 
 	 	for (int i = start; i < records.size(); i++) {
-			record = records.get(i);
+	 		try {
+				record = records.get(i);
 
-			Observable hostObservable = null;		
-			Observable softwareObservable = null;		
+				Observable hostObservable = null;		
+				Observable softwareObservable = null;		
 
-			/* host */
-			if (!record.get(HOSTNAME).isEmpty()) {
-				hostObservable = setHostObservable(record.get(HOSTNAME), "PackageList");
-			}
+				/* host */
+				if (!record.get(HOSTNAME).isEmpty()) {
+					hostObservable = setHostObservable(record.get(HOSTNAME), "PackageList");
+				}
 
-			/* software */
-			if (!record.get(PACKAGE).isEmpty() && !record.get(VERSION).isEmpty()) {
-				softwareObservable = new Observable()		
-					.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
-					.withTitle("Software")
-					.withObservableSources(setMeasureSourceType("PackageList"))
-					.withObject(new ObjectType()
-						.withId(new QName("gov.ornl.stucco", "software-" + record.get(PACKAGE) + "_" + record.get(VERSION), "stucco"))
-						.withDescription(new StructuredTextType()
-							.withValue(record.get(PACKAGE) + " version " + record.get(VERSION)))
-						.withProperties(new Product()
-							.withProduct(new StringObjectPropertyType()
-								.withValue(record.get(PACKAGE)))
-							.withVersion(new StringObjectPropertyType()
-								.withValue(record.get(VERSION)))));
-				observables
-					.withObservables(softwareObservable);
-			}
-			
-			/* host -> software */
-			if (hostObservable != null && softwareObservable != null) {
-				hostObservable
-					.getObject()
-						.withRelatedObjects(new RelatedObjectsType()
-							.withRelatedObjects(setRelatedObject(softwareObservable.getId())));
-			}
+				/* software */
+				if (!record.get(PACKAGE).isEmpty() && !record.get(VERSION).isEmpty()) {
+					softwareObservable = new Observable()		
+						.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
+						.withTitle("Software")
+						.withObservableSources(setMeasureSourceType("PackageList"))
+						.withObject(new ObjectType()
+							.withId(new QName("gov.ornl.stucco", "software-" + record.get(PACKAGE) + "_" + record.get(VERSION), "stucco"))
+							.withDescription(new StructuredTextType()
+								.withValue(record.get(PACKAGE) + " version " + record.get(VERSION)))
+							.withProperties(new Product()
+								.withProduct(new StringObjectPropertyType()
+									.withValue(record.get(PACKAGE)))
+								.withVersion(new StringObjectPropertyType()
+									.withValue(record.get(VERSION)))));
+					observables
+						.withObservables(softwareObservable);
+				}
+				
+				/* host -> software */
+				if (hostObservable != null && softwareObservable != null) {
+					hostObservable
+						.getObject()
+							.withRelatedObjects(new RelatedObjectsType()
+								.withRelatedObjects(setRelatedObject(softwareObservable.getId())));
+				}
 
-			if (hostObservable != null) {
-				observables
-					.withObservables(hostObservable);
+				if (hostObservable != null) {
+					observables
+						.withObservables(hostObservable);
+				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 

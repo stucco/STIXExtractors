@@ -73,92 +73,95 @@ public class NvdToStixExtractor extends STIXUtils {
 		GregorianCalendar calendar = new GregorianCalendar();
 		
 		for (Element entry : entries) {
+			try {
+				VulnerabilityType vulnerability = new VulnerabilityType();
 
-			VulnerabilityType vulnerability = new VulnerabilityType();
+				/* vulnerability */
 
-			/* vulnerability */
-
-			//description
-			if (!entry.select("vuln|summary").isEmpty()) {
-				vulnerability
-					.withDescriptions(new StructuredTextType()             
-							.withValue(entry.select("vuln|summary").text()));				
-			}
-
-			//cve 
-			if (!entry.select("vuln|cve-id").isEmpty()) {
-				vulnerability
-						.withCVEID(entry.select("vuln|cve-id").text());
-			} else	{
-				vulnerability
-						.withCVEID(entry.select("entry").attr("id"));
-			}
-
-			//CVSS Score
-			if (!entry.select(" > vuln|cvss > cvss|base_metrics > cvss|score").isEmpty()) {
-				vulnerability
-						.withCVSSScore(new CVSSVectorType()
-						.withBaseScore(entry.select(" > vuln|cvss > cvss|base_metrics > cvss|score").text()));
-			}
-
-			//publishedDate
-			if (!entry.select("vuln|published-datetime").isEmpty())	{
-				calendar.setTimeInMillis(convertTimestamp(entry.select("vuln|published-datetime").text()));	
-				try {
+				//description
+				if (!entry.select("vuln|summary").isEmpty()) {
 					vulnerability
-						.withPublishedDateTime(new DateTimeWithPrecisionType()
-						.withValue(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar)));
-				} catch (DatatypeConfigurationException e) {
-					e.printStackTrace();
-				}
-			}
-
-			//references
-			Elements references = entry.select("vuln|references");
-			if (!references.isEmpty()) {
-			
-				ReferencesType referencesType = new ReferencesType();
-			
-				for (Element reference : references) {
-					String refContent = (reference.select("vuln|reference").first().attr("href").isEmpty())
-                                        		? reference.select("vuln|source").text() + ":" + reference.select("vuln|reference").text()
-                                        		: reference.select("vuln|reference").first().attr("href");
-
-					referencesType
-						.withReferences(refContent);
+						.withDescriptions(new StructuredTextType()             
+								.withValue(entry.select("vuln|summary").text()));				
 				}
 
-				vulnerability
-					.withReferences(referencesType);
-			}
+				//cve 
+				if (!entry.select("vuln|cve-id").isEmpty()) {
+					vulnerability
+							.withCVEID(entry.select("vuln|cve-id").text());
+				} else	{
+					vulnerability
+							.withCVEID(entry.select("entry").attr("id"));
+				}
 
-			/* software */
-			AffectedSoftwareType affectedSoftware = new AffectedSoftwareType();
-			Elements vulnerableSoftware = entry.select("vuln|vulnerable-software-list > vuln|product");
+				//CVSS Score
+				if (!entry.select(" > vuln|cvss > cvss|base_metrics > cvss|score").isEmpty()) {
+					vulnerability
+							.withCVSSScore(new CVSSVectorType()
+							.withBaseScore(entry.select(" > vuln|cvss > cvss|base_metrics > cvss|score").text()));
+				}
 
-			for (Element software : vulnerableSoftware) {
-				Observable softwareObservable = setSoftwareObservable(software.text(), makeSoftwareDesc(software.text()), "NVD");	
-				observables
-					.withObservables(softwareObservable);	
-				affectedSoftware	
-					.withAffectedSoftwares(new RelatedObservableType()
-                     					.withObservable(new Observable()
-							.withIdref(softwareObservable.getId())));
-			}
-		
-			/* vulnerability -> software */
-			if (!affectedSoftware.getAffectedSoftwares().isEmpty()) {				
-				vulnerability
-					.withAffectedSoftware(affectedSoftware);
+				//publishedDate
+				if (!entry.select("vuln|published-datetime").isEmpty())	{
+					calendar.setTimeInMillis(convertTimestamp(entry.select("vuln|published-datetime").text()));	
+					try {
+						vulnerability
+							.withPublishedDateTime(new DateTimeWithPrecisionType()
+							.withValue(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar)));
+					} catch (DatatypeConfigurationException e) {
+						e.printStackTrace();
+					}
+				}
+
+				//references
+				Elements references = entry.select("vuln|references");
+				if (!references.isEmpty()) {
+				
+					ReferencesType referencesType = new ReferencesType();
+				
+					for (Element reference : references) {
+						String refContent = (reference.select("vuln|reference").first().attr("href").isEmpty())
+	                                        		? reference.select("vuln|source").text() + ":" + reference.select("vuln|reference").text()
+	                                        		: reference.select("vuln|reference").first().attr("href");
+
+						referencesType
+							.withReferences(refContent);
+					}
+
+					vulnerability
+						.withReferences(referencesType);
+				}
+
+				/* software */
+				AffectedSoftwareType affectedSoftware = new AffectedSoftwareType();
+				Elements vulnerableSoftware = entry.select("vuln|vulnerable-software-list > vuln|product");
+
+				for (Element software : vulnerableSoftware) {
+					Observable softwareObservable = setSoftwareObservable(software.text(), makeSoftwareDesc(software.text()), "NVD");	
+					observables
+						.withObservables(softwareObservable);	
+					affectedSoftware	
+						.withAffectedSoftwares(new RelatedObservableType()
+	                     					.withObservable(new Observable()
+								.withIdref(softwareObservable.getId())));
+				}
 			
-			}
+				/* vulnerability -> software */
+				if (!affectedSoftware.getAffectedSoftwares().isEmpty()) {				
+					vulnerability
+						.withAffectedSoftware(affectedSoftware);
+				
+				}
 
-			ets
-				.withExploitTargets(new ExploitTarget()
-					.withId(new QName("gov.ornl.stucco", "vulnerability-" + UUID.randomUUID().toString(), "stucco"))
-					.withTitle("Vulnerability")
-					.withVulnerabilities(vulnerability
-							.withSource("NVD")));
+				ets
+					.withExploitTargets(new ExploitTarget()
+						.withId(new QName("gov.ornl.stucco", "vulnerability-" + UUID.randomUUID().toString(), "stucco"))
+						.withTitle("Vulnerability")
+						.withVulnerabilities(vulnerability
+								.withSource("NVD")));
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+			}
 		} 
 
 		if (!observables.getObservables().isEmpty()) {

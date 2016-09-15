@@ -56,21 +56,24 @@ public class CpeExtractor extends STIXUtils {
 		Observables observables = initObservables();
 
 		for (Element entry : entries) {	
-	
-			Product product = getProduct(entry.attr("name")); 
-			
-			/* software */
-			observables
-				.withObservables(new Observable()
-   				.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
-    			.withTitle("Software")
-					.withObservableSources(setMeasureSourceType("CPE"))
-         		.withObject(new ObjectType()
-                 		.withId(new QName("gov.ornl.stucco", "software-" + makeId(entry.attr("name")), "stucco"))
-           			.withDescription(new StructuredTextType()
-           				.withValue((!entry.select("title[xml:lang=en-US]").text().isEmpty())
-                        			? entry.select("title[xml:lang=en-US]").text() : makeSoftwareDesc(entry.attr("name"))))
-						.withProperties(product)));
+			try {
+				Product product = getProduct(entry.attr("name")); 
+				
+				/* software */
+				observables
+					.withObservables(new Observable()
+	   				.withId(new QName("gov.ornl.stucco", "software-" + UUID.randomUUID().toString(), "stucco"))
+	    			.withTitle("Software")
+						.withObservableSources(setMeasureSourceType("CPE"))
+	         		.withObject(new ObjectType()
+	                 		.withId(new QName("gov.ornl.stucco", "software-" + makeId(entry.attr("name")), "stucco"))
+	           			.withDescription(new StructuredTextType()
+	           				.withValue((!entry.select("title[xml:lang=en-US]").text().isEmpty())
+	                        			? entry.select("title[xml:lang=en-US]").text() : makeSoftwareDesc(entry.attr("name"))))
+							.withProperties(product)));
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+			}
  		}
 
  		if (!observables.getObservables().isEmpty()) {

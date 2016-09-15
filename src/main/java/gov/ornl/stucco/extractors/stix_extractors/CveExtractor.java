@@ -46,52 +46,56 @@ public class CveExtractor extends STIXUtils {
 			ExploitTargetsType exploitTargets = new ExploitTargetsType();			
 
 			for (Element entry : entries) {	
-				VulnerabilityType vulnerability = new VulnerabilityType();
-				ReferencesType referencesType = new ReferencesType();
+				try {
+					VulnerabilityType vulnerability = new VulnerabilityType();
+					ReferencesType referencesType = new ReferencesType();
 
-				//cve
-				vulnerability
-					.withCVEID((!entry.hasAttr("name")) ? null : entry.attr("name"));
-				
-				//acknowledgement
-				if (entry.select("status").hasText()) {
+					//cve
 					vulnerability
-						.withIsPubliclyAcknowledged(entry.select("status").text().equals("Entry"));
-				}
-
-				if (entry.select("desc").hasText()) {
-					vulnerability
-						.withDescriptions(new StructuredTextType()
-							.withValue(entry.select("desc").text()));
-				}
-										
-				//references
-				Elements references = entry.select("ref");
-				if (!references.isEmpty()) {
-					for (Element reference : references) {
-						referencesType
-							.withReferences((reference.hasAttr("url")) 
-								? reference.attr("url") : reference.attr("source") + ":" + reference.text());
+						.withCVEID((!entry.hasAttr("name")) ? null : entry.attr("name"));
+					
+					//acknowledgement
+					if (entry.select("status").hasText()) {
+						vulnerability
+							.withIsPubliclyAcknowledged(entry.select("status").text().equals("Entry"));
 					}
-	
-					vulnerability
-						.withReferences(referencesType);
-				}
 
-				//comments
-				Elements comments = entry.select("comment");			
-				for (Element comment : comments) {
-					vulnerability
-						.withShortDescriptions(new StructuredTextType()		
-							.withValue(comment.select("comment").text()));
-				}
+					if (entry.select("desc").hasText()) {
+						vulnerability
+							.withDescriptions(new StructuredTextType()
+								.withValue(entry.select("desc").text()));
+					}
+											
+					//references
+					Elements references = entry.select("ref");
+					if (!references.isEmpty()) {
+						for (Element reference : references) {
+							referencesType
+								.withReferences((reference.hasAttr("url")) 
+									? reference.attr("url") : reference.attr("source") + ":" + reference.text());
+						}
 		
-				exploitTargets
-					.withExploitTargets(new ExploitTarget()
-						.withId(new QName("gov.ornl.stucco", "vulnerability-" + UUID.randomUUID().toString(), "stucco"))
-						.withTitle("Vulnerability")
-						.withVulnerabilities(vulnerability	
-							.withSource("CVE")));	
+						vulnerability
+							.withReferences(referencesType);
+					}
+
+					//comments
+					Elements comments = entry.select("comment");			
+					for (Element comment : comments) {
+						vulnerability
+							.withShortDescriptions(new StructuredTextType()		
+								.withValue(comment.select("comment").text()));
+					}
+			
+					exploitTargets
+						.withExploitTargets(new ExploitTarget()
+							.withId(new QName("gov.ornl.stucco", "vulnerability-" + UUID.randomUUID().toString(), "stucco"))
+							.withTitle("Vulnerability")
+							.withVulnerabilities(vulnerability	
+								.withSource("CVE")));	
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+				}
 			}				
 			
 			try {

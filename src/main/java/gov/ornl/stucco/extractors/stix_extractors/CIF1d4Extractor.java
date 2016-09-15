@@ -74,16 +74,19 @@ public class CIF1d4Extractor extends STIXUtils {
 		List<Observable> ipIdList = new ArrayList<Observable>();
 
 	 	for (int i = start; i < records.size(); i++) {
-			
-			record = records.get(i);
+			try {
+				record = records.get(i);
 
-			if (!record.get(IP).isEmpty()) {
-			//	observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Scanner", "1d4.us");
-				Observable observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "1d4.us");
-				observables
-					.withObservables(observable);
-				ipIdList.add(new Observable()
-					.withIdref(observable.getId()));
+				if (!record.get(IP).isEmpty()) {
+				//	observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Scanner", "1d4.us");
+					Observable observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "1d4.us");
+					observables
+						.withObservables(observable);
+					ipIdList.add(new Observable()
+						.withIdref(observable.getId()));
+				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 

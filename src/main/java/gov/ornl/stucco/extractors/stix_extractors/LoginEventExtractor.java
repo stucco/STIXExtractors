@@ -79,99 +79,103 @@ public class LoginEventExtractor extends STIXUtils {
 		Observables observables = initObservables();
 
 	 	for (int i = start; i < records.size(); i++) {
-			record = records.get(i);
+	 		try {
+				record = records.get(i);
 
-			Observable hostnameObservable = null;
-			Observable accountObservable = null;
-			Observable softwareObservable = null;
-			Observable hostAtIpObservable = null;
-			Observable ipObservable = null;
-			
-			/* hostname */
-			if (!record.get(HOSTNAME).isEmpty()) {
-				hostnameObservable = setHostObservable(record.get(HOSTNAME), "LoginEvent");
-			}
+				Observable hostnameObservable = null;
+				Observable accountObservable = null;
+				Observable softwareObservable = null;
+				Observable hostAtIpObservable = null;
+				Observable ipObservable = null;
+				
+				/* hostname */
+				if (!record.get(HOSTNAME).isEmpty()) {
+					hostnameObservable = setHostObservable(record.get(HOSTNAME), "LoginEvent");
+				}
 
-			/* account */
-			if (!record.get(USER).isEmpty()) {
-				accountObservable = setAccountObservable(record.get(USER), "LoginEvent");
-			}
-			
-			/* software */
-			if (!record.get(LOGIN_SOFTWARE).isEmpty()) {
-				softwareObservable = setSoftwareObservable(record.get(LOGIN_SOFTWARE), "LoginEvent");
-				observables
-					.withObservables(softwareObservable);
-			}
+				/* account */
+				if (!record.get(USER).isEmpty()) {
+					accountObservable = setAccountObservable(record.get(USER), "LoginEvent");
+				}
+				
+				/* software */
+				if (!record.get(LOGIN_SOFTWARE).isEmpty()) {
+					softwareObservable = setSoftwareObservable(record.get(LOGIN_SOFTWARE), "LoginEvent");
+					observables
+						.withObservables(softwareObservable);
+				}
 
-			/* IP */
-			if (!record.get(FROM_IP).isEmpty()) {
-				ipObservable = setIpObservable(record.get(FROM_IP), "LoginEvent");
-				observables
-					.withObservables(ipObservable);
-			}
+				/* IP */
+				if (!record.get(FROM_IP).isEmpty()) {
+					ipObservable = setIpObservable(record.get(FROM_IP), "LoginEvent");
+					observables
+						.withObservables(ipObservable);
+				}
 
-			/* host */
-			if (!record.get(FROM_IP).isEmpty()) {
-				hostAtIpObservable = setHostObservable("host_at_" + record.get(FROM_IP), "LoginEvent");	
-			}
+				/* host */
+				if (!record.get(FROM_IP).isEmpty()) {
+					hostAtIpObservable = setHostObservable("host_at_" + record.get(FROM_IP), "LoginEvent");	
+				}
 
-			if (accountObservable != null) {
-				List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
+				if (accountObservable != null) {
+					List<RelatedObjectType> relatedObjects = new ArrayList<RelatedObjectType>();
 
-				/* account -> hostname relation */
+					/* account -> hostname relation */
+					if (hostnameObservable != null) {
+						relatedObjects.add(
+							setRelatedObject(hostnameObservable.getId())  
+								.withState(new ControlledVocabularyStringType()
+									.withValue(record.get(STATUS)))
+								.withProperties(new UserSession()
+									.withLoginTime(new DateTimeObjectPropertyType()
+										.withValue(record.get(DATE_TIME)))));
+					}
+					
+					/* account -> ip relation */
+					if (ipObservable != null) {
+						relatedObjects.add(
+							setRelatedObject(hostAtIpObservable.getId()) 
+								.withState(new ControlledVocabularyStringType()
+									.withValue(record.get(STATUS)))
+								.withProperties(new UserSession()
+									.withLoginTime(new DateTimeObjectPropertyType()
+										.withValue(record.get(DATE_TIME)))));
+					}
+					
+					accountObservable
+						.getObject()
+							.withRelatedObjects(new RelatedObjectsType()
+								.withRelatedObjects(relatedObjects));
+					observables
+						.withObservables(accountObservable);
+				}
+
+				/* host -> software relation */
 				if (hostnameObservable != null) {
-					relatedObjects.add(
-						setRelatedObject(hostnameObservable.getId())  
-							.withState(new ControlledVocabularyStringType()
-								.withValue(record.get(STATUS)))
-							.withProperties(new UserSession()
-								.withLoginTime(new DateTimeObjectPropertyType()
-									.withValue(record.get(DATE_TIME)))));
+					if (softwareObservable != null) {
+						hostnameObservable
+							.getObject()
+								.withRelatedObjects(new RelatedObjectsType()
+									.withRelatedObjects(setRelatedObject(softwareObservable.getId())));
+					}
+					observables
+						.withObservables(hostnameObservable);
 				}
-				
-				/* account -> ip relation */
-				if (ipObservable != null) {
-					relatedObjects.add(
-						setRelatedObject(hostAtIpObservable.getId()) 
-							.withState(new ControlledVocabularyStringType()
-								.withValue(record.get(STATUS)))
-							.withProperties(new UserSession()
-								.withLoginTime(new DateTimeObjectPropertyType()
-									.withValue(record.get(DATE_TIME)))));
-				}
-				
-				accountObservable
-					.getObject()
-						.withRelatedObjects(new RelatedObjectsType()
-							.withRelatedObjects(relatedObjects));
-				observables
-					.withObservables(accountObservable);
-			}
 
-			/* host -> software relation */
-			if (hostnameObservable != null) {
-				if (softwareObservable != null) {
-					hostnameObservable
-						.getObject()
-							.withRelatedObjects(new RelatedObjectsType()
-								.withRelatedObjects(setRelatedObject(softwareObservable.getId())));
+				/* hostAtIp -> ip */
+				if (hostAtIpObservable != null) {
+					if (ipObservable != null) {
+						hostAtIpObservable
+							.getObject()
+								.withRelatedObjects(new RelatedObjectsType()
+									.withRelatedObjects(
+										setRelatedObject(ipObservable.getId())));
+					}
+					observables
+						.withObservables(hostAtIpObservable);
 				}
-				observables
-					.withObservables(hostnameObservable);
-			}
-
-			/* hostAtIp -> ip */
-			if (hostAtIpObservable != null) {
-				if (ipObservable != null) {
-					hostAtIpObservable
-						.getObject()
-							.withRelatedObjects(new RelatedObjectsType()
-								.withRelatedObjects(
-									setRelatedObject(ipObservable.getId())));
-				}
-				observables
-					.withObservables(hostAtIpObservable);
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 		if (!observables.getObservables().isEmpty()) {

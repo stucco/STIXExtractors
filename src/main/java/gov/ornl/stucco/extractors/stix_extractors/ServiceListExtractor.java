@@ -79,39 +79,43 @@ public class ServiceListExtractor extends STIXUtils {
 		observables = initObservables();
 
 		for (int i = start; i < records.size(); i++) {
-			record = records.get(i);
-			
-			if (record.get(PORT_NUMBER).isEmpty() || record.get(SERVICE_NAME).isEmpty()) {
-				continue;
+			try {
+				record = records.get(i);
+				
+				if (record.get(PORT_NUMBER).isEmpty() || record.get(SERVICE_NAME).isEmpty()) {
+					continue;
+				}
+
+				/* Port */
+				Observable portObservable = setPortObservable(record.get(PORT_NUMBER), "service_list");
+
+				CustomPropertiesType properties = new CustomPropertiesType()
+						.withProperties(setCustomProperty("Notes", record.get(ASSIGNMENT_NOTES)))
+						.withProperties(setCustomProperty("Reference", record.get(REFERENCE)));
+		
+				System.out.println(record.get(SERVICE_NAME) + " " + properties.getProperties().isEmpty());
+				/* Process(Service) */
+				Observable processObservable = new Observable()
+					.withId(new QName("gov.ornl.stucco", "service-" + UUID.randomUUID().toString(), "stucco"))	
+					.withTitle("Service")
+					.withObservableSources(setMeasureSourceType("service_list"))
+					.withObject(new ObjectType()
+						.withId(new QName("gov.ornl.stucco", "service-" + makeId(record.get(SERVICE_NAME)), "stucco"))
+						.withDescription((record.get(DESCRIPTION).isEmpty()) ? null : new org.mitre.cybox.common_2.StructuredTextType()
+							.withValue(record.get(DESCRIPTION))) 
+						.withProperties(new ProcessObjectType()
+							.withName(new StringObjectPropertyType()
+								.withValue(record.get(SERVICE_NAME)))
+							.withCustomProperties((properties.getProperties().isEmpty()) ? null : properties)
+							.withPortList(new PortListType()
+								.withPorts(new Port()
+									.withObjectReference(portObservable.getId())))));
+				observables
+					.withObservables(portObservable)
+					.withObservables(processObservable);
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
-
-			/* Port */
-			Observable portObservable = setPortObservable(record.get(PORT_NUMBER), "service_list");
-
-			CustomPropertiesType properties = new CustomPropertiesType()
-					.withProperties(setCustomProperty("Notes", record.get(ASSIGNMENT_NOTES)))
-					.withProperties(setCustomProperty("Reference", record.get(REFERENCE)));
-	
-			System.out.println(record.get(SERVICE_NAME) + " " + properties.getProperties().isEmpty());
-			/* Process(Service) */
-			Observable processObservable = new Observable()
-				.withId(new QName("gov.ornl.stucco", "service-" + UUID.randomUUID().toString(), "stucco"))	
-				.withTitle("Service")
-				.withObservableSources(setMeasureSourceType("service_list"))
-				.withObject(new ObjectType()
-					.withId(new QName("gov.ornl.stucco", "service-" + makeId(record.get(SERVICE_NAME)), "stucco"))
-					.withDescription((record.get(DESCRIPTION).isEmpty()) ? null : new org.mitre.cybox.common_2.StructuredTextType()
-						.withValue(record.get(DESCRIPTION))) 
-					.withProperties(new ProcessObjectType()
-						.withName(new StringObjectPropertyType()
-							.withValue(record.get(SERVICE_NAME)))
-						.withCustomProperties((properties.getProperties().isEmpty()) ? null : properties)
-						.withPortList(new PortListType()
-							.withPorts(new Port()
-								.withObjectReference(portObservable.getId())))));
-			observables
-				.withObservables(portObservable)
-				.withObservables(processObservable);
 		}
 
 		if (!observables.getObservables().isEmpty()) {

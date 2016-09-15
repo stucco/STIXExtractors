@@ -71,17 +71,20 @@ public class CIFZeusTrackerExtractor extends STIXUtils {
 		List<Observable> ipIdList = new ArrayList<Observable>();
 
 	 	for (int i = start; i < records.size(); i++)	{
-		
-			record = records.get(i);
+			try {
+				record = records.get(i);
 
-			//avoid empty lines and comments
-			if (!record.get(IP).isEmpty() && !record.get(IP).startsWith("#")) {
-			//	observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Botnet", "zeustracker.abuse.ch");
-				Observable observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "zeustracker.abuse.ch");
-				observables
-					.withObservables(observable);
-				ipIdList.add(new Observable()
-					.withIdref(observable.getId()));
+				//avoid empty lines and comments
+				if (!record.get(IP).isEmpty() && !record.get(IP).startsWith("#")) {
+				//	observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "Botnet", "zeustracker.abuse.ch");
+					Observable observable = setIpObservable(record.get(IP), ipToLong(record.get(IP)), "zeustracker.abuse.ch");
+					observables
+						.withObservables(observable);
+					ipIdList.add(new Observable()
+						.withIdref(observable.getId()));
+				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 		if (!ipIdList.isEmpty()) {
