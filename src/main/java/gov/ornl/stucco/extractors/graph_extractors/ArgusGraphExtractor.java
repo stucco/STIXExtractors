@@ -98,130 +98,133 @@ public class ArgusGraphExtractor {
 		source.add("Argus");
 						
 	 	for (int i = start; i < records.size(); i++) {
+	 		try {
+				record = records.get(i);
 
-			record = records.get(i);
+				String srcIp = null;
+				String srcPort = null;
+				String dstIp = null;
+				String dstPort = null;
 
-			String srcIp = null;
-			String srcPort = null;
-			String dstIp = null;
-			String dstPort = null;
-
-			String srcIpID = null;
-			String srcPortID = null;
-			String dstIpID = null;
-			String dstPortID = null;
-			String srcAddressID = null;
-			String dstAddressID = null;
-			String flowID = null;
-						
-			/* source ip */			
-			if (!record.get(SOURCE_ADDRESS).isEmpty()) {
-				srcIp = record.get(SOURCE_ADDRESS);
-				if (vertNames.containsKey(srcIp)) {
-					srcIpID = vertNames.get(srcIp);
-				} else {
-					srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "Argus");
-					vertices.put(srcIpID, srcIpJson);
-					vertNames.put(srcIp, srcIpID);
+				String srcIpID = null;
+				String srcPortID = null;
+				String dstIpID = null;
+				String dstPortID = null;
+				String srcAddressID = null;
+				String dstAddressID = null;
+				String flowID = null;
+							
+				/* source ip */			
+				if (!record.get(SOURCE_ADDRESS).isEmpty()) {
+					srcIp = record.get(SOURCE_ADDRESS);
+					if (vertNames.containsKey(srcIp)) {
+						srcIpID = vertNames.get(srcIp);
+					} else {
+						srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "Argus");
+						vertices.put(srcIpID, srcIpJson);
+						vertNames.put(srcIp, srcIpID);
+					}
 				}
-			}
 
-			/* source port */
-				if (!record.get(SOURCE_PORT).isEmpty()) {
-				srcPort = record.get(SOURCE_PORT);
-				if (vertNames.containsKey(srcPort)) {
-					srcPortID = vertNames.get(srcPort);
-				} else {
-					srcPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject srcPortJson = GraphUtils.setPortJson(srcPortID, srcPort, source, "Argus");
-					vertices.put(srcPortID, srcPortJson);
-					vertNames.put(srcPort, srcPortID);
+				/* source port */
+					if (!record.get(SOURCE_PORT).isEmpty()) {
+					srcPort = record.get(SOURCE_PORT);
+					if (vertNames.containsKey(srcPort)) {
+						srcPortID = vertNames.get(srcPort);
+					} else {
+						srcPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject srcPortJson = GraphUtils.setPortJson(srcPortID, srcPort, source, "Argus");
+						vertices.put(srcPortID, srcPortJson);
+						vertNames.put(srcPort, srcPortID);
+					}
 				}
-			}
 
-			/* destination ip */
-			if (!record.get(DESTINATION_ADDRESS).isEmpty()) {
-				dstIp = record.get(DESTINATION_ADDRESS);
-				if (vertNames.containsKey(dstIp)) {
-					dstIpID = vertNames.get(dstIp);
-				} else {
-					dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "Argus");
-					vertices.put(dstIpID, dstIpJson);
-					vertNames.put(dstIpID, dstIp);
+				/* destination ip */
+				if (!record.get(DESTINATION_ADDRESS).isEmpty()) {
+					dstIp = record.get(DESTINATION_ADDRESS);
+					if (vertNames.containsKey(dstIp)) {
+						dstIpID = vertNames.get(dstIp);
+					} else {
+						dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "Argus");
+						vertices.put(dstIpID, dstIpJson);
+						vertNames.put(dstIpID, dstIp);
+					}
 				}
-			}
 
-			/* destination port */
-			if (!record.get(DESTINATION_PORT).isEmpty()) {
-				dstPort = record.get(DESTINATION_PORT);
-				if (vertNames.containsKey(dstPort)) {
-					dstPortID = vertNames.get(dstPort);
-				} else {
-					dstPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "Argus");
-					vertices.put(dstPortID, dstPortJson);
-					vertNames.put(dstPort, dstPortID);
+				/* destination port */
+				if (!record.get(DESTINATION_PORT).isEmpty()) {
+					dstPort = record.get(DESTINATION_PORT);
+					if (vertNames.containsKey(dstPort)) {
+						dstPortID = vertNames.get(dstPort);
+					} else {
+						dstPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "Argus");
+						vertices.put(dstPortID, dstPortJson);
+						vertNames.put(dstPort, dstPortID);
+					}
 				}
-			}
 
-			/* source address */
-			if (srcIpID != null && srcPortID != null) {
-				String address = GraphUtils.buildString(srcIp, ":", srcPort);
-				if (vertNames.containsKey(address)) {
-					srcAddressID = vertNames.get(address);
-				} else {
-					srcAddressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject srcAddressJson = GraphUtils.setAddressJson(srcAddressID, srcIp, srcIpID, srcPort, srcPortID, source, "Argus");
-					vertices.put(srcAddressID, srcAddressJson);
-					vertNames.put(address, srcAddressID);
-					/* source address -> ip edge */
-					JSONObject edge = GraphUtils.setEdgeJson(srcAddressID,  "Observable", srcIpID, "IP", "Sub-Observable");
-					edges.put(edge);
-					/* source address -> port edge */
-					edge = GraphUtils.setEdgeJson(srcAddressID, "Observable", srcPortID, "Observable", "Sub-Observable");
-					edges.put(edge);
+				/* source address */
+				if (srcIpID != null && srcPortID != null) {
+					String address = GraphUtils.buildString(srcIp, ":", srcPort);
+					if (vertNames.containsKey(address)) {
+						srcAddressID = vertNames.get(address);
+					} else {
+						srcAddressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject srcAddressJson = GraphUtils.setAddressJson(srcAddressID, srcIp, srcIpID, srcPort, srcPortID, source, "Argus");
+						vertices.put(srcAddressID, srcAddressJson);
+						vertNames.put(address, srcAddressID);
+						/* source address -> ip edge */
+						JSONObject edge = GraphUtils.setEdgeJson(srcAddressID,  "Observable", srcIpID, "IP", "Sub-Observable");
+						edges.put(edge);
+						/* source address -> port edge */
+						edge = GraphUtils.setEdgeJson(srcAddressID, "Observable", srcPortID, "Observable", "Sub-Observable");
+						edges.put(edge);
+					}
 				}
-			}
 
-			/* destination address */
-			if (dstIpID != null && dstPortID != null) {
-				String address = GraphUtils.buildString(dstIp, ":", dstPort);
-				if (vertNames.containsKey(address)) {
-					dstAddressID = vertNames.get(address);
-				} else {
-					dstAddressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstAddressJson = GraphUtils.setAddressJson(dstAddressID, dstIp, dstIpID, dstPort, dstPortID, source, "Argus");
-					vertices.put(dstAddressID, dstAddressJson);
-					vertNames.put(address, dstAddressID);
-					/* destination address -> ip edge */
-					JSONObject edge = GraphUtils.setEdgeJson(dstAddressID, "Observable", dstIpID, "IP", "Sub-Observable");
-					edges.put(edge);                        
-					/* destination address -> port edge */                                                                                                  
-					edge = GraphUtils.setEdgeJson(dstAddressID, "Observable", dstPortID, "Observable", "Sub-Observable");
-					edges.put(edge);
+				/* destination address */
+				if (dstIpID != null && dstPortID != null) {
+					String address = GraphUtils.buildString(dstIp, ":", dstPort);
+					if (vertNames.containsKey(address)) {
+						dstAddressID = vertNames.get(address);
+					} else {
+						dstAddressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dstAddressJson = GraphUtils.setAddressJson(dstAddressID, dstIp, dstIpID, dstPort, dstPortID, source, "Argus");
+						vertices.put(dstAddressID, dstAddressJson);
+						vertNames.put(address, dstAddressID);
+						/* destination address -> ip edge */
+						JSONObject edge = GraphUtils.setEdgeJson(dstAddressID, "Observable", dstIpID, "IP", "Sub-Observable");
+						edges.put(edge);                        
+						/* destination address -> port edge */                                                                                                  
+						edge = GraphUtils.setEdgeJson(dstAddressID, "Observable", dstPortID, "Observable", "Sub-Observable");
+						edges.put(edge);
+					}
 				}
-			}
 
-			/* flow */
-			if (srcAddressID != null && dstAddressID != null) {
-				String flow = GraphUtils.buildString(srcIp, ":", srcPort, "_through_", dstIp, ":", dstPort);
-				if (vertNames.containsKey(flow)) {
-					flowID = vertNames.get(flow);
-				} else {
-					flowID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					String protocol = (record.get(PROTOCOL).isEmpty()) ? null : record.get(PROTOCOL);
-					JSONObject flowJson = GraphUtils.setFlowJson(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, source, "Argus", record, headersSet);
-					vertices.put(flowID, flowJson);
-					vertNames.put(flowJson.getString("name"), flowID);
-					/* flow -> source address edge */
-					JSONObject edge = GraphUtils.setEdgeJson(flowID, "Observable", srcAddressID, "Observable", "Sub-Observable");
-					edges.put(edge);
-					/* flow -> destination address edge */
-					edge = GraphUtils.setEdgeJson(flowID, "Observable", dstAddressID, "Observable", "Sub-Observable");
-					edges.put(edge);
+				/* flow */
+				if (srcAddressID != null && dstAddressID != null) {
+					String flow = GraphUtils.buildString(srcIp, ":", srcPort, "_through_", dstIp, ":", dstPort);
+					if (vertNames.containsKey(flow)) {
+						flowID = vertNames.get(flow);
+					} else {
+						flowID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						String protocol = (record.get(PROTOCOL).isEmpty()) ? null : record.get(PROTOCOL);
+						JSONObject flowJson = GraphUtils.setFlowJson(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, source, "Argus", record, headersSet);
+						vertices.put(flowID, flowJson);
+						vertNames.put(flowJson.getString("name"), flowID);
+						/* flow -> source address edge */
+						JSONObject edge = GraphUtils.setEdgeJson(flowID, "Observable", srcAddressID, "Observable", "Sub-Observable");
+						edges.put(edge);
+						/* flow -> destination address edge */
+						edge = GraphUtils.setEdgeJson(flowID, "Observable", dstAddressID, "Observable", "Sub-Observable");
+						edges.put(edge);
+					}
 				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 

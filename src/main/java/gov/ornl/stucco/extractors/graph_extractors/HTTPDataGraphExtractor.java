@@ -93,170 +93,174 @@ public class HTTPDataGraphExtractor {
 		source.add("HTTPRequest");
 
 		for (int i = start; i < records.size(); i++) {
-			record = records.get(i);
+			try {
+				record = records.get(i);
 
-			if (record.get(SADDR).isEmpty() && record.get(DADDR).isEmpty() && record.get(SERVER_FQDN).isEmpty() && record.get(REQUEST).isEmpty()) {
-				continue;
-			}
-
-			String srcIp = null;
-			String dstIp = null;
-			String dstPort = null;
-			String dnsName = null;
-			String uri = null;
-			String fullData = null;
-			String referer = null;
-
-			String srcIpID = null;
-			String dstIpID = null;
-			String dstPortID = null;
-			String dnsNameID = null;
-			String uriID = null;
-			String httpSessionID = null;
-			String refererID = null;
-		
-			/* source ip vert */
-			if (!record.get(SADDR).isEmpty()) {
-				srcIp = record.get(SADDR);
-				if (vertNames.containsKey(srcIp)) {
-					srcIpID = vertNames.get(srcIp);
-				} else {
-					srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "HTTPRequest");
-					vertices.put(srcIpID, srcIpJson);
-					vertNames.put(srcIp, srcIpID);
-				}
-			}
-
-			/* destination ip vert */
-			if (!record.get(DADDR).isEmpty()) {
-				dstIp = record.get(DADDR);
-				if (vertNames.containsKey(dstIp)) {
-					dstIpID = vertNames.get(dstIp);
-				} else {
-					dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "HTTPRequest");
-					vertices.put(dstIpID, dstIpJson);
-					vertNames.put(dstIpID, dstIp);
-				}
-			}
-
-			/* destination port vert */
-			if (!record.get(DPORT).isEmpty()) {
-				dstPort = record.get(DPORT);
-				if (vertNames.containsKey(dstPort)) {
-					dstPortID = vertNames.get(dstPort);
-				} else {
-					dstPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "HTTPRequest");
-					vertices.put(dstPortID, dstPortJson);
-					vertNames.put(dstPort, dstPortID);
-				}
-			}
-
-			/* server domain name vert */
-			if (!record.get(SERVER_FQDN).isEmpty()) {
-				dnsName = record.get(SERVER_FQDN);
-				if (vertNames.containsKey(dnsName)) {
-					dnsNameID = vertNames.get(dnsName);
-				} else {
-					dnsNameID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dnsNameJson = GraphUtils.setDNSNameJson(dnsNameID, dnsName, dstIpID, source, "HTTPRequest");
-					vertices.put(dnsNameID, dnsNameJson);
-					vertNames.put(dnsName, dnsNameID);
-				}
-				/* server domain name -> ip address edge */
-				String edgeName = GraphUtils.buildString(dnsNameID, dstIpID);
-				boolean newEdge = !edgeNames.contains(edgeName);
-				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(dnsNameID,  "Observable", dstIpID, "IP", "Sub-Observable");
-					edges.put(edge);
-					edgeNames.add(edgeName);
-				}
-			}
-
-			/* requested uri vertex */
-			if (!record.get(REQUEST).isEmpty()) {
-				uri = record.get(REQUEST);
-				if (vertNames.containsKey(uri)) {
-					uriID = vertNames.get(uri);
-				} else {
-					uriID =  GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject uriJson = GraphUtils.setURIJson(uriID, uri, source);
-					vertices.put(uriID, uriJson);
-					vertNames.put(uri, uriID);
-				}
-			}
-
-			/* requested uri vertex */
-			if (!record.get(REFERER).isEmpty()) {
-				referer = record.get(REFERER);
-				if (vertNames.containsKey(referer)) {
-					refererID = vertNames.get(referer);
-				} else {
-					refererID =  GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject uriJson = GraphUtils.setURIJson(refererID, referer, source);
-					vertices.put(refererID, uriJson);
-					vertNames.put(referer, refererID);
-				}
-			}
-
-			/* http session vertex */
-			if (!record.get(FULL_DATA).isEmpty()) {
-				fullData = record.get(FULL_DATA);
-				if (vertNames.containsKey(fullData)) {
-					httpSessionID = vertNames.get(fullData);
-				} else {
-					httpSessionID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					String sourceDocument = setHTTPSessionObservable(httpSessionID, record, srcIpID, dnsNameID, dstPortID, uriID, refererID);
-					JSONObject httpSessionJson = GraphUtils.setHTTPSessionJson(httpSessionID, source, "HTTPRequest", fullData, sourceDocument);
-
-
-
-					vertices.put(httpSessionID, httpSessionJson);
-					vertNames.put(fullData, httpSessionID);
-				}
-				/* http session -> source ip edge */
-				String edgeName = GraphUtils.buildString(httpSessionID, srcIpID);
-				boolean newEdge = !edgeNames.contains(edgeName);
-				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", srcIpID, "IP", "Sub-Observable");
-					edges.put(edge);
-					edgeNames.add(edgeName);
-				}
-				/* http session -> server domain name edge */
-				edgeName = GraphUtils.buildString(httpSessionID, dnsNameID);
-				newEdge =  !edgeNames.contains(edgeName);
-				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", dnsNameID, "Observable", "Sub-Observable");
-					edges.put(edge);
-					edgeNames.add(edgeName);
-				}
-				/* http session -> server port edge */
-				edgeName = GraphUtils.buildString(httpSessionID, dstPortID);
-				newEdge = !edgeNames.contains(edgeName);
-				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", dstPortID, "Observable", "Sub-Observable");
-					edges.put(edge);
-					edgeNames.add(edgeName);
-				}
-				/* http session -> requested uri edge */
-				edgeName = GraphUtils.buildString(httpSessionID, uriID);
-				newEdge =  !edgeNames.contains(edgeName);
-				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", uriID, "Observable", "Sub-Observable");
-					edges.put(edge);
-					edgeNames.add(edgeName);
+				if (record.get(SADDR).isEmpty() && record.get(DADDR).isEmpty() && record.get(SERVER_FQDN).isEmpty() && record.get(REQUEST).isEmpty()) {
+					continue;
 				}
 
-				/* http session -> referer uri edge */
-				edgeName = GraphUtils.buildString(httpSessionID, refererID);
-				newEdge =  !edgeNames.contains(edgeName);
-				if (newEdge) {
-					JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", refererID, "Observable", "Sub-Observable");
-					edges.put(edge);
-					edgeNames.add(edgeName);
+				String srcIp = null;
+				String dstIp = null;
+				String dstPort = null;
+				String dnsName = null;
+				String uri = null;
+				String fullData = null;
+				String referer = null;
+
+				String srcIpID = null;
+				String dstIpID = null;
+				String dstPortID = null;
+				String dnsNameID = null;
+				String uriID = null;
+				String httpSessionID = null;
+				String refererID = null;
+			
+				/* source ip vert */
+				if (!record.get(SADDR).isEmpty()) {
+					srcIp = record.get(SADDR);
+					if (vertNames.containsKey(srcIp)) {
+						srcIpID = vertNames.get(srcIp);
+					} else {
+						srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "HTTPRequest");
+						vertices.put(srcIpID, srcIpJson);
+						vertNames.put(srcIp, srcIpID);
+					}
 				}
+
+				/* destination ip vert */
+				if (!record.get(DADDR).isEmpty()) {
+					dstIp = record.get(DADDR);
+					if (vertNames.containsKey(dstIp)) {
+						dstIpID = vertNames.get(dstIp);
+					} else {
+						dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "HTTPRequest");
+						vertices.put(dstIpID, dstIpJson);
+						vertNames.put(dstIpID, dstIp);
+					}
+				}
+
+				/* destination port vert */
+				if (!record.get(DPORT).isEmpty()) {
+					dstPort = record.get(DPORT);
+					if (vertNames.containsKey(dstPort)) {
+						dstPortID = vertNames.get(dstPort);
+					} else {
+						dstPortID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dstPortJson = GraphUtils.setPortJson(dstPortID, dstPort, source, "HTTPRequest");
+						vertices.put(dstPortID, dstPortJson);
+						vertNames.put(dstPort, dstPortID);
+					}
+				}
+
+				/* server domain name vert */
+				if (!record.get(SERVER_FQDN).isEmpty()) {
+					dnsName = record.get(SERVER_FQDN);
+					if (vertNames.containsKey(dnsName)) {
+						dnsNameID = vertNames.get(dnsName);
+					} else {
+						dnsNameID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dnsNameJson = GraphUtils.setDNSNameJson(dnsNameID, dnsName, dstIpID, source, "HTTPRequest");
+						vertices.put(dnsNameID, dnsNameJson);
+						vertNames.put(dnsName, dnsNameID);
+					}
+					/* server domain name -> ip address edge */
+					String edgeName = GraphUtils.buildString(dnsNameID, dstIpID);
+					boolean newEdge = !edgeNames.contains(edgeName);
+					if (newEdge) {
+						JSONObject edge = GraphUtils.setEdgeJson(dnsNameID,  "Observable", dstIpID, "IP", "Sub-Observable");
+						edges.put(edge);
+						edgeNames.add(edgeName);
+					}
+				}
+
+				/* requested uri vertex */
+				if (!record.get(REQUEST).isEmpty()) {
+					uri = record.get(REQUEST);
+					if (vertNames.containsKey(uri)) {
+						uriID = vertNames.get(uri);
+					} else {
+						uriID =  GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject uriJson = GraphUtils.setURIJson(uriID, uri, source);
+						vertices.put(uriID, uriJson);
+						vertNames.put(uri, uriID);
+					}
+				}
+
+				/* requested uri vertex */
+				if (!record.get(REFERER).isEmpty()) {
+					referer = record.get(REFERER);
+					if (vertNames.containsKey(referer)) {
+						refererID = vertNames.get(referer);
+					} else {
+						refererID =  GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject uriJson = GraphUtils.setURIJson(refererID, referer, source);
+						vertices.put(refererID, uriJson);
+						vertNames.put(referer, refererID);
+					}
+				}
+
+				/* http session vertex */
+				if (!record.get(FULL_DATA).isEmpty()) {
+					fullData = record.get(FULL_DATA);
+					if (vertNames.containsKey(fullData)) {
+						httpSessionID = vertNames.get(fullData);
+					} else {
+						httpSessionID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						String sourceDocument = setHTTPSessionObservable(httpSessionID, record, srcIpID, dnsNameID, dstPortID, uriID, refererID);
+						JSONObject httpSessionJson = GraphUtils.setHTTPSessionJson(httpSessionID, source, "HTTPRequest", fullData, sourceDocument);
+
+
+
+						vertices.put(httpSessionID, httpSessionJson);
+						vertNames.put(fullData, httpSessionID);
+					}
+					/* http session -> source ip edge */
+					String edgeName = GraphUtils.buildString(httpSessionID, srcIpID);
+					boolean newEdge = !edgeNames.contains(edgeName);
+					if (newEdge) {
+						JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", srcIpID, "IP", "Sub-Observable");
+						edges.put(edge);
+						edgeNames.add(edgeName);
+					}
+					/* http session -> server domain name edge */
+					edgeName = GraphUtils.buildString(httpSessionID, dnsNameID);
+					newEdge =  !edgeNames.contains(edgeName);
+					if (newEdge) {
+						JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", dnsNameID, "Observable", "Sub-Observable");
+						edges.put(edge);
+						edgeNames.add(edgeName);
+					}
+					/* http session -> server port edge */
+					edgeName = GraphUtils.buildString(httpSessionID, dstPortID);
+					newEdge = !edgeNames.contains(edgeName);
+					if (newEdge) {
+						JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", dstPortID, "Observable", "Sub-Observable");
+						edges.put(edge);
+						edgeNames.add(edgeName);
+					}
+					/* http session -> requested uri edge */
+					edgeName = GraphUtils.buildString(httpSessionID, uriID);
+					newEdge =  !edgeNames.contains(edgeName);
+					if (newEdge) {
+						JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", uriID, "Observable", "Sub-Observable");
+						edges.put(edge);
+						edgeNames.add(edgeName);
+					}
+
+					/* http session -> referer uri edge */
+					edgeName = GraphUtils.buildString(httpSessionID, refererID);
+					newEdge =  !edgeNames.contains(edgeName);
+					if (newEdge) {
+						JSONObject edge = GraphUtils.setEdgeJson(httpSessionID, "Observable", refererID, "Observable", "Sub-Observable");
+						edges.put(edge);
+						edgeNames.add(edgeName);
+					}
+				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 

@@ -83,62 +83,65 @@ public class BannerGraphExtractor {
 		source.add("Banner");
 	 	
 		for (int i = start; i < records.size(); i++) {
-			
-			record = records.get(i);
-			if (record.get(ADDR).isEmpty() || record.get(APP_PROTOCOL).isEmpty()) {
-				continue;
-			}
-			
-			String ipID = null;
-			String portID = null;
-			String addressID = null;
+			try {
+				record = records.get(i);
+				if (record.get(ADDR).isEmpty() || record.get(APP_PROTOCOL).isEmpty()) {
+					continue;
+				}
+				
+				String ipID = null;
+				String portID = null;
+				String addressID = null;
 
-			String ip = null;
-			String port = null;
-			String address = null;
+				String ip = null;
+				String port = null;
+				String address = null;
 
-			/* ip */
-			ip = record.get(ADDR);
-			if (vertNames.containsKey(ip)) {
-				ipID = vertNames.get(ip);
-			} else {
-				ipID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-				JSONObject ipJson = GraphUtils.setIpJson(ipID, ip, source, "Banner");
-				vertices.put(ipID, ipJson);
-				vertNames.put(ip, ipID);
-			}
- 
-			/* port */
-			port = record.get(APP_PROTOCOL);
-			if (vertNames.containsKey(port)) {
-				portID = vertNames.get(port);
-			} else {
-				portID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-				JSONObject portJson = GraphUtils.setPortJson(portID, port, source, "Banner");
-				vertices.put(portID, portJson);
-				vertNames.put(port, portID);
-			}
+				/* ip */
+				ip = record.get(ADDR);
+				if (vertNames.containsKey(ip)) {
+					ipID = vertNames.get(ip);
+				} else {
+					ipID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					JSONObject ipJson = GraphUtils.setIpJson(ipID, ip, source, "Banner");
+					vertices.put(ipID, ipJson);
+					vertNames.put(ip, ipID);
+				}
+	 
+				/* port */
+				port = record.get(APP_PROTOCOL);
+				if (vertNames.containsKey(port)) {
+					portID = vertNames.get(port);
+				} else {
+					portID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					JSONObject portJson = GraphUtils.setPortJson(portID, port, source, "Banner");
+					vertices.put(portID, portJson);
+					vertNames.put(port, portID);
+				}
 
-			/* address */
-			address = GraphUtils.buildString(ip, ":", port);
-			if (vertNames.containsKey(address)) {
-				addressID = vertNames.get(address);
-			} else {
-				addressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-				Set<Object> description = new HashSet<Object>();
-				String d = GraphUtils.buildString(ip,", port ", port);
-				description.add(d);
-				String banner = record.get(BANNER);
-				String sourceDocument = TemplatesUtils.setBannerAddressObservable(addressID, "Banner", d, banner, ipID, portID);
-				JSONObject addressJson = GraphUtils.setObservableJson(address, "Socket Address", sourceDocument, description, source);
-				vertices.put(addressID, addressJson);
-				vertNames.put(address, addressID);
-				/* source address -> ip edge */
-				JSONObject edge = GraphUtils.setEdgeJson(addressID,  "Observable", ipID, "IP", "Sub-Observable");
-				edges.put(edge);
-				/* source address -> port edge */
-				edge = GraphUtils.setEdgeJson(addressID, "Observable", portID, "Observable", "Sub-Observable");
-				edges.put(edge);
+				/* address */
+				address = GraphUtils.buildString(ip, ":", port);
+				if (vertNames.containsKey(address)) {
+					addressID = vertNames.get(address);
+				} else {
+					addressID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					Set<Object> description = new HashSet<Object>();
+					String d = GraphUtils.buildString(ip,", port ", port);
+					description.add(d);
+					String banner = record.get(BANNER);
+					String sourceDocument = TemplatesUtils.setBannerAddressObservable(addressID, "Banner", d, banner, ipID, portID);
+					JSONObject addressJson = GraphUtils.setObservableJson(address, "Socket Address", sourceDocument, description, source);
+					vertices.put(addressID, addressJson);
+					vertNames.put(address, addressID);
+					/* source address -> ip edge */
+					JSONObject edge = GraphUtils.setEdgeJson(addressID,  "Observable", ipID, "IP", "Sub-Observable");
+					edges.put(edge);
+					/* source address -> port edge */
+					edge = GraphUtils.setEdgeJson(addressID, "Observable", portID, "Observable", "Sub-Observable");
+					edges.put(edge);
+				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 

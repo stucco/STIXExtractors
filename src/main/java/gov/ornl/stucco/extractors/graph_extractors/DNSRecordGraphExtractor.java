@@ -93,111 +93,115 @@ private static String[] HEADERS = {"filename", "recnum", "file_type", "amp_versi
 	 	
 		for (int i = start; i < records.size(); i++) {
 
-			record = records.get(i);
-			if (record.get(RQFQDN).isEmpty() && record.get(RADDR).isEmpty()) {
-				continue;
-			}
-			
-			String srcIpID = null;
-			String dstIpID = null;
-			String reqIpID = null;
-			String dnsNameID = null;
-			String dnsRecordID = null;
+			try {
+				record = records.get(i);
+				if (record.get(RQFQDN).isEmpty() && record.get(RADDR).isEmpty()) {
+					continue;
+				}
+				
+				String srcIpID = null;
+				String dstIpID = null;
+				String reqIpID = null;
+				String dnsNameID = null;
+				String dnsRecordID = null;
 
-			String srcIp = null;
-			String dstIp = null;
-			String reqIp = null;
-			String dnsName = null;
-			String dnsRecordName = null;
+				String srcIp = null;
+				String dstIp = null;
+				String reqIp = null;
+				String dnsName = null;
+				String dnsRecordName = null;
 
-			/* saddr (address of responding DNS server) */
-			if (!record.get(SADDR).isEmpty()) {
-				srcIp = record.get(SADDR);
-				if (vertNames.containsKey(srcIp)) {
-					srcIpID = vertNames.get(srcIp);
+				/* saddr (address of responding DNS server) */
+				if (!record.get(SADDR).isEmpty()) {
+					srcIp = record.get(SADDR);
+					if (vertNames.containsKey(srcIp)) {
+						srcIpID = vertNames.get(srcIp);
+					} else {
+						srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "DNSRecord");
+						vertices.put(srcIpID, srcIpJson);
+						vertNames.put(srcIp, srcIpID);
+					}
+				}
+
+				/* daddr (address of DNS requester) */
+				if (!record.get(DADDR).isEmpty()) {
+					dstIp = record.get(DADDR);
+					if (vertNames.containsKey(dstIp)) {
+						dstIpID = vertNames.get(dstIp);
+					} else {
+						dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+						JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "DNSRecord");
+						vertices.put(dstIpID, dstIpJson);
+						vertNames.put(dstIp, dstIpID);
+					}
+				}
+				
+				/* raddr (requested address) */
+				reqIp = record.get(RADDR);
+				if (vertNames.containsKey(reqIp)) {
+					reqIpID = vertNames.get(reqIp);
 				} else {
-					srcIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject srcIpJson = GraphUtils.setIpJson(srcIpID, srcIp, source, "DNSRecord");
-					vertices.put(srcIpID, srcIpJson);
-					vertNames.put(srcIp, srcIpID);
+					reqIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					JSONObject reqIpJson = GraphUtils.setIpJson(reqIpID, reqIp, source, "DNSRecord");
+					vertices.put(reqIpID, reqIpJson);
+					vertNames.put(reqIp, reqIpID);
 				}
-			}
 
-			/* daddr (address of DNS requester) */
-			if (!record.get(DADDR).isEmpty()) {
-				dstIp = record.get(DADDR);
-				if (vertNames.containsKey(dstIp)) {
-					dstIpID = vertNames.get(dstIp);
+				/* DNSName */
+				dnsName = record.get(RQFQDN);
+				if (vertNames.containsKey(dnsName)) {
+					dnsNameID = vertNames.get(dnsName);
 				} else {
-					dstIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-					JSONObject dstIpJson = GraphUtils.setIpJson(dstIpID, dstIp, source, "DNSRecord");
-					vertices.put(dstIpID, dstIpJson);
-					vertNames.put(dstIp, dstIpID);
+					dnsNameID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					JSONObject dnsNameJson = GraphUtils.setDNSNameJson(dnsNameID, dnsName, null, source, "DNSRecord");
+					vertices.put(dnsNameID, dnsNameJson);
+					vertNames.put(dnsName, dnsNameID);
 				}
-			}
-			
-			/* raddr (requested address) */
-			reqIp = record.get(RADDR);
-			if (vertNames.containsKey(reqIp)) {
-				reqIpID = vertNames.get(reqIp);
-			} else {
-				reqIpID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-				JSONObject reqIpJson = GraphUtils.setIpJson(reqIpID, reqIp, source, "DNSRecord");
-				vertices.put(reqIpID, reqIpJson);
-				vertNames.put(reqIp, reqIpID);
-			}
 
-			/* DNSName */
-			dnsName = record.get(RQFQDN);
-			if (vertNames.containsKey(dnsName)) {
-				dnsNameID = vertNames.get(dnsName);
-			} else {
-				dnsNameID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-				JSONObject dnsNameJson = GraphUtils.setDNSNameJson(dnsNameID, dnsName, null, source, "DNSRecord");
-				vertices.put(dnsNameID, dnsNameJson);
-				vertNames.put(dnsName, dnsNameID);
-			}
-
-			/* DNS Record */
-			dnsRecordName = GraphUtils.buildString(dnsName, "_resolved_to_", reqIp);
-			if (vertNames.containsKey(dnsRecordName)) {
-				dnsRecordID = vertNames.get(dnsRecordName);
-			} else {
-				dnsRecordID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
-				String observableType = "DNS Record";
-				Set<Object> description = new HashSet<Object>();
-				String d = GraphUtils.buildString("Requested domain name ", dnsName, " resolved to IP address ", reqIp);
-				description.add(d); 
-				String sourceDocument = TemplatesUtils.setDNSRecordObservable(dnsRecordID, "DNSRecord", d, record.get(LAST_SEEN_TIMET), dnsNameID, reqIpID, 
-					record.get(RQTYPE), record.get(TTL), record.get(FLAGS), srcIpID, dstIpID);
-				JSONObject dnsRecordJson = GraphUtils.setObservableJson(dnsRecordName, observableType, sourceDocument, description, source);
-				vertices.put(dnsRecordID, dnsRecordJson);
-				vertNames.put(dnsRecordName, dnsRecordID);
-				/* dnsRecord -> dnsName edge */
-				JSONObject edge = GraphUtils.setEdgeJson(dnsRecordID, "Observable", dnsNameID, "Observable", "Sub-Observable");
-				edges.put(edge);
-				/* dnsRecord -> requested ip edge */
-				edge = GraphUtils.setEdgeJson(dnsRecordID, "Observable", reqIpID, "IP", "Sub-Observable");
-				edges.put(edge);
-			}
-
-			/* dnsRecord -> srcIP */
-			if (srcIpID != null) {
-				String edgeName = GraphUtils.buildString(dnsRecordID, srcIpID);
-				if (!edgeNames.contains(edgeName)) {
-					JSONObject edge = GraphUtils.setEdgeJson(dnsRecordID, "Observable", srcIpID, "IP", "Sub-Observable");
+				/* DNS Record */
+				dnsRecordName = GraphUtils.buildString(dnsName, "_resolved_to_", reqIp);
+				if (vertNames.containsKey(dnsRecordName)) {
+					dnsRecordID = vertNames.get(dnsRecordName);
+				} else {
+					dnsRecordID = GraphUtils.buildString("stucco:Observable-", UUID.randomUUID());
+					String observableType = "DNS Record";
+					Set<Object> description = new HashSet<Object>();
+					String d = GraphUtils.buildString("Requested domain name ", dnsName, " resolved to IP address ", reqIp);
+					description.add(d); 
+					String sourceDocument = TemplatesUtils.setDNSRecordObservable(dnsRecordID, "DNSRecord", d, record.get(LAST_SEEN_TIMET), dnsNameID, reqIpID, 
+						record.get(RQTYPE), record.get(TTL), record.get(FLAGS), srcIpID, dstIpID);
+					JSONObject dnsRecordJson = GraphUtils.setObservableJson(dnsRecordName, observableType, sourceDocument, description, source);
+					vertices.put(dnsRecordID, dnsRecordJson);
+					vertNames.put(dnsRecordName, dnsRecordID);
+					/* dnsRecord -> dnsName edge */
+					JSONObject edge = GraphUtils.setEdgeJson(dnsRecordID, "Observable", dnsNameID, "Observable", "Sub-Observable");
 					edges.put(edge);
-					edgeNames.add(edgeName);
+					/* dnsRecord -> requested ip edge */
+					edge = GraphUtils.setEdgeJson(dnsRecordID, "Observable", reqIpID, "IP", "Sub-Observable");
+					edges.put(edge);
 				}
-			}
-			/* dnsRecord -> dstIP */
-			if (dstIpID != null) {
-				String edgeName = GraphUtils.buildString(dnsRecordID, dstIpID);
-				if (!edgeNames.contains(edgeName)) {
-					JSONObject edge = GraphUtils.setEdgeJson(dnsRecordID, "Observable", dstIpID, "IP", "Sub-Observable");
-					edges.put(edge);
-					edgeNames.add(edgeName);
-				}	
+
+				/* dnsRecord -> srcIP */
+				if (srcIpID != null) {
+					String edgeName = GraphUtils.buildString(dnsRecordID, srcIpID);
+					if (!edgeNames.contains(edgeName)) {
+						JSONObject edge = GraphUtils.setEdgeJson(dnsRecordID, "Observable", srcIpID, "IP", "Sub-Observable");
+						edges.put(edge);
+						edgeNames.add(edgeName);
+					}
+				}
+				/* dnsRecord -> dstIP */
+				if (dstIpID != null) {
+					String edgeName = GraphUtils.buildString(dnsRecordID, dstIpID);
+					if (!edgeNames.contains(edgeName)) {
+						JSONObject edge = GraphUtils.setEdgeJson(dnsRecordID, "Observable", dstIpID, "IP", "Sub-Observable");
+						edges.put(edge);
+						edgeNames.add(edgeName);
+					}	
+				}
+			} catch (RuntimeException e) {
+				e.printStackTrace();
 			}
 		}
 
