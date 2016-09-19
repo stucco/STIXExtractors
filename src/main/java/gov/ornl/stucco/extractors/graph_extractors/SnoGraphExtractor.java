@@ -11,7 +11,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
- 
+import java.util.Date;
+
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -22,7 +26,7 @@ import java.io.IOException;
 import org.apache.commons.csv.CSVRecord;
  
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory; 
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -65,9 +69,14 @@ public class SnoGraphExtractor {
 	private static final String DLONG = "dlong";
 	private static final String DISTANCE = "distance";
 
+	private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSSX");
+	private static GregorianCalendar gcalendar;
+
 	private JSONObject graph = null;
 	
 	public SnoGraphExtractor(String snoInfo) { 
+		gcalendar = new GregorianCalendar();
+
 		graph = extract(snoInfo);
 	}
 					
@@ -124,7 +133,7 @@ public class SnoGraphExtractor {
 				String srcAddressID = null;
 				String dstAddressID = null;
 				String flowID = null; 
-				String indicatorID = null;
+				String indicatorID = null; 
 
 				/* dropping ipv6 for now */
 				if (record.get(SADDR).contains(":") || record.get(DADDR).contains(":")) {
@@ -261,19 +270,35 @@ public class SnoGraphExtractor {
 				}
 			} catch (RuntimeException e) {
 				e.printStackTrace();
-			} catch (DatatypeConfigurationException e) {
-				e.printStackTrace();
 			}
 		}
 
 		return (vertices.length() == 0 && edges.length() == 0) ? null : graph;
 	}
 
+	public XMLGregorianCalendar convertTimestamp(String time) {
+		try {
+			Date date = format.parse(time);
+			gcalendar.setTimeInMillis(date.getTime());
+
+			return DatatypeFactory.newInstance().newXMLGregorianCalendar(gcalendar);
+		
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (DatatypeConfigurationException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+/*
 	public XMLGregorianCalendar convertTimestamp(String time)	throws DatatypeConfigurationException {
 		Calendar calendar = javax.xml.bind.DatatypeConverter.parseDateTime(time);
 		GregorianCalendar gcalendar = new GregorianCalendar();
 		gcalendar.setTimeInMillis(calendar.getTimeInMillis());
 
-		return null;
+		return DatatypeFactory.newInstance().newXMLGregorianCalendar(gcalendar);
 	}
+*/
 }
