@@ -27,10 +27,10 @@ import org.json.JSONArray;
 public class SituGraphExtractor {
 						
 	private static final Logger logger = LoggerFactory.getLogger(SituGraphExtractor.class);
-	private static final String SIP = "sip";
-	private static final String SPORT = "sport";
-	private static final String DIP = "dip";
-	private static final String DPORT = "dport";
+	private static final String SIP = "srcIP";
+	private static final String SPORT = "srcPort";
+	private static final String DIP = "dstIP";
+	private static final String DPORT = "dstPort";
 	private static final String PROTO = "proto";
 	
 	private JSONObject graph = null;
@@ -62,7 +62,6 @@ public class SituGraphExtractor {
 			while ((line = bufReader.readLine()) != null) {
 				try {
 					JSONObject entry = new JSONObject(line);
-
 					String srcIp = null;
 					String srcPort = null;
 					String dstIp = null;
