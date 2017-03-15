@@ -88,7 +88,10 @@ public abstract class GraphUtils {
 	public static JSONObject setFlowJson(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, Set sourceSet, String sourceString, JSONObject json) {
 		String flowObservable = TemplatesUtils.setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceString, json);
 		
-		return setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceSet, sourceString, flowObservable);
+		JSONObject flow = setFlowObservable(flowID, srcIp, srcPort, srcAddressID, dstIp, dstPort, dstAddressID, protocol, sourceSet, sourceString, flowObservable);
+		flow.put("score", json.opt("score"));
+
+		return flow;
 	}
 
 	private static JSONObject setFlowObservable(String flowID, String srcIp, String srcPort, String srcAddressID, String dstIp, String dstPort, String dstAddressID, String protocol, Set sourceSet, String sourceString, String sourceDocument) {
